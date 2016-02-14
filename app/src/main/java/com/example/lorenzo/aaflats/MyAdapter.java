@@ -34,7 +34,7 @@ public class MyAdapter extends RecyclerView.Adapter<TaskViewHolder> {
     public TaskViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
         View itemView = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.item, viewGroup, false);
         //TaskViewHolder taskViewHolder = new TaskViewHolder(view);
-        return new TaskViewHolder(itemView);
+        return new TaskViewHolder(itemView, mTaskList);
     }
 
     @Override
@@ -49,6 +49,8 @@ public class MyAdapter extends RecyclerView.Adapter<TaskViewHolder> {
             taskViewHolder.taskTitle.setText(task.getTitle());
         }
         taskViewHolder.taskDescription.setText(task.getDescription());
+
+        //taskViewHolder.taskPhoto.setImageResource(task.getPriority()); //Does this work? - nope
         int imgNum = task.getPriority();
         if(imgNum == 3){
             //high priority
@@ -67,15 +69,20 @@ public class MyAdapter extends RecyclerView.Adapter<TaskViewHolder> {
             taskViewHolder.taskButton.setBackgroundResource(R.drawable.done);
         }
 
-        taskViewHolder.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                v.getContext().startActivity(new Intent(v.getContext(), TaskDetails.class)
-                        .putExtra("taskTitle", task));
-
-                System.out.println();
-            }
-        });
+//        taskViewHolder.itemView.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                v.getContext().startActivity(new Intent(v.getContext(), TaskDetails.class)
+//                        .putExtra("parceable_task", task));
+//                //Task pTask = mTaskList.get(getAdapterPosition());
+//                //        Intent intent = new Intent(v.getContext(), TaskDetails.class);
+//                //        intent.putExtra("parceable_task", pTask);
+//                //        intent.putExtra("parceable_tasklist", mTaskList);
+//                //        v.getContext().startActivity(intent);
+//
+//                System.out.println("You clicked on: " + task.getTitle());
+//            }
+//        });
 
     }
 

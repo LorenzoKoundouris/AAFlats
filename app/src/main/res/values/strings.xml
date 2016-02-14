@@ -10,5 +10,6 @@
     <string name="firebase_location" translatable="false">https://aaflats.firebaseio.com/</string>
     <string name="users_location" translatable="false">https://aaflats.firebaseio.com/users</string>
     <string name="tasks_location" translatable="false">https://aaflats.firebaseio.com/tasks</string>
+    <string name="title_activity_create_task">CreateTask</string>
 
 </resources>

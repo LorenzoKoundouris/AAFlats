@@ -29,6 +29,15 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.lorenzo.aaflats.Homepage" />
         </activity>
+        <activity
+            android:name=".CreateTask"
+            android:label="@string/title_activity_create_task"
+            android:parentActivityName=".Homepage"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.lorenzo.aaflats.Homepage" />
+        </activity>
     </application>
 
 </manifest>

@@ -8,10 +8,9 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.TextView;
 
-public class TaskDetails extends AppCompatActivity {
+import java.util.ArrayList;
 
-    public static String taskTitle = "";
-    public static Task viewTask = new Task();
+public class TaskDetails extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,19 +29,13 @@ public class TaskDetails extends AppCompatActivity {
         });
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        Bundle extras = getIntent().getExtras();
+        Bundle intent = getIntent().getExtras();
+        Task parceableTask = (Task) intent.getParcelable("parceable_task");
+        //ArrayList<Task> pTaskList = (ArrayList<Task>) intent.getParcelable("parceable_tasklist");
 
-        if (extras != null) {
-            //viewTask = extras.getParcelable("pTask");
-            taskTitle = extras.getString("taskTitle");
-            //viewTask = extras.getParcelable("pTask");
-        }
-        if (viewTask == null) {
-            throw new IllegalArgumentException("Activity cannot find extras (>.<)");
-        }
         TextView tv = (TextView) findViewById(R.id.tv23);
-        tv.setText(taskTitle);
-        setTitle(taskTitle);
+        tv.setText(parceableTask.getDescription());
+        setTitle(parceableTask.getTitle());
     }
 
 }

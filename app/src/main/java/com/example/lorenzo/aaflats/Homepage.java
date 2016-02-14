@@ -1,5 +1,6 @@
 package com.example.lorenzo.aaflats;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -52,6 +53,8 @@ public class Homepage extends AppCompatActivity
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                Intent intent = new Intent(view.getContext(), CreateTask.class);
+                view.getContext().startActivity(intent);
                 Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
             }
@@ -74,16 +77,15 @@ public class Homepage extends AppCompatActivity
         refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                LoadTasklist();
 
             }
         });
-        refreshLayout.post(new Runnable() {
-            @Override
-            public void run() {
-                refreshLayout.setRefreshing(true);
-            }
-        });
+//        refreshLayout.post(new Runnable() {
+//            @Override
+//            public void run() {
+//                refreshLayout.setRefreshing(true);
+//            }
+//        });
         String t1 = String.valueOf(R.drawable.high_priority_circle);    // 2130837622 - 3
         String t2 = String.valueOf(R.drawable.medium_priority_circle);  // 2130837636 - 2
         String t3 = String.valueOf(R.drawable.low_priority_circle);     // 2130837634 - 1
@@ -93,7 +95,6 @@ public class Homepage extends AppCompatActivity
     private void setupRecyclerview() {
         recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-
     }
 
     private void setupFirebase() {
@@ -114,22 +115,23 @@ public class Homepage extends AppCompatActivity
 //                }
 //                recyclerView.setAdapter(new MyAdapter(mQuery, Task.class));
                 for (DataSnapshot tskSnapshot : dataSnapshot.getChildren()) {
-                    System.out.println("There are " + dataSnapshot.getChildrenCount()
-                            + " tasks - " + dataSnapshot.getValue());
+//                    System.out.println("There are " + dataSnapshot.getChildrenCount()
+//                            + " tasks - " + dataSnapshot.getValue());
                     Task tsk = tskSnapshot.getValue(Task.class);
-                    System.out.println("onData Title: " + tsk.getTitle());
-                    System.out.println("onData Description : " + tsk.getDescription());
+                    //System.out.println("onData Title: " + tsk.getTitle());
+                    //System.out.println("onData Description : " + tsk.getDescription());
                     mTaskList.add(tsk);
-                    System.out.println("taskArrayList contents: " + mTaskList); //It has tasks here
+                    //System.out.println("taskArrayList contents: " + mTaskList); //It has tasks here
 
                     // specify an adapter (see also next example)
                     recyclerView.setAdapter(new MyAdapter(mQuery, mTaskList)); //, Task.class
+                    refreshLayout.setRefreshing(false);
                 }
             }
 
             @Override
             public void onCancelled(FirebaseError firebaseError) {
-                System.out.println("Task: " + "The read failed: " + firebaseError.getMessage());
+                //System.out.println("Task: " + "The read failed: " + firebaseError.getMessage());
             }
         });
         mQuery.addChildEventListener(new ChildEventListener() {
@@ -168,19 +170,6 @@ public class Homepage extends AppCompatActivity
 
             }
         });
-    }
-
-    private void LoadTasklist() {
-        //TODO-Import mAdapterItems
-        onItemsLoadComplete();
-    }
-
-    private void onItemsLoadComplete() {
-        // Update the mMyAdapter and notify data set changed
-        // ...
-
-        // Stop refresh animation
-        refreshLayout.setRefreshing(false);
     }
 
     @Override

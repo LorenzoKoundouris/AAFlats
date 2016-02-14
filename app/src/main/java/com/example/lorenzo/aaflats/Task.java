@@ -12,9 +12,6 @@ public class Task implements Parcelable{
     private int priority; //Green: 2130837587 | Orange: 2130837589 | Red: 2130837578
     private boolean status;
 
-    String p = String.valueOf(this.priority);
-    String s = Boolean.toString(this.status);
-
     public Task(){
 
     }
@@ -50,6 +47,14 @@ public class Task implements Parcelable{
         this.status = status;
     }
 
+    public Task(Parcel in){
+        title = in.readString();
+        description = in.readString();
+        priority = in.readInt();
+        status = in.readByte() != 0x00;
+
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -57,24 +62,20 @@ public class Task implements Parcelable{
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeStringArray(new String[] {this.title,
-                this.description, this.p, this.s});
+        dest.writeString(title);
+        dest.writeString(description);
+        dest.writeInt(priority);
+        dest.writeByte((byte) (status ? 0x01 : 0x00));
     }
 
-    public Task(Parcel in){
-        String[] parcelData = new String[4];
-
-        in.readStringArray(parcelData);
-        this.title = parcelData[0];
-        this.description = parcelData[1];
-        this.p = parcelData[2];
-        this.s = parcelData[3];
-    }
-    public static final Parcelable.Creator CREATOR = new Parcelable.Creator() {
+    @SuppressWarnings("unused")
+    public static final Parcelable.Creator<Task> CREATOR = new Parcelable.Creator<Task>() {
+        @Override
         public Task createFromParcel(Parcel in) {
             return new Task(in);
         }
 
+        @Override
         public Task[] newArray(int size) {
             return new Task[size];
         }
