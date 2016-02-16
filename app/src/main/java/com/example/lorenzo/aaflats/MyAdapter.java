@@ -1,23 +1,13 @@
 package com.example.lorenzo.aaflats;
 
-import android.content.Context;
-import android.content.Intent;
-import android.net.NetworkInfo;
-import android.support.annotation.Nullable;
-import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import com.firebase.client.Query;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by Lorenzo on 10/02/2016.
@@ -41,6 +31,7 @@ public class MyAdapter extends RecyclerView.Adapter<TaskViewHolder> {
     public void onBindViewHolder(TaskViewHolder taskViewHolder, int i) {
         //taskViewHolder.task = getItem(i);
         task = mTaskList.get(i);
+
         String titleLengthCheck = task.getTitle();
         if (titleLengthCheck.length() > 16) {
             titleLengthCheck = titleLengthCheck.substring(0, 16);
@@ -48,14 +39,15 @@ public class MyAdapter extends RecyclerView.Adapter<TaskViewHolder> {
         } else {
             taskViewHolder.taskTitle.setText(task.getTitle());
         }
-        taskViewHolder.taskDescription.setText(task.getDescription());
+
+        taskViewHolder.taskProperty.setText(task.getProperty());
 
         //taskViewHolder.taskPhoto.setImageResource(task.getPriority()); //Does this work? - nope
         int imgNum = task.getPriority();
-        if(imgNum == 3){
+        if(imgNum == 2){
             //high priority
-            taskViewHolder.taskPhoto.setImageResource(R.drawable.low_priority_circle);//task.getPriority()
-        } else if(imgNum == 2){
+            taskViewHolder.taskPhoto.setImageResource(R.drawable.high_priority_circle);//task.getPriority()
+        } else if(imgNum == 1){
             //medium priority
             taskViewHolder.taskPhoto.setImageResource(R.drawable.medium_priority_circle);
         } else {

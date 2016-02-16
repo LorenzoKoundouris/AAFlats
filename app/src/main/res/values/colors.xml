@@ -7,4 +7,7 @@
     <color name="refresh_progress_1">@color/colorPrimary</color>
     <color name="refresh_progress_2">@color/colorPrimaryDark</color>
     <color name="refresh_progress_3">@color/colorAccent</color>
+
+    <color name="attach_button_pressed">@color/colorPrimaryDark</color>
+    <color name="attach_button_focused">@color/colorAccent</color>
 </resources>

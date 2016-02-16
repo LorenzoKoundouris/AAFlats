@@ -6,15 +6,18 @@ import android.os.Parcelable;
 /**
  * Created by Lorenzo on 10/02/2016.
  */
-public class Task implements Parcelable{
+public class Task implements Parcelable {
     private String title;
     private String description;
     private int priority; //Green: 2130837587 | Orange: 2130837589 | Red: 2130837578
     private boolean status;
+    private String report;
+    private String property;
 
-    public Task(){
+    public Task() {
 
     }
+
     public String getTitle() {
         return title;
     }
@@ -47,12 +50,29 @@ public class Task implements Parcelable{
         this.status = status;
     }
 
-    public Task(Parcel in){
+    public String getReport() {
+        return report;
+    }
+
+    public void setReport(String report) {
+        this.report = report;
+    }
+
+    public String getProperty() {
+        return property;
+    }
+
+    public void setProperty(String property) {
+        this.property = property;
+    }
+
+    public Task(Parcel in) {
         title = in.readString();
         description = in.readString();
         priority = in.readInt();
         status = in.readByte() != 0x00;
-
+        report = in.readString();
+        property = in.readString();
     }
 
     @Override
@@ -66,6 +86,8 @@ public class Task implements Parcelable{
         dest.writeString(description);
         dest.writeInt(priority);
         dest.writeByte((byte) (status ? 0x01 : 0x00));
+        dest.writeString(report);
+        dest.writeString(property);
     }
 
     @SuppressWarnings("unused")

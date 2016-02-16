@@ -16,7 +16,7 @@ import java.util.ArrayList;
 public class TaskViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
     protected CardView cardView;
     protected TextView taskTitle;
-    protected TextView taskDescription;
+    protected TextView taskProperty;
     protected ImageView taskPhoto;
     protected Button taskButton;
     protected ArrayList<Task> mTaskList;
@@ -25,7 +25,7 @@ public class TaskViewHolder extends RecyclerView.ViewHolder implements View.OnCl
         super(itemView);
         cardView = (CardView) itemView.findViewById(R.id.card_view);
         taskTitle = (TextView) itemView.findViewById(R.id.task_title);
-        taskDescription = (TextView) itemView.findViewById(R.id.task_description);
+        taskProperty = (TextView) itemView.findViewById(R.id.task_property);
         taskPhoto = (ImageView) itemView.findViewById(R.id.task_photo);
         taskButton = (Button) itemView.findViewById(R.id.task_check);
 

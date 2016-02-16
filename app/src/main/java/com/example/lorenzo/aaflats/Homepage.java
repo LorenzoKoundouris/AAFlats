@@ -2,6 +2,7 @@ package com.example.lorenzo.aaflats;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -25,7 +26,9 @@ import com.firebase.client.Query;
 import com.firebase.client.ValueEventListener;
 import com.firebase.ui.auth.core.FirebaseLoginBaseActivity;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 public class Homepage extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -95,6 +98,9 @@ public class Homepage extends AppCompatActivity
     private void setupRecyclerview() {
         recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        SimpleDateFormat s = new SimpleDateFormat("ddMMyyyyHHmmss");
+        String format = s.format(new Date());
+        System.out.println("TIMESTAMP: " + format);
     }
 
     private void setupFirebase() {
@@ -114,10 +120,12 @@ public class Homepage extends AppCompatActivity
 ////                    mAdapterItems.add(tsk);
 //                }
 //                recyclerView.setAdapter(new MyAdapter(mQuery, Task.class));
+                System.out.println("PRINT OUT OF FOR-LOOP+++++++++++++++++++++");
                 for (DataSnapshot tskSnapshot : dataSnapshot.getChildren()) {
 //                    System.out.println("There are " + dataSnapshot.getChildrenCount()
 //                            + " tasks - " + dataSnapshot.getValue());
                     Task tsk = tskSnapshot.getValue(Task.class);
+                    System.out.println("PRINT INSIDE OF FOR-LOOP: "+tskSnapshot.getValue());
                     //System.out.println("onData Title: " + tsk.getTitle());
                     //System.out.println("onData Description : " + tsk.getDescription());
                     mTaskList.add(tsk);
@@ -141,6 +149,7 @@ public class Homepage extends AppCompatActivity
                 //for (DataSnapshot tskSnapshot : dataSnapshot.getChildren()) {
 
                 Task tsk = dataSnapshot.getValue(Task.class);
+                System.out.println("PRINT THIS CHILD: " + dataSnapshot.getValue() +"$$$$$$$$$$$$$$$$$$$");
                 // specify an adapter (see also next example)
                 //mRecyclerView.setAdapter(new MyAdapter(mQuery, taskArrayList)); //, Task.class
                 //}
