@@ -9,10 +9,11 @@ import android.os.Parcelable;
 public class Task implements Parcelable {
     private String title;
     private String description;
-    private int priority; //Green: 2130837587 | Orange: 2130837589 | Red: 2130837578
+    private String priority; //Green: 2130837587 | Orange: 2130837589 | Red: 2130837578
     private boolean status;
     private String report;
     private String property;
+    private String taskKey;
 
     public Task() {
 
@@ -34,11 +35,11 @@ public class Task implements Parcelable {
         this.description = description;
     }
 
-    public int getPriority() {
+    public String getPriority() {
         return priority;
     }
 
-    public void setPriority(int priority) {
+    public void setPriority(String priority) {
         this.priority = priority;
     }
 
@@ -66,13 +67,22 @@ public class Task implements Parcelable {
         this.property = property;
     }
 
+    public String getTaskKey() {
+        return taskKey;
+    }
+
+    public void setTaskKey(String taskKey) {
+        this.taskKey = taskKey;
+    }
+
     public Task(Parcel in) {
         title = in.readString();
         description = in.readString();
-        priority = in.readInt();
+        priority = in.readString();
         status = in.readByte() != 0x00;
         report = in.readString();
         property = in.readString();
+        taskKey = in.readString();
     }
 
     @Override
@@ -84,10 +94,11 @@ public class Task implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(title);
         dest.writeString(description);
-        dest.writeInt(priority);
+        dest.writeString(priority);
         dest.writeByte((byte) (status ? 0x01 : 0x00));
         dest.writeString(report);
         dest.writeString(property);
+        dest.writeString(taskKey);
     }
 
     @SuppressWarnings("unused")

@@ -8,6 +8,7 @@ public class Flat {
     private String pendingTask; //private Task pendingTask;
     private String notes;
     private String postcode;
+    private String addressLine1;
 
     public Flat(){}
 
@@ -41,5 +42,13 @@ public class Flat {
 
     public void setPostcode(String postcode) {
         this.postcode = postcode;
+    }
+
+    public String getAddressLine1() {
+        return addressLine1;
+    }
+
+    public void setAddressLine1(String addressLine1) {
+        this.addressLine1 = addressLine1;
     }
 }

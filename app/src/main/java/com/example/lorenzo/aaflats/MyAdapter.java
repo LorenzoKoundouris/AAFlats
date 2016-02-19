@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import com.firebase.client.Query;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 /**
  * Created by Lorenzo on 10/02/2016.
@@ -42,12 +43,10 @@ public class MyAdapter extends RecyclerView.Adapter<TaskViewHolder> {
 
         taskViewHolder.taskProperty.setText(task.getProperty());
 
-        //taskViewHolder.taskPhoto.setImageResource(task.getPriority()); //Does this work? - nope
-        int imgNum = task.getPriority();
-        if(imgNum == 2){
+        if(Objects.equals(task.getPriority().toLowerCase(), "high")){
             //high priority
             taskViewHolder.taskPhoto.setImageResource(R.drawable.high_priority_circle);//task.getPriority()
-        } else if(imgNum == 1){
+        } else if(Objects.equals(task.getPriority().toLowerCase(), "medium")){
             //medium priority
             taskViewHolder.taskPhoto.setImageResource(R.drawable.medium_priority_circle);
         } else {

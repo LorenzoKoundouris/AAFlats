@@ -4,7 +4,6 @@
     android:singleLine="true"
     android:layout_width="match_parent"
     android:layout_height="50dp"
-    android:textAlignment="center"
     android:gravity="center_vertical"
     android:elevation="6dp"
-    android:ellipsize="marquee" />
+    android:ellipsize="marquee"/>

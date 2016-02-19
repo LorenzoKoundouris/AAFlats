@@ -2,6 +2,8 @@ package com.example.lorenzo.aaflats;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.PersistableBundle;
@@ -11,6 +13,8 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.Toolbar;
+import android.text.Html;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -18,6 +22,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -29,11 +34,14 @@ import com.firebase.client.Query;
 import com.firebase.client.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 
 public class CreateTask extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
     private Report attachedReport;
     private Spinner prioritySpinner, flatSpinner;
-
+    private Boolean attached = false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -49,14 +57,6 @@ public class CreateTask extends AppCompatActivity implements AdapterView.OnItemS
         Firebase propertyRef = new Firebase(getString(R.string.properties_location));
         final Firebase flatRef = new Firebase(getString(R.string.flats_location));
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         final ArrayList<Task> mTaskList = new ArrayList<>();
@@ -70,7 +70,6 @@ public class CreateTask extends AppCompatActivity implements AdapterView.OnItemS
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
         final CardView ntCard = (CardView) findViewById(R.id.nt_card);
         final TextView ntCardText = (TextView) findViewById(R.id.nt_card_text_view);
-        Boolean attached = false;
         final Context context = this;
 
         taskRef.addValueEventListener(new ValueEventListener() {
@@ -159,6 +158,33 @@ public class CreateTask extends AppCompatActivity implements AdapterView.OnItemS
             }
         });
 
+        actvProperty.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                Boolean isProperty = false;
+                if(!hasFocus && !Objects.equals(actvProperty.getText().toString(), "")){
+                    for(int i = 0; i<propertyAddrLine1s.size(); i++){
+                        if(Objects.equals(propertyAddrLine1s.get(i), actvProperty.getText().toString().toLowerCase())){
+                            isProperty = true;
+                            break;
+                        }
+                    }
+                    if(!isProperty){
+                        new AlertDialog.Builder(context)
+                                .setTitle("Wrong address")
+                                .setMessage("You must enter an existing property")
+                                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        actvProperty.setText("");
+                                    }
+                                })
+                                .setIcon(android.R.drawable.ic_dialog_alert)
+                                .show();
+                    }
+                }
+            }
+        });
+
         ArrayAdapter<String> propertyAdapter = new ArrayAdapter<>
                 (this, android.R.layout.simple_dropdown_item_1line, propertyAddrLine1s);
         AutoCompleteTextView actvPropText = (AutoCompleteTextView) findViewById(R.id.nt_property_actv);
@@ -185,11 +211,13 @@ public class CreateTask extends AppCompatActivity implements AdapterView.OnItemS
                 for (DataSnapshot fltSnapshot : dataSnapshot.getChildren()) {
                     Flat flt = fltSnapshot.getValue(Flat.class);
                     flatList.add(flt);
-                    flatAddrLine1s.add(fltSnapshot.getKey().substring(fltSnapshot.getKey()
-                            .indexOf("flat"), fltSnapshot.getKey().length())
-                            .substring(0, 1).toUpperCase() + fltSnapshot.getKey()
-                            .substring(fltSnapshot.getKey().indexOf("flat"),
-                                    fltSnapshot.getKey().length()).substring(1));
+                    String[] split = fltSnapshot.getKey().split(" - ");
+                    flatAddrLine1s.add(split[1].trim().substring(0,1).toUpperCase());
+//                    fltSnapshot.getKey().substring(fltSnapshot.getKey()
+//                            .indexOf("flat"), fltSnapshot.getKey().length())
+//                            .substring(0, 1).toUpperCase() + fltSnapshot.getKey()
+//                            .substring(fltSnapshot.getKey().indexOf("flat"),
+//                                    fltSnapshot.getKey().length()).substring(1)
                 }
                 flatSpinner = (Spinner) findViewById(R.id.nt_flat_spinner);
 //        ArrayAdapter<CharSequence> flatAdapter = ArrayAdapter.createFromResource(this,
@@ -198,6 +226,7 @@ public class CreateTask extends AppCompatActivity implements AdapterView.OnItemS
                 flatAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
                 flatSpinner.setAdapter(flatAdapter);
                 flatAdapter.notifyDataSetChanged();
+                flatSpinner.setSelection(0);
             }
 
             @Override
@@ -243,39 +272,114 @@ public class CreateTask extends AppCompatActivity implements AdapterView.OnItemS
                 onBackPressed();
                 break;
             case R.id.save_new_task:
-                Toast.makeText(getApplicationContext(), "Save button clicked", Toast.LENGTH_SHORT).show();
-
-                //String gf = flatSpinner.getSelectedItem().toString();
-                try {
-                    Task newTask = new Task();
-
-                    EditText etTitle = (EditText) findViewById(R.id.nt_title_editview);
-                    newTask.setTitle(etTitle.toString().toLowerCase());
-
-                    AutoCompleteTextView actvProperty = (AutoCompleteTextView) findViewById(R.id.nt_property_actv);
-                    //AutoCompleteTextView actvFlat = (AutoCompleteTextView) findViewById(R.id.nt_flat_spinner);
-                    newTask.setProperty(actvProperty.toString().toLowerCase() + " - " +
-                            flatSpinner.getSelectedItem().toString().toLowerCase());
-
-                    EditText etDescription = (EditText) findViewById(R.id.nt_notes_editview);
-                    newTask.setDescription(etDescription.toString());
-
-                    newTask.setPriority(Integer.parseInt(prioritySpinner.getSelectedItem().toString()));
-
-                    newTask.setStatus(false);
-
-                    newTask.setReport(attachedReport.getContent().substring(0, 23));
-
-                    System.out.println("Task created. SUCCESS!");
-                    Toast.makeText(CreateTask.this, "Task created. SUCCESS!", Toast.LENGTH_SHORT).show();
-
-                } catch (Exception e) {
-                    System.out.println("Task not created. FAIL");
-                    Toast.makeText(CreateTask.this, "Task not created. FAIL", Toast.LENGTH_SHORT).show();
-                }
+                //Toast.makeText(getApplicationContext(), "Save button clicked", Toast.LENGTH_SHORT).show();
+                saveNewTask();
+                break;
+            case R.id.action_settings:
+                startActivity(new Intent(CreateTask.this, Homepage.class));
                 break;
         }
         return true;
+    }
+    public void saveNewTask(){
+
+        LinearLayout llTitle = (LinearLayout) findViewById(R.id.nt_title_lnr_layout);
+        LinearLayout llProperty = (LinearLayout) findViewById(R.id.nt_property_lnr_layout);
+        LinearLayout llFlat = (LinearLayout) findViewById(R.id.nt_flat_lnr_layout);
+        LinearLayout llNotes = (LinearLayout) findViewById(R.id.nt_notes_lnr_layout);
+        LinearLayout llPriority = (LinearLayout) findViewById(R.id.nt_priority_lnr_layout);
+        LinearLayout llReport = (LinearLayout) findViewById(R.id.nt_report_lnr_layout);
+        LinearLayout llError = (LinearLayout) findViewById(R.id.nt_error_lnr_layout);
+        EditText etTitle = (EditText) findViewById(R.id.nt_title_editview);
+        AutoCompleteTextView actvProperty = (AutoCompleteTextView) findViewById(R.id.nt_property_actv);
+        EditText etDescription = (EditText) findViewById(R.id.nt_notes_editview); //Notes
+        TextView cardTV = (TextView) findViewById(R.id.nt_card_text_view);
+        boolean validTitle = false;
+        boolean validProperty = false;
+        boolean validNotes = false;
+        boolean validReport = false;
+
+        llError.setVisibility(llError.VISIBLE);
+        if(Objects.equals(etTitle.getText().toString(), "")){
+            llTitle.setBackgroundColor(Color.parseColor("#EF9A9A"));
+            etTitle.setHint(Html.fromHtml("Any meaningful " + "<b><u>" + "title" + "</u></b>"));
+        }else{
+            llTitle.setBackgroundColor(Color.parseColor("#eeeeee"));
+            validTitle = true;
+        }
+        if(Objects.equals(actvProperty.getText().toString(), "")){
+            llProperty.setBackgroundColor(Color.parseColor("#EF9A9A"));
+            actvProperty.setHint(Html.fromHtml("<b>" + "i.e" + "</b>" + "<i>" +
+                    "\"  12 Trematon Terrace\"" + "</i>"));
+            llFlat.setBackgroundColor(Color.parseColor("#EF9A9A"));
+        }else{
+            llProperty.setBackgroundColor(Color.parseColor("#eeeeee"));
+            validProperty = true;
+        }
+        if(Objects.equals(etDescription.getText().toString(), "")){
+            llNotes.setBackgroundColor(Color.parseColor("#EF9A9A"));
+            etDescription.setHint(Html.fromHtml("<b>Details about task..</b>\n<i>\"What, how, why..\"</i>"));
+            etDescription.setTypeface(Typeface.DEFAULT_BOLD);
+        }else{
+            llNotes.setBackgroundColor(Color.parseColor("#eeeeee"));
+            validNotes = true;
+        }
+        if(prioritySpinner.getSelectedItem() == null){
+            llPriority.setBackgroundColor(Color.parseColor("#EF9A9A"));
+        }else{
+            llPriority.setBackgroundColor(Color.parseColor("#eeeeee"));
+        }
+        if(Objects.equals(cardTV.getText().toString(), "ATTACH A REPORT")){
+            llReport.setBackgroundColor(Color.parseColor("#EF9A9A"));
+        }else{
+            llReport.setBackgroundColor(Color.parseColor("#eeeeee"));
+            validReport = true;
+        }
+
+        if(validTitle && validProperty && validNotes && validReport){
+            try {
+                Task newTask = new Task();
+
+
+                newTask.setTitle(etTitle.getText().toString().trim());
+
+
+                //AutoCompleteTextView actvFlat = (AutoCompleteTextView) findViewById(R.id.nt_flat_spinner);
+                newTask.setProperty(actvProperty.getText().toString().toLowerCase() + " - " +
+                        flatSpinner.getSelectedItem().toString().toLowerCase());
+
+
+                newTask.setDescription(etDescription.getText().toString().trim());
+
+                //newTask.setPriority(Integer.parseInt(prioritySpinner.getSelectedItem().toString()));
+                newTask.setPriority(prioritySpinner.getSelectedItem().toString().toLowerCase());
+
+                newTask.setStatus(false);
+
+                newTask.setReport(attachedReport.getContent().substring(0, 23));
+
+                Firebase newTaskRef = new Firebase(getString(R.string.tasks_location));
+                //newTaskRef.child(newTask.getTitle()).setValue(newTask);
+                newTaskRef.push().setValue(newTask);
+
+//                    System.out.println("Task created. SUCCESS!Title: " + newTask.getTitle() +
+//                            "\n Description: " + newTask.getDescription() +
+//                            "\n Property: " + newTask.getProperty() +
+//                            "\n Priority: " + newTask.getPriority() +
+//                            "\n Status: " + newTask.getStatus() +
+//                            "\n Report: " + newTask.getReport());
+                Toast toast = Toast.makeText(CreateTask.this, "Task created. SUCCESS!", Toast.LENGTH_SHORT);
+                toast.setGravity(Gravity.CENTER, 0, 0);
+                toast.show();
+                startActivity(new Intent(CreateTask.this, Homepage.class));
+            } catch (Exception e) {
+
+                Toast toast = Toast.makeText(CreateTask.this, "Task not created. FAIL", Toast.LENGTH_SHORT);
+                toast.setGravity(Gravity.CENTER, 0, 0);
+                toast.show();
+            }
+        }
+
     }
 
     @Override

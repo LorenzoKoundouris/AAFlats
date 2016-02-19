@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content">
 
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
         android:id="@+id/nt_lnr_layout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="vertical"
         android:paddingBottom="@dimen/activity_vertical_margin"
         android:paddingLeft="@dimen/activity_horizontal_margin"
@@ -17,6 +17,51 @@
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
         tools:context="com.example.lorenzo.aaflats.CreateTask"
         tools:showIn="@layout/activity_create_task">
+
+        <LinearLayout
+            android:id="@+id/nt_easter_egg"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingBottom="8dp">
+
+            <TextView
+                android:id="@+id/nt_dfdfdf_textview"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Hidden: " />
+
+            <EditText
+                android:id="@+id/nt_dfdfdf_editview"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="3"
+                android:hint="Message"
+                android:textStyle="italic" />
+        </LinearLayout>
+        <LinearLayout
+            android:id="@+id/nt_title_lnr_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingBottom="8dp">
+
+            <TextView
+                android:id="@+id/nt_title_textview"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Title: " />
+
+            <EditText
+                android:id="@+id/nt_title_editview"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="3"
+                android:hint="Task title"
+                android:textStyle="italic" />
+        </LinearLayout>
 
         <LinearLayout
             android:id="@+id/nt_property_lnr_layout"
@@ -37,33 +82,9 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="3"
-                android:hint="prop" />
+                android:hint="Address line 1" />
 
         </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/nt_title_lnr_layout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:paddingBottom="8dp">
-
-            <TextView
-                android:id="@+id/nt_title_textview"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Title: " />
-
-            <EditText
-                android:id="@+id/nt_title_editview"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="3"
-                android:hint="title"
-                android:textStyle="italic" />
-        </LinearLayout>
-
 
         <LinearLayout
             android:id="@+id/nt_flat_lnr_layout"
@@ -113,13 +134,13 @@
                 android:layout_width="0dp"
                 android:layout_height="100dp"
                 android:layout_weight="3"
-                android:hint="note"
+                android:hint="Compose any notes here.."
                 android:inputType="textMultiLine"
                 android:lines="3" />
         </LinearLayout>
 
         <LinearLayout
-            android:id="@+id/nt_status_lnr_layout"
+            android:id="@+id/nt_priority_lnr_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="#F5F5F5"
@@ -164,8 +185,7 @@
                 android:layout_weight="1"
                 android:text="Based on: " />
 
-            <android.support.v7.widget.CardView
-                xmlns:android="http://schemas.android.com/apk/res/android"
+            <android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
                 xmlns:card_view="http://schemas.android.com/apk/res-auto"
                 android:id="@+id/nt_card"
                 android:layout_width="0dp"
@@ -173,13 +193,15 @@
                 android:layout_margin="6dp"
                 android:layout_weight="3"
                 card_view:cardBackgroundColor="#009688"
-                card_view:cardCornerRadius="2dp"
+                card_view:cardCornerRadius="3dp"
+                app:cardUseCompatPadding="true"
                 card_view:cardElevation="6dp">
 
                 <TextView
                     android:id="@+id/nt_card_text_view"
                     android:layout_width="200dp"
                     android:layout_height="wrap_content"
+                    android:layout_gravity="center"
                     android:fontFamily="sans-serif-medium"
                     android:paddingBottom="8.5dp"
                     android:paddingLeft="12dp"
@@ -190,18 +212,25 @@
                     android:textColor="#ffffff" />
 
             </android.support.v7.widget.CardView>
-            <!--<Button
-                android:id="@+id/nt_report_button"
-                android:layout_width="0dp"
+        </LinearLayout>
+        <LinearLayout
+            android:id="@+id/nt_error_lnr_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:visibility="invisible">
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/not_complete"
+                android:layout_gravity="center_vertical"/>
+            <TextView
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_weight="2"
-                android:text="attach a report"
-                android:background="@drawable/button_shape"
-                android:elevation="16dp"
-                android:focusable="true"
-                android:enabled="true"
-                android:clickable="true"
-                android:textColor="@android:color/white" />-->
+                android:layout_marginStart="8dp"
+                android:layout_gravity="center_vertical"
+                android:textStyle="bold"
+                android:text="Please complete all fields with relevant task data"/>
         </LinearLayout>
     </LinearLayout>
 </ScrollView>

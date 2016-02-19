@@ -120,7 +120,9 @@ public class Homepage extends AppCompatActivity
 ////                    mAdapterItems.add(tsk);
 //                }
 //                recyclerView.setAdapter(new MyAdapter(mQuery, Task.class));
+                mTaskList.clear();
                 System.out.println("PRINT OUT OF FOR-LOOP+++++++++++++++++++++");
+                int i=0;
                 for (DataSnapshot tskSnapshot : dataSnapshot.getChildren()) {
 //                    System.out.println("There are " + dataSnapshot.getChildrenCount()
 //                            + " tasks - " + dataSnapshot.getValue());
@@ -129,11 +131,13 @@ public class Homepage extends AppCompatActivity
                     //System.out.println("onData Title: " + tsk.getTitle());
                     //System.out.println("onData Description : " + tsk.getDescription());
                     mTaskList.add(tsk);
+                    mTaskList.get(i).setTaskKey(tskSnapshot.getKey());
                     //System.out.println("taskArrayList contents: " + mTaskList); //It has tasks here
 
                     // specify an adapter (see also next example)
                     recyclerView.setAdapter(new MyAdapter(mQuery, mTaskList)); //, Task.class
                     refreshLayout.setRefreshing(false);
+                    i++;
                 }
             }
 
@@ -149,7 +153,7 @@ public class Homepage extends AppCompatActivity
                 //for (DataSnapshot tskSnapshot : dataSnapshot.getChildren()) {
 
                 Task tsk = dataSnapshot.getValue(Task.class);
-                System.out.println("PRINT THIS CHILD: " + dataSnapshot.getValue() +"$$$$$$$$$$$$$$$$$$$");
+                //System.out.println("PRINT THIS CHILD: " + dataSnapshot.getValue() +"$$$$$$$$$$$$$$$$$$$");
                 // specify an adapter (see also next example)
                 //mRecyclerView.setAdapter(new MyAdapter(mQuery, taskArrayList)); //, Task.class
                 //}
