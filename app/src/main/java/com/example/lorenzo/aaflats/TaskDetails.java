@@ -2,11 +2,10 @@ package com.example.lorenzo.aaflats;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -50,10 +49,10 @@ public class TaskDetails extends AppCompatActivity {
     EditText tdNotes;// = (EditText) findViewById(R.id.td_notes);
     Button btReport;// = (Button) findViewById(R.id.bt_report);
     MenuItem saveEdit;// = (MenuItem) findViewById(R.id.edit_save_task);
-    CheckBox compCB;// = (CheckBox) findViewById(R.id.completion_check_box);
+    CheckBox taskCompletionCheckBox;// = (CheckBox) findViewById(R.id.completion_check_box);
     final ArrayList<String> propertyAddrLine1s = new ArrayList<>();
     final ArrayList<Report> reportList = new ArrayList<>();
-    final ArrayList<Report> searchReportList = new ArrayList<>();
+    final ArrayList<Report> foundReportList = new ArrayList<>();
     final ArrayList<String> reportTitles = new ArrayList<>();
     final ArrayList<String> reportKeys = new ArrayList<>();
     final ArrayList<Flat> flatList = new ArrayList<>();
@@ -65,63 +64,108 @@ public class TaskDetails extends AppCompatActivity {
     private Report attachedReport;
     final Context context = this;
     Task parceableTask = new Task();
-    Firebase editTaskRef;
     String attachedReportKey;
 
+    Firebase taskRef;
+    Firebase propertyRef;
+    Firebase reportRef;
+    Firebase flatRef;
 
-    @Override
+    Query findReportQuery;
+
+    String[] splitProp;
+
+    SharedPreferences pref;
+    SharedPreferences.Editor prefEditor;
+
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_task_details);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        pref = getApplicationContext().getSharedPreferences("MyPrefs", MODE_PRIVATE);
+        prefEditor = pref.edit();
+
         Firebase.setAndroidContext(this);
-        Firebase refRep = new Firebase(getResources().getString(R.string.reports_location));
 
-        Firebase propertyRef = new Firebase(getString(R.string.properties_location));
-        editTaskRef = new Firebase(getString(R.string.tasks_location));
-
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
-        tdTitle = (EditText) findViewById(R.id.td_title);
-        actvProperty = (AutoCompleteTextView) findViewById(R.id.et_property_actv);
-        tdNotes = (EditText) findViewById(R.id.td_notes);
-        btReport = (Button) findViewById(R.id.bt_report);
-        compCB = (CheckBox) findViewById(R.id.completion_check_box);
-        tvSender = (TextView) findViewById(R.id.tv_sender);
-        tvTimestamp = (TextView) findViewById(R.id.tv_timestamp);
-        tvReportContent = (TextView) findViewById(R.id.tv_report_content);
-
+        //Clicked-on Task to be passed from Homepage
         Bundle intent = getIntent().getExtras();
         parceableTask = intent.getParcelable("parceable_task");
         //ArrayList<Task> pTaskList = (ArrayList<Task>) intent.getParcelable("parceable_tasklist");
 
 
-        if (!Objects.equals(parceableTask.getTitle(), "")) {
-            setTitle(parceableTask.getTitle());
-        }
-        if (parceableTask.getStatus()) {
-            compCB.setChecked(true);
-        } else {
-            compCB.setChecked(false);
-        }
+        //Firebase references
+        reportRef = new Firebase(getString(R.string.reports_location));
+        propertyRef = new Firebase(getString(R.string.properties_location));
+        taskRef = new Firebase(getString(R.string.tasks_location));
+        flatRef = new Firebase(getString(R.string.flats_location));
+        findReportQuery = reportRef.orderByKey().equalTo(parceableTask.getReport());
 
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        //Page components
+        tdTitle = (EditText) findViewById(R.id.td_title);
+        actvProperty = (AutoCompleteTextView) findViewById(R.id.et_property_actv);
+        flatSpinner = (Spinner) findViewById(R.id.et_flat_spinner);
+        flatSpinner.setEnabled(false);
+        tdNotes = (EditText) findViewById(R.id.td_notes);
+        prioritySpinner = (Spinner) findViewById(R.id.et_priority_spinner);
+        prioritySpinner.setEnabled(false);
+        btReport = (Button) findViewById(R.id.bt_report);
+        taskCompletionCheckBox = (CheckBox) findViewById(R.id.completion_check_box);
+        tvSender = (TextView) findViewById(R.id.tv_sender);
+        tvTimestamp = (TextView) findViewById(R.id.tv_timestamp);
+        tvReportContent = (TextView) findViewById(R.id.tv_report_content);
+
+        //Display Task details on page
+        setTitle(parceableTask.getTitle());
+        if (parceableTask.getStatus()) {
+            taskCompletionCheckBox.setChecked(true);
+            prefEditor.putBoolean("tStatus", true);
+        } else {
+            taskCompletionCheckBox.setChecked(false);
+            prefEditor.putBoolean("tStatus", false);
+        }
+        tdTitle.setText(parceableTask.getTitle());
+        prefEditor.putString("tTitle", parceableTask.getTitle());
+        splitProp = parceableTask.getProperty().split(" - ");
+        actvProperty.setText(splitProp[0].trim());
+        prefEditor.putString("tPropertyA1", actvProperty.getText().toString());
+        prefEditor.putString("tFlat", splitProp[1].trim());
+        //flat done in onDataChange
+        tdNotes.setText(parceableTask.getDescription());
+        prefEditor.putString("tNotes", parceableTask.getDescription());
+        if (Objects.equals(parceableTask.getPriority().toLowerCase(), "high")) {
+            //high priority
+            prioritySpinner.setSelection(0);
+            prefEditor.putInt("tPriority", 0);
+        } else if (Objects.equals(parceableTask.getPriority().toLowerCase(), "medium")) {
+            //medium priority
+            prioritySpinner.setSelection(1);
+            prefEditor.putInt("tPriority", 1);
+        } else {
+            prioritySpinner.setSelection(2);
+            prefEditor.putInt("tPriority", 2);
+        }
+        prefEditor.commit();
+        // Create an ArrayAdapter using the string array
+        ArrayAdapter<CharSequence> priorityAdapter = ArrayAdapter.createFromResource(this,
+                R.array.priorities, R.layout.custom_spinner);
+        // Specify the layout to use when the list of choices appears
+        priorityAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
+        // Apply the adapter to the prioritySpinner
+        prioritySpinner.setAdapter(priorityAdapter);
+
+        ArrayAdapter<String> propertyAdapter = new ArrayAdapter<>
+                (this, android.R.layout.simple_dropdown_item_1line, propertyAddrLine1s);
+        actvProperty.setAdapter(propertyAdapter);
 
         propertyRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for (DataSnapshot prtSnapshot : dataSnapshot.getChildren()) {
                     Property prt = prtSnapshot.getValue(Property.class);
-                    //propertyList.add(prt);
                     propertyAddrLine1s.add(prtSnapshot.getKey().substring(0, 1).toUpperCase()
                             + prtSnapshot.getKey().substring(1));
                 }
@@ -133,84 +177,107 @@ public class TaskDetails extends AppCompatActivity {
             }
         });
 
-        final Firebase flatRef = new Firebase(getString(R.string.flats_location));
-        Query findReport = refRep.orderByKey().equalTo(parceableTask.getReport());
-        findReport.addListenerForSingleValueEvent(new ValueEventListener() {
+        loadCorrespondingFlats();
+//        Query flatQuery = flatRef.orderByChild("addressLine1").equalTo(actvProperty.getText().toString());
+//        flatQuery.addValueEventListener(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(DataSnapshot dataSnapshot) {
+//                flatList.clear();
+//                flatAddrLine1s.clear();
+//                for (DataSnapshot fltSnapshot : dataSnapshot.getChildren()) {
+//                    Flat flt = fltSnapshot.getValue(Flat.class);
+//                    flatList.add(flt);
+//                    String[] split = fltSnapshot.getKey().split(" - ");
+//                    flatAddrLine1s.add(split[1].trim().substring(0, 1).toUpperCase() +
+//                            split[1].substring(1).trim());
+//                }
+//
+//                ArrayAdapter<String> flatAdapter = new ArrayAdapter<>(getBaseContext(),
+//                        R.layout.spinner_dropdown_item, flatAddrLine1s);
+//                flatAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
+//                flatSpinner.setAdapter(flatAdapter);
+//                flatAdapter.notifyDataSetChanged();
+//                for (int i = 0; i < flatAddrLine1s.size(); i++) {
+//                    if (Objects.equals(splitProp[1].trim().substring(0, 1).toUpperCase()
+//                            + splitProp[1].substring(1).trim(), flatSpinner.getItemAtPosition(i).toString())) {
+//                        flatSpinner.setSelection(i);
+//                        prefEditor.putInt("tFlatSpinner", i);
+//                        prefEditor.commit();
+//                        break;
+//                    }
+//                }
+//            }
+//
+//            @Override
+//            public void onCancelled(FirebaseError firebaseError) {
+//                Toast toast = Toast.makeText(TaskDetails.this, "Flat not found: " +
+//                        firebaseError.getMessage(), Toast.LENGTH_SHORT);
+//                toast.setGravity(Gravity.CENTER, 0, 0);
+//                toast.show();
+//            }
+//        });
+
+        findReportQuery.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for (DataSnapshot childSnap : dataSnapshot.getChildren()) {
-                    Report thisReport = childSnap.getValue(Report.class);
-                    searchReportList.add(thisReport);
+                    Report associatedReport = childSnap.getValue(Report.class);
+                    foundReportList.add(associatedReport);
+                    prefEditor.putString("rKey", childSnap.getKey());
+                    prefEditor.commit();
                 }
                 try {
-                    tdTitle.setText(parceableTask.getTitle());
-                    String[] splitProp = parceableTask.getProperty().split(" - ");
-                    actvProperty.setText(splitProp[0].trim());
-                    loadCorrespondingFlats(actvProperty.getText().toString().toLowerCase(),
-                            flatRef, flatList, flatAddrLine1s);
-
-                    int kk = flatSpinner.getCount();
-                    kk = flatSpinner.getChildCount();
-                    for (int i=0; i < flatSpinner.getCount(); i++){
-                        if(Objects.equals(splitProp[1], flatSpinner.getItemAtPosition(i).toString())){
-                            flatSpinner.setSelection(i);
-                            break;
-                        }
-                    }
-
-                    tdNotes.setText(parceableTask.getDescription());
-                    if(Objects.equals(parceableTask.getPriority().toLowerCase(), "high")){
-                        //high priority
-                        prioritySpinner.setSelection(0);
-                    } else if(Objects.equals(parceableTask.getPriority().toLowerCase(), "medium")){
-                        //medium priority
-                        prioritySpinner.setSelection(1);
+                    String lc = foundReportList.get(0).getContent().toLowerCase().
+                            substring(0, 1).toUpperCase() + foundReportList.get(0).getContent().
+                            toLowerCase().substring(1);
+                    if (foundReportList.get(0).getContent().length() > 23) {
+                        btReport.setText("\"" + lc.substring(0, 20) + "..." + "\"");
                     } else {
-                        prioritySpinner.setSelection(2);
+                        btReport.setText("\"" + lc + "\"");
                     }
-//                    tdPriority.setText(parceableTask.getPriority().substring(0, 1).toUpperCase()
-//                            + parceableTask.getPriority().substring(1));
-                    if (searchReportList.get(0).getContent().length() > 23) {
-                        btReport.setText(searchReportList.get(0).getContent().substring(0, 20) + "...");
-                    } else {
-                        btReport.setText(searchReportList.get(0).getContent());
-                    }
-                    tvTimestamp.setText(searchReportList.get(0).getTimestamp());
-                    tvSender.setText(searchReportList.get(0).getSender());
-                    tvReportContent.setText(searchReportList.get(0).getContent());
-
+                    tvTimestamp.setText(foundReportList.get(0).getTimestamp());
+                    tvSender.setText(foundReportList.get(0).getSender());
+                    tvReportContent.setText(foundReportList.get(0).getContent());
+                    prefEditor.putString("btReportText", btReport.getText().toString());
+                    prefEditor.putString("trTimestamp", tvTimestamp.getText().toString());
+                    prefEditor.putString("trSender", tvSender.getText().toString());
+                    prefEditor.putString("trContent", tvReportContent.getText().toString());
+                    prefEditor.commit();
                 } catch (Exception ex) {
-                    Toast.makeText(TaskDetails.this, "task details not loaded", Toast.LENGTH_SHORT).show();
+                    Toast toast = Toast.makeText(TaskDetails.this, "Associated report not found", Toast.LENGTH_SHORT);
+                    toast.setGravity(Gravity.CENTER, 0, 0);
+                    toast.show();
                 }
             }
 
             @Override
             public void onCancelled(FirebaseError firebaseError) {
-
+                Toast toast = Toast.makeText(TaskDetails.this, "Something went wrong: " + firebaseError.getMessage(), Toast.LENGTH_SHORT);
+                toast.setGravity(Gravity.CENTER, 0, 0);
+                toast.show();
             }
         });
 
-        refRep.addValueEventListener(new ValueEventListener() {
+        reportRef.addValueEventListener(new ValueEventListener() {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 reportList.clear();
                 reportKeys.clear();
                 reportTitles.clear();
                 for (DataSnapshot childSnap : dataSnapshot.getChildren()) {
-                    Report associatedReport = childSnap.getValue(Report.class);
-                    reportList.add(associatedReport);
-                    reportKeys.add(childSnap.getKey());
-                    if (associatedReport.getContent().length() > 23) {
-                        reportTitles.add(associatedReport.getContent().substring(0, 20) + "...");
+                    Report firebaseReport = childSnap.getValue(Report.class);
+                    reportList.add(firebaseReport);
+                    reportKeys.add(childSnap.getKey()); //list of keys of each report
+                    if (firebaseReport.getContent().length() > 23) {
+                        reportTitles.add(firebaseReport.getContent().substring(0, 20) + "...");
                     } else {
-                        reportTitles.add(associatedReport.getContent());
+                        reportTitles.add(firebaseReport.getContent());
                     }
                 }
                 String[] arrayRepTs = new String[reportTitles.size()];
                 arrayRepTs = reportTitles.toArray(arrayRepTs);
-                AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                builder.setTitle("Attach report").setItems(arrayRepTs, new DialogInterface.OnClickListener() {
+                AlertDialog.Builder alertBuilder = new AlertDialog.Builder(context);
+                alertBuilder.setTitle("Attach report").setItems(arrayRepTs, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int item) {
-                        //Toast.makeText(context, "You selected: ", Toast.LENGTH_LONG).show();
                         System.out.println("You attached: " + reportTitles.get(item));
                         //dialog.dismiss();
 
@@ -229,11 +296,11 @@ public class TaskDetails extends AppCompatActivity {
                         tvTimestamp.setText(attachedReport.getTimestamp());
                     }
                 });
-                final AlertDialog alert = builder.create();
+                final AlertDialog alertDialog = alertBuilder.create();
                 btReport.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        alert.show();
+                        alertDialog.show();
                     }
                 });
             }
@@ -244,76 +311,65 @@ public class TaskDetails extends AppCompatActivity {
             }
         });
 
-
-        compCB.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        taskCompletionCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                Firebase thisTaskCheck = editTaskRef.child(parceableTask.getTaskKey());
-                Map<String, Object> statusChangeMap = new HashMap<String, Object>();
+                Firebase changeTaskStatusRef = taskRef.child(parceableTask.getTaskKey());
+                Map<String, Object> statusChangeMap = new HashMap<>();
                 if (isChecked) {
                     parceableTask.setStatus(true);
                     statusChangeMap.put("status", "true");
-                    //compCB.setChecked(true);
+                    //taskCompletionCheckBox.setChecked(true);
                 } else if (!isChecked) {
                     parceableTask.setStatus(false);
                     statusChangeMap.put("status", "false");
-                    //compCB.setChecked(false);
+                    //taskCompletionCheckBox.setChecked(false);
                 }
-                thisTaskCheck.updateChildren(statusChangeMap);
+                changeTaskStatusRef.updateChildren(statusChangeMap);
+                TextView completionTV = (TextView) findViewById(R.id.completion_text_view);
+                completionTV.setTextColor(Color.parseColor("#FF5722"));
             }
         });
 
+    }//END OF onCreate()
 
-
-
-        ArrayAdapter<String> propertyAdapter = new ArrayAdapter<>
-                (this, android.R.layout.simple_dropdown_item_1line, propertyAddrLine1s);
-        AutoCompleteTextView actvPropText = (AutoCompleteTextView) findViewById(R.id.et_property_actv);
-        actvPropText.setAdapter(propertyAdapter);
-
-        prioritySpinner = (Spinner) findViewById(R.id.et_priority_spinner);
-        prioritySpinner.setEnabled(false);
-        flatSpinner = (Spinner) findViewById(R.id.et_flat_spinner);
-        flatSpinner.setEnabled(false);
-        // Create an ArrayAdapter using the string array
-        ArrayAdapter<CharSequence> priorityAdapter = ArrayAdapter.createFromResource(this,
-                R.array.priorities, R.layout.custom_spinner);
-        // Specify the layout to use when the list of choices appears
-        priorityAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
-        // Apply the adapter to the prioritySpinner
-        prioritySpinner.setAdapter(priorityAdapter);
-    }
-
-    private void loadCorrespondingFlats(String s, Firebase flatRef, final ArrayList<Flat> flatList, final ArrayList<String> flatAddrLine1s) {
-        Query flatQuery = flatRef.orderByChild("addressLine1").equalTo(s);
-        flatList.clear();
-        flatAddrLine1s.clear();
+    private void loadCorrespondingFlats() {
+        Query flatQuery = flatRef.orderByChild("addressLine1").equalTo(actvProperty.getText().toString());
         flatQuery.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+                flatList.clear();
+                flatAddrLine1s.clear();
                 for (DataSnapshot fltSnapshot : dataSnapshot.getChildren()) {
                     Flat flt = fltSnapshot.getValue(Flat.class);
                     flatList.add(flt);
                     String[] split = fltSnapshot.getKey().split(" - ");
-                    flatAddrLine1s.add(split[1].trim().substring(0, 1).toUpperCase() + split[1].substring(1).trim());
-//                    fltSnapshot.getKey().substring(fltSnapshot.getKey()
-//                            .indexOf("flat"), fltSnapshot.getKey().length())
-//                            .substring(0, 1).toUpperCase() + fltSnapshot.getKey()
-//                            .substring(fltSnapshot.getKey().indexOf("flat"),
-//                                    fltSnapshot.getKey().length()).substring(1)
+                    flatAddrLine1s.add(split[1].trim().substring(0, 1).toUpperCase() +
+                            split[1].substring(1).trim());
                 }
 
-//        ArrayAdapter<CharSequence> flatAdapter = ArrayAdapter.createFromResource(this,
-//                R.array.priorities, R.layout.custom_spinner);
-                ArrayAdapter<String> flatAdapter = new ArrayAdapter<>(getBaseContext(), R.layout.spinner_dropdown_item, flatAddrLine1s);
+                ArrayAdapter<String> flatAdapter = new ArrayAdapter<>(getBaseContext(),
+                        R.layout.spinner_dropdown_item, flatAddrLine1s);
                 flatAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
                 flatSpinner.setAdapter(flatAdapter);
                 flatAdapter.notifyDataSetChanged();
+                for (int i = 0; i < flatAddrLine1s.size(); i++) {
+                    if (Objects.equals(splitProp[1].trim().substring(0, 1).toUpperCase()
+                            + splitProp[1].substring(1).trim(), flatSpinner.getItemAtPosition(i).toString())) {
+                        flatSpinner.setSelection(i);
+                        prefEditor.putInt("tFlatSpinner", i);
+                        prefEditor.commit();
+                        break;
+                    }
+                }
             }
 
             @Override
             public void onCancelled(FirebaseError firebaseError) {
-                System.out.println("Flat: " + "The read failed: " + firebaseError.getMessage());
+                Toast toast = Toast.makeText(TaskDetails.this, "Flat not found: " +
+                        firebaseError.getMessage(), Toast.LENGTH_SHORT);
+                toast.setGravity(Gravity.CENTER, 0, 0);
+                toast.show();
             }
         });
     }
@@ -325,11 +381,10 @@ public class TaskDetails extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-
-        if(!attemptEdit){
+        if (!attemptEdit) {
             getMenuInflater().inflate(R.menu.task_details, menu);
             saveEdit = menu.findItem(R.id.edit_save_task);
-        } else{
+        } else {
             getMenuInflater().inflate(R.menu.task_details_save, menu);
             saveEdit = menu.findItem(R.id.save_edited_task);
         }
@@ -338,20 +393,26 @@ public class TaskDetails extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        new AlertDialog.Builder(this)
-                .setIcon(android.R.drawable.ic_dialog_alert)
-                .setTitle("Leaving page")
-                .setMessage("You have not saved changes made to this task. Press Yes to discard or No to remain on page.")
-                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        if(attemptEdit && !editscancelled){}
-                        finish();
-                    }
+        if (attemptEdit && !editscancelled || attemptEdit) {
+            new AlertDialog.Builder(this)
+                    .setIcon(android.R.drawable.ic_dialog_alert)
+                    .setTitle("Leaving page")
+                    .setMessage("You have not saved changes made to this task. Press Yes to discard or No to remain on page.")
+                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
 
-                })
-                .setNegativeButton("No", null)
-                .show();
+
+                            finish();
+                        }
+
+                    })
+                    .setNegativeButton("No", null)
+                    .show();
+        } else{
+            finish();
+        }
+
     }
 
     @Override
@@ -381,21 +442,15 @@ public class TaskDetails extends AppCompatActivity {
     }
 
     private void saveAllChanges() {
-        tdTitle.setEnabled(false);
-        actvProperty.setEnabled(false);
-        flatSpinner.setEnabled(false);
-        tdNotes.setEnabled(false);
-        prioritySpinner.setEnabled(false);
-        btReport.setEnabled(false);
         if (!editscancelled) {
             try {
-                parceableTask.setTitle(tdTitle.getText().toString().toLowerCase().substring(0, 1) + tdTitle.getText().toString().substring(1));
+                parceableTask.setTitle(tdTitle.getText().toString());
                 parceableTask.setProperty(actvProperty.getText().toString().toLowerCase() + " - " +
                         flatSpinner.getSelectedItem().toString().toLowerCase());
                 parceableTask.setDescription(tdNotes.getText().toString());
                 parceableTask.setPriority(prioritySpinner.getSelectedItem().toString().toLowerCase());
                 parceableTask.setReport(attachedReportKey);
-                //editTaskRef.child(parceableTask.getTaskKey()).setValue(parceableTask);
+                //taskRef.child(parceableTask.getTaskKey()).setValue(parceableTask);
                 Toast toast = Toast.makeText(TaskDetails.this, "Task edited! SUCCESS!", Toast.LENGTH_SHORT);
                 toast.setGravity(Gravity.CENTER, 0, 0);
                 toast.show();
@@ -404,18 +459,32 @@ public class TaskDetails extends AppCompatActivity {
                 toast.setGravity(Gravity.CENTER, 0, 0);
                 toast.show();
             }
-        } else{
-            tdTitle.setText(parceableTask.getTitle());
-            String[] split = parceableTask.getProperty().split("-");
-            actvProperty.setText(split[0].trim().substring(0, 1).toUpperCase());
-            for (int i=0; i < flatAddrLine1s.size(); i++){
-                if(Objects.equals(flatSpinner.getSelectedItem().toString(), flatAddrLine1s.get(i))){
-                    flatSpinner.setSelection(i);
-                }
-            }
-            tdNotes.setText(parceableTask.getDescription());
-           // prioritySpinner
+        } else {
+            tdTitle.setText(pref.getString("tTitle", "crashTitle"));
+            //String[] split = parceableTask.getProperty().split("-");
+            actvProperty.setText(pref.getString("tPropertyA1", "crashProperty"));
+//            for (int i=0; i < flatAddrLine1s.size(); i++){
+//                if(Objects.equals(flatSpinner.getSelectedItem().toString(), flatAddrLine1s.get(i))){
+//                    flatSpinner.setSelection(i);
+//                }
+//            }
+            flatSpinner.setSelection(pref.getInt("tFlatSpinner", 0));
+            tdNotes.setText(pref.getString("tNotes", "crashNotes"));
+            prioritySpinner.setSelection(pref.getInt("tPriority", 0));
+            taskCompletionCheckBox.setChecked(pref.getBoolean("tStatus", false));
+            btReport.setText(pref.getString("btReportText", "crashReport"));
+            tvSender.setText(pref.getString("trSender", "crashSender"));
+            tvTimestamp.setText(pref.getString("trTimestamp", "crashTimestamp"));
+            tvReportContent.setText(pref.getString("trContent", "crashReportContent"));
         }
+
+        tdTitle.setEnabled(false);
+        actvProperty.setEnabled(false);
+        flatSpinner.setEnabled(false);
+        tdNotes.setEnabled(false);
+        prioritySpinner.setEnabled(false);
+        btReport.setEnabled(false);
+
         attemptEdit = false;
         invalidateOptionsMenu();
     }
@@ -443,7 +512,11 @@ public class TaskDetails extends AppCompatActivity {
 
                 @Override
                 public void afterTextChanged(Editable s) {
-                    tdTitle.setTextColor(Color.parseColor("#FF5722"));
+                    if (Objects.equals(tdTitle.getText().toString(), pref.getString("tTitle", "crashTitle"))) {
+                        tdTitle.setTextColor(getResources().getColor(R.color.black_color));
+                    } else {
+                        tdTitle.setTextColor(Color.parseColor("#FF5722"));
+                    }
                 }
             });
             actvProperty.addTextChangedListener(new TextWatcher() {
@@ -459,7 +532,12 @@ public class TaskDetails extends AppCompatActivity {
 
                 @Override
                 public void afterTextChanged(Editable s) {
-                    actvProperty.setTextColor(Color.parseColor("#FF5722"));
+                    if (Objects.equals(actvProperty.getText().toString(), pref.getString("tPropertyA1", "crashProperty"))) {
+                        actvProperty.setTextColor(getResources().getColor(R.color.black_color));
+                    } else {
+                        actvProperty.setTextColor(Color.parseColor("#FF5722"));
+                    }
+                    loadCorrespondingFlats();
                 }
             });
 
@@ -476,7 +554,12 @@ public class TaskDetails extends AppCompatActivity {
 
                 @Override
                 public void afterTextChanged(Editable s) {
-                    tdNotes.setTextColor(Color.parseColor("#FF5722"));
+                    if (Objects.equals(tdNotes.getText().toString(), pref.getString("tNotes", "crashNotes"))) {
+                        tdNotes.setTextColor(getResources().getColor(R.color.black_color));
+                    } else {
+                        tdNotes.setTextColor(Color.parseColor("#FF5722"));
+                    }
+
                 }
             });
             btReport.addTextChangedListener(new TextWatcher() {
@@ -492,7 +575,12 @@ public class TaskDetails extends AppCompatActivity {
 
                 @Override
                 public void afterTextChanged(Editable s) {
-                    btReport.setTextColor(Color.parseColor("#FF5722"));
+                    if (Objects.equals(btReport.getText().toString(), pref.getString("btReportText", "crashbtReportText"))) {
+                        btReport.setTextColor(getResources().getColor(R.color.black_color));
+                    } else {
+                        btReport.setTextColor(Color.parseColor("#FF5722"));
+                    }
+
                 }
             });
 
@@ -505,9 +593,8 @@ public class TaskDetails extends AppCompatActivity {
                                 .setMessage("Whoops! Looks like you forgot to set a Title!")
                                 .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog, int which) {
-                                        tdTitle.setText(parceableTask.getTitle());
+                                        tdTitle.setText(pref.getString("tTitle", "crashTitle")); // parceableTask.getTitle()
                                         tdTitle.setSelectAllOnFocus(true);
-                                        tdTitle.setTextColor(getResources().getColor(R.color.black_color));
                                         tdTitle.setSelection(tdTitle.length());
                                     }
                                 })
@@ -519,65 +606,64 @@ public class TaskDetails extends AppCompatActivity {
                     }
                 }
             });
-            final Firebase flatRef = new Firebase(getString(R.string.flats_location));
-            final AutoCompleteTextView actvProperty = (AutoCompleteTextView) findViewById(R.id.et_property_actv);
-            actvProperty.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+//
+//            final Firebase flatRef = new Firebase(getString(R.string.flats_location));
+//            final AutoCompleteTextView actvProperty = (AutoCompleteTextView) findViewById(R.id.et_property_actv);
+//            actvProperty.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+//                @Override
+//                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+//                    loadCorrespondingFlats(actvProperty.getText().toString().toLowerCase(), flatRef, flatList, flatAddrLine1s);
+//                }
+//            });
+
+            actvProperty.setOnFocusChangeListener(new View.OnFocusChangeListener() {
                 @Override
-                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                    loadCorrespondingFlats(actvProperty.getText().toString().toLowerCase(), flatRef, flatList, flatAddrLine1s);
+                public void onFocusChange(View v, boolean hasFocus) {
+                    Boolean isProperty = false;
+                    if (!hasFocus && !Objects.equals(actvProperty.getText().toString(), "")) {
+                        for (int i = 0; i < propertyAddrLine1s.size(); i++) {
+                            if (Objects.equals(propertyAddrLine1s.get(i), actvProperty.getText().
+                                    toString().toLowerCase())) {
+                                isProperty = true;
+                                break;
+                            }
+                        }
+                        if (!isProperty) {
+                            new AlertDialog.Builder(v.getContext())
+                                    .setTitle("Wrong address")
+                                    .setMessage("You must enter an existing property")
+                                    .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            //String[] split = parceableTask.getProperty().split("-");
+                                            actvProperty.setText(pref.getString("tPropertyA1", "crashProperty"));//split[0].trim().substring(0, 1).toUpperCase()
+                                            actvProperty.setSelectAllOnFocus(true);
+                                            actvProperty.setSelection(actvProperty.length());
+                                        }
+                                    })
+                                    .setIcon(android.R.drawable.ic_dialog_alert)
+                                    .show();
+                        }
+                        validProperty = false;
+                    } else if (!hasFocus && Objects.equals(actvProperty.getText().toString(), "")) {
+                        new AlertDialog.Builder(v.getContext())
+                                .setTitle("Null address")
+                                .setMessage("Whoops! Looks like you forgot to set a Property!")
+                                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        //String[] split = parceableTask.getProperty().split("-");
+                                        actvProperty.setText(pref.getString("tPropertyA1", "crashProperty")); //split[0].trim().substring(0, 1).toUpperCase()
+                                        actvProperty.setSelectAllOnFocus(true);
+                                        actvProperty.setSelection(actvProperty.length());
+                                    }
+                                })
+                                .setIcon(android.R.drawable.ic_dialog_alert)
+                                .show();
+                        validProperty = false;
+                    } else {
+                        validProperty = true;
+                    }
                 }
             });
-           actvProperty.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-               @Override
-               public void onFocusChange(View v, boolean hasFocus) {
-                   Boolean isProperty = false;
-
-                   if (!hasFocus && !Objects.equals(actvProperty.getText().toString(), "")) {
-                       for (int i = 0; i < propertyAddrLine1s.size(); i++) {
-                           if (Objects.equals(propertyAddrLine1s.get(i), actvProperty.getText().
-                                   toString().toLowerCase())) {
-                               isProperty = true;
-                               break;
-                           }
-                       }
-                       if (!isProperty) {
-                           new AlertDialog.Builder(v.getContext())
-                                   .setTitle("Wrong address")
-                                   .setMessage("You must enter an existing property")
-                                   .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                                       public void onClick(DialogInterface dialog, int which) {
-                                           String[] split = parceableTask.getProperty().split("-");
-                                           actvProperty.setText(split[0].trim().substring(0, 1).toUpperCase() + split[0].substring(1));
-                                           actvProperty.setSelectAllOnFocus(true);
-                                           actvProperty.setTextColor(getResources().getColor(R.color.black_color));
-                                           actvProperty.setSelection(actvProperty.length());
-                                       }
-                                   })
-                                   .setIcon(android.R.drawable.ic_dialog_alert)
-                                   .show();
-                       }
-                       validProperty = false;
-                   } else if (!hasFocus && Objects.equals(actvProperty.getText().toString(), "")) {
-                       new AlertDialog.Builder(v.getContext())
-                               .setTitle("Null address")
-                               .setMessage("Whoops! Looks like you forgot to set a Property!")
-                               .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                                   public void onClick(DialogInterface dialog, int which) {
-                                       String[] split = parceableTask.getProperty().split("-");
-                                       actvProperty.setText(split[0].trim().substring(0, 1).toUpperCase());
-                                       actvProperty.setSelectAllOnFocus(true);
-                                       actvProperty.setTextColor(getResources().getColor(R.color.black_color));
-                                       actvProperty.setSelection(actvProperty.length());
-                                   }
-                               })
-                               .setIcon(android.R.drawable.ic_dialog_alert)
-                               .show();
-                       validProperty = false;
-                   } else {
-                       validProperty = true;
-                   }
-               }
-           });
 
             tdNotes.setOnFocusChangeListener(new View.OnFocusChangeListener() {
                 @Override
@@ -588,9 +674,8 @@ public class TaskDetails extends AppCompatActivity {
                                 .setMessage("Whoops! Looks like you forgot to set Task Notes!")
                                 .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog, int which) {
-                                        tdNotes.setText(parceableTask.getDescription());
+                                        tdNotes.setText(pref.getString("tNotes", "crashNotes")); //parceableTask.getDescription()
                                         tdNotes.setSelectAllOnFocus(true);
-                                        tdNotes.setTextColor(getResources().getColor(R.color.black_color));
                                         tdNotes.setSelection(tdNotes.length());
                                     }
                                 })
@@ -603,10 +688,10 @@ public class TaskDetails extends AppCompatActivity {
                 }
             });
 
-        if(validTitle && validProperty && validNotes){
-            attemptEdit = true;
-            invalidateOptionsMenu();
-        }
+            if (validTitle && validProperty && validNotes) {
+                attemptEdit = true;
+                invalidateOptionsMenu();
+            }
 
         } catch (Exception ex) {
             Toast toast = Toast.makeText(TaskDetails.this, "Components not enabled.", Toast.LENGTH_SHORT);
