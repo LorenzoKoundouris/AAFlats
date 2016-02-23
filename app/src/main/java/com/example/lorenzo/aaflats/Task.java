@@ -3,6 +3,8 @@ package com.example.lorenzo.aaflats;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.util.Date;
+
 /**
  * Created by Lorenzo on 10/02/2016.
  */
@@ -14,6 +16,9 @@ public class Task implements Parcelable {
     private String report;
     private String property;
     private String taskKey;
+    private String completionTimestamp;
+    private String targetDate;
+
 
     public Task() {
 
@@ -75,6 +80,24 @@ public class Task implements Parcelable {
         this.taskKey = taskKey;
     }
 
+    public String getCompletionTimestamp() {
+        return completionTimestamp;
+    }
+
+    public void setCompletionTimestamp(String completionTimestamp) {
+        this.completionTimestamp = completionTimestamp;
+    }
+
+    public String getTargetDate() {
+        return targetDate;
+    }
+
+    public void setTargetDate(String targetDate) {
+        this.targetDate = targetDate;
+    }
+
+
+
     public Task(Parcel in) {
         title = in.readString();
         description = in.readString();
@@ -83,6 +106,8 @@ public class Task implements Parcelable {
         report = in.readString();
         property = in.readString();
         taskKey = in.readString();
+        completionTimestamp = in.readString();
+        targetDate = in.readString();
     }
 
     @Override
@@ -99,6 +124,8 @@ public class Task implements Parcelable {
         dest.writeString(report);
         dest.writeString(property);
         dest.writeString(taskKey);
+        dest.writeString(completionTimestamp);
+        dest.writeString(targetDate);
     }
 
     @SuppressWarnings("unused")

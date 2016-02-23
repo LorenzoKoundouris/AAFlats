@@ -3,32 +3,43 @@
 
     <group android:checkableBehavior="single">
         <item
-            android:id="@+id/nav_camera"
-            android:icon="@drawable/ic_menu_camera"
-            android:title="Import" />
+            android:id="@+id/nav_inbox"
+            android:icon="@drawable/ic_mail_outline_black_24dp"
+            android:title="Inbox" />
         <item
-            android:id="@+id/nav_gallery"
-            android:icon="@drawable/ic_menu_gallery"
-            android:title="Gallery" />
+            android:id="@+id/nav_today"
+            android:icon="@drawable/ic_today_black_24dp"
+            android:title="Today" />
         <item
-            android:id="@+id/nav_slideshow"
-            android:icon="@drawable/ic_menu_slideshow"
-            android:title="Slideshow" />
+            android:id="@+id/nav_next7"
+            android:icon="@drawable/ic_next7_black_24dp"
+            android:title="Next 7 days" />
         <item
-            android:id="@+id/nav_manage"
-            android:icon="@drawable/ic_menu_manage"
-            android:title="Tools" />
+            android:id="@+id/nav_filter"
+            android:icon="@drawable/ic_filter_list_black_48dp"
+            android:title="Filters" />
     </group>
-
+    <item android:title="Management">
+    <menu>
+        <item
+            android:id="@+id/nav_properties"
+            android:icon="@drawable/ic_home_black_48dp"
+            android:title="Properties"/>
+        <item
+            android:id="@+id/nav_tenants"
+            android:icon="@drawable/ic_group_black_24dp"
+            android:title="Tenants"/>
+    </menu>
+    </item>
     <item android:title="Communicate">
         <menu>
             <item
-                android:id="@+id/nav_share"
-                android:icon="@drawable/ic_menu_share"
-                android:title="Share" />
+                android:id="@+id/map"
+                android:icon="@drawable/ic_map_black_48dp"
+                android:title="Map" />
             <item
-                android:id="@+id/nav_send"
-                android:icon="@drawable/ic_menu_send"
+                android:id="@+id/nav_something"
+                android:icon="@drawable/ic_group_black_24dp"
                 android:title="Send" />
         </menu>
     </item>

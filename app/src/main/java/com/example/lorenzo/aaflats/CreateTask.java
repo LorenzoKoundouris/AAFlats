@@ -1,14 +1,14 @@
 package com.example.lorenzo.aaflats;
 
+import android.app.DatePickerDialog;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
-import android.os.PersistableBundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
@@ -21,7 +21,10 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
+import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -33,15 +36,31 @@ import com.firebase.client.FirebaseError;
 import com.firebase.client.Query;
 import com.firebase.client.ValueEventListener;
 
+import java.text.DateFormat;
+import java.text.DecimalFormat;
+import java.text.FieldPosition;
+import java.text.ParseException;
+import java.text.ParsePosition;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
 import java.util.Objects;
 
 public class CreateTask extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
     private Report attachedReport;
     private Spinner prioritySpinner, flatSpinner;
     private Boolean attached = false;
+
+    private int year_x, month_x, day_x;
+    Button pickDateButton;
+    static final int DIALOG_ID = 0;
+    EditText dateValue;
+    EditText etTitle;
+    SharedPreferences pref;
+    SharedPreferences.Editor prefEditor;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -49,6 +68,9 @@ public class CreateTask extends AppCompatActivity implements AdapterView.OnItemS
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         setTitle("Create new task");
+
+        pref = getApplicationContext().getSharedPreferences("MyPrefs", MODE_PRIVATE);
+        prefEditor = pref.edit();
 
         Firebase.setAndroidContext(this);
         Firebase firebaseRef = new Firebase(getString(R.string.firebase_location));
@@ -71,10 +93,18 @@ public class CreateTask extends AppCompatActivity implements AdapterView.OnItemS
         final CardView ntCard = (CardView) findViewById(R.id.nt_card);
         final TextView ntCardText = (TextView) findViewById(R.id.nt_card_text_view);
         final Context context = this;
+        final LinearLayout targetDateButtonsll = (LinearLayout) findViewById(R.id.nt_target_date_lnr_layout);
+        final LinearLayout targetDateTextEditll = (LinearLayout) findViewById(R.id.nt_date_text_lnr_layout);
+
+        targetDateButtonsll.setVisibility(View.INVISIBLE);
+        targetDateButtonsll.setEnabled(false);
+
 
         taskRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+                mTaskList.clear();
+                taskTitles.clear();
                 for (DataSnapshot tskSnapshot : dataSnapshot.getChildren()) {
                     Task tsk = tskSnapshot.getValue(Task.class);
                     mTaskList.add(tsk);
@@ -91,7 +121,8 @@ public class CreateTask extends AppCompatActivity implements AdapterView.OnItemS
         reportRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-
+                reportList.clear();
+                reportTitles.clear();
                 for (DataSnapshot rptSnapshot : dataSnapshot.getChildren()) {
                     Report rpt = rptSnapshot.getValue(Report.class);
                     reportList.add(rpt);
@@ -136,6 +167,8 @@ public class CreateTask extends AppCompatActivity implements AdapterView.OnItemS
         propertyRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+                propertyList.clear();
+                propertyAddrLine1s.clear();
                 for (DataSnapshot prtSnapshot : dataSnapshot.getChildren()) {
                     Property prt = prtSnapshot.getValue(Property.class);
                     propertyList.add(prt);
@@ -162,14 +195,14 @@ public class CreateTask extends AppCompatActivity implements AdapterView.OnItemS
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 Boolean isProperty = false;
-                if(!hasFocus && !Objects.equals(actvProperty.getText().toString(), "")){
-                    for(int i = 0; i<propertyAddrLine1s.size(); i++){
-                        if(Objects.equals(propertyAddrLine1s.get(i), actvProperty.getText().toString().toLowerCase())){
+                if (!hasFocus && !Objects.equals(actvProperty.getText().toString(), "")) {
+                    for (int i = 0; i < propertyAddrLine1s.size(); i++) {
+                        if (Objects.equals(propertyAddrLine1s.get(i), actvProperty.getText().toString().toLowerCase())) {
                             isProperty = true;
                             break;
                         }
                     }
-                    if(!isProperty){
+                    if (!isProperty) {
                         new AlertDialog.Builder(context)
                                 .setTitle("Wrong address")
                                 .setMessage("You must enter an existing property")
@@ -198,12 +231,133 @@ public class CreateTask extends AppCompatActivity implements AdapterView.OnItemS
         priorityAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
         // Apply the adapter to the prioritySpinner
         prioritySpinner.setAdapter(priorityAdapter);
-        prioritySpinner.setSelection(0);
+        prioritySpinner.setSelection(2);
+
+        etTitle = (EditText) findViewById(R.id.nt_title_editview);
+        dateValue = (EditText) findViewById(R.id.nt_date_value_edittext);
+
+        etTitle.requestFocus();
+        dateValue.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (hasFocus) {
+                    targetDateButtonsll.setVisibility(View.VISIBLE);
+                    targetDateButtonsll.setEnabled(true);
+                    targetDateTextEditll.setVisibility(View.INVISIBLE);
+                    targetDateTextEditll.setEnabled(false);
+                    //pickDateButton.performClick();
+                }
+            }
+        });
+
+        final ImageView cancelDate = (ImageView) findViewById(R.id.cancel_date_pick);
+        cancelDate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                targetDateButtonsll.setVisibility(View.INVISIBLE);
+                targetDateButtonsll.setEnabled(false);
+                targetDateTextEditll.setVisibility(View.VISIBLE);
+                targetDateTextEditll.setEnabled(true);
+            }
+        });
 
 
+        final Calendar cal = Calendar.getInstance();
+        year_x = cal.get(Calendar.YEAR);
+        month_x = cal.get(Calendar.MONTH);
+        day_x = cal.get(Calendar.DAY_OF_MONTH);
+
+        final Date thisDate = Calendar.getInstance().getTime();
+        final SimpleDateFormat formatt = new SimpleDateFormat("dd/MM/yyyy");
+        dateValue.setText(formatt.format(thisDate));
+
+        Button tomorrow = (Button) findViewById(R.id.tomorrow_button);
+        tomorrow.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                cal.add(Calendar.DAY_OF_YEAR, 1);
+                Date tomorrow = cal.getTime();
+                dateValue.setText(formatt.format(tomorrow));
+                cancelDate.performClick();
+            }
+        });
+
+        showDialogOnButtonClick();
+    } //END OF onCreate METHOD
+
+    public void showDialogOnButtonClick() {
+        pickDateButton = (Button) findViewById(R.id.nt_date_picker_button);
+        pickDateButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showDialog(DIALOG_ID);
+            }
+        });
     }
 
-    private void loadCorrespondingFlats(String s, Firebase flatRef, final ArrayList<Flat> flatList, final ArrayList<String> flatAddrLine1s) {
+    @Override
+    protected Dialog onCreateDialog(int id) {
+        if (id == DIALOG_ID) {
+            DatePickerDialog da = new DatePickerDialog(this, dpickerListener,
+                    year_x, month_x, day_x);
+            Calendar c = Calendar.getInstance();
+//            c.add(Calendar.DATE, 0);
+            Date newDate = c.getTime();
+            da.getDatePicker().setMinDate(System.currentTimeMillis());
+            return da;
+
+            //return new DatePickerDialog(this, dpickerListener, year_x, month_x, day_x);
+        } else {
+            return null;
+        }
+    }
+
+
+    private DatePickerDialog.OnDateSetListener dpickerListener = new DatePickerDialog.OnDateSetListener() {
+        @Override
+        public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
+            final LinearLayout targetDateButtonsll = (LinearLayout) findViewById(R.id.nt_target_date_lnr_layout);
+            final LinearLayout targetDateTextEditll = (LinearLayout) findViewById(R.id.nt_date_text_lnr_layout);
+            year_x = year;
+            month_x = monthOfYear + 1;
+            day_x = dayOfMonth;
+            String formatter = (new DecimalFormat("00").format(day_x) + "/" +
+                    new DecimalFormat("00").format(month_x) + "/" +
+                    new DecimalFormat("00").format(year_x));
+            dateValue.setText(formatter);
+            etTitle.requestFocus();
+
+            final Date thisDate = Calendar.getInstance().getTime();
+            final SimpleDateFormat formatt = new SimpleDateFormat("dd/MM/yyyy");
+
+//            String chosenDat = pref.getString("chosenDate", formatt.format(thisDate));
+            Date chosenDate = new Date();
+            try {
+                chosenDate = new SimpleDateFormat("dd/MM/yyyy", Locale.ENGLISH).parse(formatter);
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+            if (chosenDate.before(thisDate)) {
+                dateValue.setText(formatt.format(thisDate));
+                prefEditor.putString("chosenDate", formatter);
+                prefEditor.commit();
+            } else {
+                prefEditor.putString("chosenDate", formatter);
+                prefEditor.commit();
+            }
+
+
+            targetDateButtonsll.setVisibility(View.INVISIBLE);
+            targetDateButtonsll.setEnabled(false);
+            targetDateTextEditll.setVisibility(View.VISIBLE);
+            targetDateTextEditll.setEnabled(true);
+            showDialogOnButtonClick();
+
+        }
+    };
+
+    private void loadCorrespondingFlats(String s, Firebase flatRef, final ArrayList<Flat> flatList,
+                                        final ArrayList<String> flatAddrLine1s) {
         Query flatQuery = flatRef.orderByKey().startAt(s); //
         flatQuery.addValueEventListener(new ValueEventListener() {
             @Override
@@ -212,16 +366,9 @@ public class CreateTask extends AppCompatActivity implements AdapterView.OnItemS
                     Flat flt = fltSnapshot.getValue(Flat.class);
                     flatList.add(flt);
                     String[] split = fltSnapshot.getKey().split(" - ");
-                    flatAddrLine1s.add(split[1].trim().substring(0,1).toUpperCase());
-//                    fltSnapshot.getKey().substring(fltSnapshot.getKey()
-//                            .indexOf("flat"), fltSnapshot.getKey().length())
-//                            .substring(0, 1).toUpperCase() + fltSnapshot.getKey()
-//                            .substring(fltSnapshot.getKey().indexOf("flat"),
-//                                    fltSnapshot.getKey().length()).substring(1)
+                    flatAddrLine1s.add(split[1].trim().substring(0, 1).toUpperCase() + split[1].trim().substring(1));
                 }
                 flatSpinner = (Spinner) findViewById(R.id.nt_flat_spinner);
-//        ArrayAdapter<CharSequence> flatAdapter = ArrayAdapter.createFromResource(this,
-//                R.array.priorities, R.layout.custom_spinner);
                 ArrayAdapter<String> flatAdapter = new ArrayAdapter<>(getBaseContext(), R.layout.spinner_dropdown_item, flatAddrLine1s);
                 flatAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
                 flatSpinner.setAdapter(flatAdapter);
@@ -281,8 +428,22 @@ public class CreateTask extends AppCompatActivity implements AdapterView.OnItemS
         }
         return true;
     }
-    public void saveNewTask(){
 
+    public void saveNewTask() {
+
+        final Date thisDate = Calendar.getInstance().getTime();
+        final SimpleDateFormat formatt = new SimpleDateFormat("dd/MM/yyyy");
+
+        String chosenDat = pref.getString("chosenDate", formatt.format(thisDate));
+        Date chosenDate = new Date();
+        try {
+            chosenDate = new SimpleDateFormat("dd/MM/yyyy", Locale.ENGLISH).parse(chosenDat);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        if (chosenDate.before(thisDate)) {
+            dateValue.setText(formatt.format(thisDate));
+        }
         LinearLayout llTitle = (LinearLayout) findViewById(R.id.nt_title_lnr_layout);
         LinearLayout llProperty = (LinearLayout) findViewById(R.id.nt_property_lnr_layout);
         LinearLayout llFlat = (LinearLayout) findViewById(R.id.nt_flat_lnr_layout);
@@ -290,7 +451,7 @@ public class CreateTask extends AppCompatActivity implements AdapterView.OnItemS
         LinearLayout llPriority = (LinearLayout) findViewById(R.id.nt_priority_lnr_layout);
         LinearLayout llReport = (LinearLayout) findViewById(R.id.nt_report_lnr_layout);
         LinearLayout llError = (LinearLayout) findViewById(R.id.nt_error_lnr_layout);
-        EditText etTitle = (EditText) findViewById(R.id.nt_title_editview);
+//        etTitle = (EditText) findViewById(R.id.nt_title_editview);
         AutoCompleteTextView actvProperty = (AutoCompleteTextView) findViewById(R.id.nt_property_actv);
         EditText etDescription = (EditText) findViewById(R.id.nt_notes_editview); //Notes
         TextView cardTV = (TextView) findViewById(R.id.nt_card_text_view);
@@ -299,47 +460,51 @@ public class CreateTask extends AppCompatActivity implements AdapterView.OnItemS
         boolean validNotes = false;
         boolean validReport = false;
 
+
         llError.setVisibility(llError.VISIBLE);
-        if(Objects.equals(etTitle.getText().toString(), "")){
+        if (Objects.equals(etTitle.getText().toString(), "")) {
             llTitle.setBackgroundColor(Color.parseColor("#EF9A9A"));
             etTitle.setHint(Html.fromHtml("Any meaningful " + "<b><u>" + "title" + "</u></b>"));
-        }else{
+        } else {
             llTitle.setBackgroundColor(Color.parseColor("#eeeeee"));
             validTitle = true;
         }
-        if(Objects.equals(actvProperty.getText().toString(), "")){
+        if (Objects.equals(actvProperty.getText().toString(), "")) {
             llProperty.setBackgroundColor(Color.parseColor("#EF9A9A"));
             actvProperty.setHint(Html.fromHtml("<b>" + "i.e" + "</b>" + "<i>" +
                     "\"  12 Trematon Terrace\"" + "</i>"));
             llFlat.setBackgroundColor(Color.parseColor("#EF9A9A"));
-        }else{
+        } else {
             llProperty.setBackgroundColor(Color.parseColor("#eeeeee"));
             validProperty = true;
         }
-        if(Objects.equals(etDescription.getText().toString(), "")){
+        if (Objects.equals(etDescription.getText().toString(), "")) {
             llNotes.setBackgroundColor(Color.parseColor("#EF9A9A"));
             etDescription.setHint(Html.fromHtml("<b>Details about task..</b>\n<i>\"What, how, why..\"</i>"));
             etDescription.setTypeface(Typeface.DEFAULT_BOLD);
-        }else{
+        } else {
             llNotes.setBackgroundColor(Color.parseColor("#eeeeee"));
             validNotes = true;
         }
-        if(prioritySpinner.getSelectedItem() == null){
+        if (prioritySpinner.getSelectedItem() == null) {
             llPriority.setBackgroundColor(Color.parseColor("#EF9A9A"));
-        }else{
+        } else {
             llPriority.setBackgroundColor(Color.parseColor("#eeeeee"));
         }
-        if(Objects.equals(cardTV.getText().toString(), "ATTACH A REPORT")){
+        if (Objects.equals(cardTV.getText().toString(), "ATTACH A REPORT")) {
             llReport.setBackgroundColor(Color.parseColor("#EF9A9A"));
-        }else{
+        } else {
             llReport.setBackgroundColor(Color.parseColor("#eeeeee"));
             validReport = true;
         }
 
-        if(validTitle && validProperty && validNotes && validReport){
+        if (validTitle && validProperty && validNotes && validReport) {
             try {
                 Task newTask = new Task();
 
+                newTask.setTargetDate(pref.getString("chosenDate", formatt.format(thisDate)));
+
+                newTask.setCompletionTimestamp("pending");
 
                 newTask.setTitle(etTitle.getText().toString().trim());
 
@@ -391,6 +556,8 @@ public class CreateTask extends AppCompatActivity implements AdapterView.OnItemS
     public void onNothingSelected(AdapterView<?> parent) {
         //Another interface callback
     }
+
+
 }
 
 

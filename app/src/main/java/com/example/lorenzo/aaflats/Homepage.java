@@ -2,7 +2,6 @@ package com.example.lorenzo.aaflats;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.SystemClock;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -24,11 +23,8 @@ import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
 import com.firebase.client.Query;
 import com.firebase.client.ValueEventListener;
-import com.firebase.ui.auth.core.FirebaseLoginBaseActivity;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 
 public class Homepage extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -36,10 +32,10 @@ public class Homepage extends AppCompatActivity
     private final static String SAVED_ADAPTER_ITEMS = "SAVED_ADAPTER_ITEMS";
     private final static String SAVED_ADAPTER_KEYS = "SAVED_ADAPTER_KEYS";
     private Query mQuery;
-    private MyAdapter mMyAdapter;
+    private TaskAdapter mTaskAdapter;
     private ArrayList<Task> mAdapterItems;
     private ArrayList<String> mAdapterKeys;
-    private RecyclerView recyclerView;
+    private RecyclerView taskRecyclerView;
     private SwipeRefreshLayout refreshLayout;
 
     @Override
@@ -52,7 +48,7 @@ public class Homepage extends AppCompatActivity
         setupFirebase();
         setupRecyclerview();
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.home_fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -89,26 +85,22 @@ public class Homepage extends AppCompatActivity
 //                refreshLayout.setRefreshing(true);
 //            }
 //        });
-        String t1 = String.valueOf(R.drawable.high_priority_circle);    // 2130837622 - 3
-        String t2 = String.valueOf(R.drawable.medium_priority_circle);  // 2130837636 - 2
-        String t3 = String.valueOf(R.drawable.low_priority_circle);     // 2130837634 - 1
     }
 
 
     private void setupRecyclerview() {
-        recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        SimpleDateFormat s = new SimpleDateFormat("ddMMyyyyHHmmss");
-        String format = s.format(new Date());
-        System.out.println("TIMESTAMP: " + format);
+        taskRecyclerView = (RecyclerView) findViewById(R.id.task_recycler_view);
+        taskRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+//        SimpleDateFormat s = new SimpleDateFormat("ddMMyyyyHHmmss");
+//        String format = s.format(new Date());
+//        System.out.println("TIMESTAMP: " + format);
     }
 
     private void setupFirebase() {
         Firebase.setAndroidContext(this);
-        String firebaseLocation = getResources().getString(R.string.firebase_location);
-        String usersLocation = getResources().getString(R.string.users_location);
         String tasksLocation = getResources().getString(R.string.tasks_location);
         final ArrayList<Task> mTaskList = new ArrayList<Task>();
+        final ArrayList<String> taskKeys = new ArrayList<>();
         mQuery = new Firebase(tasksLocation);
 
         mQuery.addValueEventListener(new ValueEventListener() {
@@ -119,8 +111,9 @@ public class Homepage extends AppCompatActivity
 //                    System.out.println("Task: " + tsk.getTitle() + ": " + tsk.getDescription());
 ////                    mAdapterItems.add(tsk);
 //                }
-//                recyclerView.setAdapter(new MyAdapter(mQuery, Task.class));
+//                taskRecyclerView.setAdapter(new TaskAdapter(mQuery, Task.class));
                 mTaskList.clear();
+                taskKeys.clear();
                 System.out.println("PRINT OUT OF FOR-LOOP+++++++++++++++++++++");
                 int i=0;
                 for (DataSnapshot tskSnapshot : dataSnapshot.getChildren()) {
@@ -131,14 +124,16 @@ public class Homepage extends AppCompatActivity
                     //System.out.println("onData Title: " + tsk.getTitle());
                     //System.out.println("onData Description : " + tsk.getDescription());
                     mTaskList.add(tsk);
-                    mTaskList.get(i).setTaskKey(tskSnapshot.getKey());
+                    //mTaskList.get(i).setTaskKey(tskSnapshot.getKey());
+                    taskKeys.add(tskSnapshot.getKey());
                     //System.out.println("taskArrayList contents: " + mTaskList); //It has tasks here
 
                     // specify an adapter (see also next example)
-                    recyclerView.setAdapter(new MyAdapter(mQuery, mTaskList)); //, Task.class
-                    refreshLayout.setRefreshing(false);
+
                     i++;
                 }
+                taskRecyclerView.setAdapter(new TaskAdapter(taskKeys, mTaskList)); //, Task.class
+                refreshLayout.setRefreshing(false);
             }
 
             @Override
@@ -155,7 +150,7 @@ public class Homepage extends AppCompatActivity
                 Task tsk = dataSnapshot.getValue(Task.class);
                 //System.out.println("PRINT THIS CHILD: " + dataSnapshot.getValue() +"$$$$$$$$$$$$$$$$$$$");
                 // specify an adapter (see also next example)
-                //mRecyclerView.setAdapter(new MyAdapter(mQuery, taskArrayList)); //, Task.class
+                //mRecyclerView.setAdapter(new TaskAdapter(mQuery, taskArrayList)); //, Task.class
                 //}
 
 
@@ -227,17 +222,17 @@ public class Homepage extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_camera) {
+        if (id == R.id.nav_inbox) {
             // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
+        } else if (id == R.id.nav_today) {
 
-        } else if (id == R.id.nav_slideshow) {
+        } else if (id == R.id.nav_next7) {
 
-        } else if (id == R.id.nav_manage) {
+        } else if (id == R.id.nav_filter) {
 
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
+        } else if (id == R.id.nav_properties) {
+            startActivity(new Intent(Homepage.this, AllProperties.class));
+        } else if (id == R.id.nav_something) {
 
         }
 

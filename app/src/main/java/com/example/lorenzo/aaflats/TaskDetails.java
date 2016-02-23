@@ -15,7 +15,6 @@ import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
@@ -48,7 +47,7 @@ public class TaskDetails extends AppCompatActivity {
     AutoCompleteTextView actvProperty;// = (EditText) findViewById(R.id.et_property_actv);
     EditText tdNotes;// = (EditText) findViewById(R.id.td_notes);
     Button btReport;// = (Button) findViewById(R.id.bt_report);
-    MenuItem saveEdit;// = (MenuItem) findViewById(R.id.edit_save_task);
+    MenuItem saveEdit;// = (MenuItem) findViewById(R.id.edit_task);
     CheckBox taskCompletionCheckBox;// = (CheckBox) findViewById(R.id.completion_check_box);
     final ArrayList<String> propertyAddrLine1s = new ArrayList<>();
     final ArrayList<Report> reportList = new ArrayList<>();
@@ -64,6 +63,7 @@ public class TaskDetails extends AppCompatActivity {
     private Report attachedReport;
     final Context context = this;
     Task parceableTask = new Task();
+    String parceableTaskKey;
     String attachedReportKey;
 
     Firebase taskRef;
@@ -92,6 +92,7 @@ public class TaskDetails extends AppCompatActivity {
         //Clicked-on Task to be passed from Homepage
         Bundle intent = getIntent().getExtras();
         parceableTask = intent.getParcelable("parceable_task");
+        parceableTaskKey = intent.getString("parceable_task_key");
         //ArrayList<Task> pTaskList = (ArrayList<Task>) intent.getParcelable("parceable_tasklist");
 
 
@@ -314,7 +315,7 @@ public class TaskDetails extends AppCompatActivity {
         taskCompletionCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                Firebase changeTaskStatusRef = taskRef.child(parceableTask.getTaskKey());
+                Firebase changeTaskStatusRef = taskRef.child(parceableTaskKey);
                 Map<String, Object> statusChangeMap = new HashMap<>();
                 if (isChecked) {
                     parceableTask.setStatus(true);
@@ -383,7 +384,7 @@ public class TaskDetails extends AppCompatActivity {
         // Inflate the menu; this adds items to the action bar if it is present.
         if (!attemptEdit) {
             getMenuInflater().inflate(R.menu.task_details, menu);
-            saveEdit = menu.findItem(R.id.edit_save_task);
+            saveEdit = menu.findItem(R.id.edit_task);
         } else {
             getMenuInflater().inflate(R.menu.task_details_save, menu);
             saveEdit = menu.findItem(R.id.save_edited_task);
@@ -423,7 +424,7 @@ public class TaskDetails extends AppCompatActivity {
                 onBackPressed();
                 break;
 
-            case R.id.edit_save_task:
+            case R.id.edit_task:
                 Toast.makeText(getApplicationContext(), "Edit button clicked", Toast.LENGTH_SHORT).show();
                 editTaskDetails();
                 break;
@@ -449,8 +450,14 @@ public class TaskDetails extends AppCompatActivity {
                         flatSpinner.getSelectedItem().toString().toLowerCase());
                 parceableTask.setDescription(tdNotes.getText().toString());
                 parceableTask.setPriority(prioritySpinner.getSelectedItem().toString().toLowerCase());
-                parceableTask.setReport(attachedReportKey);
+                if(Objects.equals(attachedReportKey, "")){
+                   parceableTask.setReport(pref.getString("rKey", "crashReportKey"));
+                } else {
+                    parceableTask.setReport(attachedReportKey);
+                }
+
                 //taskRef.child(parceableTask.getTaskKey()).setValue(parceableTask);
+                taskRef.child(parceableTaskKey).setValue(parceableTask);
                 Toast toast = Toast.makeText(TaskDetails.this, "Task edited! SUCCESS!", Toast.LENGTH_SHORT);
                 toast.setGravity(Gravity.CENTER, 0, 0);
                 toast.show();

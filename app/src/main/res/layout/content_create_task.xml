@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:paddingTop="50dp">
 
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -17,29 +18,62 @@
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
         tools:context="com.example.lorenzo.aaflats.CreateTask"
         tools:showIn="@layout/activity_create_task">
+<RelativeLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+    <LinearLayout
+        android:id="@+id/nt_target_date_lnr_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:visibility="invisible"
+        android:paddingBottom="8dp">
+        <ImageView
+            android:id="@+id/cancel_date_pick"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_gravity="center_vertical"
+            android:background="@color/colorAccent"
+            android:layout_marginEnd="12dp"
+            android:src="@drawable/ic_close_white_24dp"/>
+        <Button
+            android:id="@+id/tomorrow_button"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:text="Tomorrow"
+            android:layout_height="wrap_content" />
+        <Button
+            android:id="@+id/nt_date_picker_button"
+            android:text="Pick a date"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="match_parent"/>
 
-        <LinearLayout
-            android:id="@+id/nt_easter_egg"
-            android:layout_width="match_parent"
+    </LinearLayout>
+    <LinearLayout
+        android:id="@+id/nt_date_text_lnr_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <TextView
+            android:id="@+id/nt_target_date_textview"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:paddingBottom="8dp">
+            android:layout_weight="1"
+            android:text="Target date: " />
 
-            <TextView
-                android:id="@+id/nt_dfdfdf_textview"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Hidden: " />
+        <EditText
+            android:id="@+id/nt_date_value_edittext"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="3"
+            android:hint="Target date - DD/MM/YYYY" />
 
-            <EditText
-                android:id="@+id/nt_dfdfdf_editview"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="3"
-                android:hint="Message"
-                android:textStyle="italic" />
-        </LinearLayout>
+
+    </LinearLayout>
+
+
+</RelativeLayout>
+
         <LinearLayout
             android:id="@+id/nt_title_lnr_layout"
             android:layout_width="match_parent"
