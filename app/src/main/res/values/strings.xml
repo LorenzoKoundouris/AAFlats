@@ -22,9 +22,10 @@
         <item>Medium</item>
         <item>Low</item>
     </string-array>
-    <string name="title_activity_properties">Properties</string>
+    <string name="title_activity_property_details">Property details</string>
 
     <string name="action_settings">Settings</string>
     <string name="title_activity_map_property">Map</string>
     <string name="title_activity_all_properties">AllProperties</string>
+    <string name="title_activity_flat_details">FlatDetails</string>
 </resources>

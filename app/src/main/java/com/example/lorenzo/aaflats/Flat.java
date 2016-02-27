@@ -1,9 +1,14 @@
 package com.example.lorenzo.aaflats;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
+import java.util.ArrayList;
+
 /**
  * Created by Lorenzo on 15/02/2016.
  */
-public class Flat {
+public class Flat implements Parcelable{
     private String tenant; // private Tenant tenant;
     private String pendingTask; //private Task pendingTask;
     private String notes;
@@ -11,6 +16,26 @@ public class Flat {
     private String addressLine1;
 
     public Flat(){}
+
+    protected Flat(Parcel in) {
+        tenant = in.readString();
+        pendingTask = in.readString();// (ArrayList<String>) in.readSerializable();
+        notes = in.readString();
+        postcode = in.readString();
+        addressLine1 = in.readString();
+    }
+
+    public static final Creator<Flat> CREATOR = new Creator<Flat>() {
+        @Override
+        public Flat createFromParcel(Parcel in) {
+            return new Flat(in);
+        }
+
+        @Override
+        public Flat[] newArray(int size) {
+            return new Flat[size];
+        }
+    };
 
     public String getPendingTask() {
         return pendingTask;
@@ -50,5 +75,19 @@ public class Flat {
 
     public void setAddressLine1(String addressLine1) {
         this.addressLine1 = addressLine1;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(tenant);
+        dest.writeString(pendingTask); //writeSerializable
+        dest.writeString(notes);
+        dest.writeString(postcode);
+        dest.writeString(addressLine1);
     }
 }

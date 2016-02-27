@@ -9,7 +9,7 @@ import android.os.Parcelable;
 public class Property implements Parcelable{
     private String addrline1;
     private String postcode;
-    private int noOfFlats;
+    private String noOfFlats;
     private String notes;
 //    private Flat flat;
 
@@ -32,11 +32,11 @@ public class Property implements Parcelable{
         this.postcode = postcode;
     }
 
-    public int getNoOfFlats() {
+    public String getNoOfFlats() {
         return noOfFlats;
     }
 
-    public void setNoOfFlats(int noOfFlats) {
+    public void setNoOfFlats(String noOfFlats) {
         this.noOfFlats = noOfFlats;
     }
 
@@ -52,7 +52,7 @@ public class Property implements Parcelable{
     protected Property(Parcel in) {
         addrline1 = in.readString();
         postcode = in.readString();
-        noOfFlats = in.readInt();
+        noOfFlats = in.readString();
         notes = in.readString();
     }
 
@@ -81,7 +81,7 @@ public class Property implements Parcelable{
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(addrline1);
         dest.writeString(postcode);
-        dest.writeInt(noOfFlats);
+        dest.writeString(noOfFlats);
         dest.writeString(notes);
     }
 

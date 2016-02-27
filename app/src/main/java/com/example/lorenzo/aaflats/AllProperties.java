@@ -37,12 +37,12 @@ public class AllProperties extends AppCompatActivity {
         });
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        final RecyclerView recyclerView;
+        final RecyclerView propertyRecyclerView;
         final ArrayList<Property> propertyList = new ArrayList<>();
         final ArrayList<String> propertyKeys = new ArrayList<>();
 
-        recyclerView = (RecyclerView) findViewById(R.id.properties_recycler_view);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        propertyRecyclerView = (RecyclerView) findViewById(R.id.properties_recycler_view);
+        propertyRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         String propertiesRefString = getResources().getString(R.string.properties_location);
         Firebase propertiesRef = new Firebase(propertiesRefString);
@@ -50,13 +50,14 @@ public class AllProperties extends AppCompatActivity {
         propertiesRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+                propertyList.clear();
+                propertyKeys.clear();
                 for (DataSnapshot childSnap : dataSnapshot.getChildren()) {
                     Property prt = childSnap.getValue(Property.class);
                     propertyList.add(prt);
                     propertyKeys.add(childSnap.getKey());
                 }
-                recyclerView.setAdapter(new PropertyAdapter(propertyList, propertyKeys));
-
+                propertyRecyclerView.setAdapter(new PropertyAdapter(propertyList, propertyKeys));
             }
 
             @Override

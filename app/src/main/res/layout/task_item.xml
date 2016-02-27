@@ -33,6 +33,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentTop="true"
+                android:text="title"
                 android:layout_toEndOf="@+id/task_photo"
                 android:textSize="25sp" />
 
@@ -41,6 +42,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/task_title"
+                android:text="property"
                 android:layout_toEndOf="@+id/task_photo" />
 
             <ImageView

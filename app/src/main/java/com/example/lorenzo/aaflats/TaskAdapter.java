@@ -40,8 +40,8 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskViewHolder> {
         mTask = mTaskList.get(i);
 
         String titleLengthCheck = mTask.getTitle();
-        if (titleLengthCheck.length() > 20) {
-            titleLengthCheck = titleLengthCheck.substring(0, 20);
+        if (titleLengthCheck.length() > 16) {
+            titleLengthCheck = titleLengthCheck.substring(0, 16);
             taskViewHolder.taskTitle.setText(titleLengthCheck + "..");
         } else {
             taskViewHolder.taskTitle.setText(mTask.getTitle());

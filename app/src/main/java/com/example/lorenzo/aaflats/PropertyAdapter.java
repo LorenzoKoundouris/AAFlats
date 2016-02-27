@@ -32,12 +32,12 @@ public class PropertyAdapter extends RecyclerView.Adapter<PropertyViewHolder>{
     public void onBindViewHolder(PropertyViewHolder propertyViewHolder, int position) {
         mProperty = propertyList.get(position);
         propertyViewHolder.propertyAddrline1.setText(propertyKeys.get(position));
-        propertyViewHolder.propertyPostcode.setText(mProperty.getPostcode());
-        propertyViewHolder.propertyFlats.setText(mProperty.getNoOfFlats());
+        propertyViewHolder.propertyPostcode.setText(mProperty.getPostcode().toUpperCase());
+        propertyViewHolder.propertyNotes.setText(mProperty.getNotes());
     }
 
     @Override
     public int getItemCount() {
-        return 0;
+        return propertyList.size();
     }
 }

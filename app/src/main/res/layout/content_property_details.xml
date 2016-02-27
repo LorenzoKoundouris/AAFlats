@@ -11,7 +11,7 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context=".PropertyDetails"
-    tools:showIn="@layout/app_bar_properties">
+    tools:showIn="@layout/app_bar_property_details">
 
     <android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/properties_card_view"
@@ -36,13 +36,18 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Postcode: " />
+                    android:text="Postcode: "
+                    android:textColor="@color/colorPrimary"
+                    android:textSize="18sp" />
 
                 <TextView
-                    android:layout_width="match_parent"
+                    android:id="@+id/property_details_postcode"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="60dp"
-                    android:text="PL4 6QS" />
+                    android:layout_marginStart="23dp"
+                    android:text="PL4 6QS"
+                    android:textSize="18sp" />
+
             </LinearLayout>
 
             <LinearLayout
@@ -53,13 +58,17 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Address line 1: " />
+                    android:text="Address: "
+                    android:textColor="@color/colorPrimary"
+                    android:textSize="18sp" />
 
                 <TextView
-                    android:layout_width="match_parent"
+                    android:id="@+id/property_details_addrline1"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="31dp"
-                    android:text="12 Trematon Terrace" />
+                    android:layout_marginStart="32dp"
+                    android:text="12 Trematon Terrace"
+                    android:textSize="18sp" />
             </LinearLayout>
 
             <LinearLayout
@@ -70,46 +79,20 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Flats: " />
+                    android:text="Notes: "
+                    android:textColor="@color/colorPrimary"
+                    android:textSize="18sp" />
 
                 <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="(4)" />
-
-                <LinearLayout
+                    android:id="@+id/property_details_notes"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="72dp"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="6dp"
-                        android:text="Flat 1 - Lorenzo Koundouris"
-                        android:textColor="@android:color/holo_blue_dark" />
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="6dp"
-                        android:text="Flat 2 - Rosie Smith"
-                        android:textColor="@android:color/holo_blue_dark" />
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="6dp"
-                        android:text="Flat 3 - "
-                        android:textColor="@android:color/holo_blue_dark" />
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="6dp"
-                        android:text="Flat 4"
-                        android:textColor="@android:color/holo_blue_dark" />
-                </LinearLayout>
-
+                    android:layout_marginStart="50dp"
+                    android:text="Notes notes notes notes notes notes notes notes notes notes notes notes notes notes notes notes notes notes notes..."
+                    android:textSize="18sp"
+                    android:textStyle="italic" />
             </LinearLayout>
+
         </LinearLayout>
 
     </android.support.v7.widget.CardView>
@@ -126,18 +109,49 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="12dp">
-            <TextView
+            android:orientation="vertical">
+
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Notes: "/>
-            <TextView
+                android:layout_margin="12dp"
+                android:layout_marginBottom="12dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Flats: "
+                    android:textColor="@color/colorPrimary"
+                    android:textSize="18sp" />
+
+                <TextView
+                    android:id="@+id/property_details_flats"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:layout_gravity="center_vertical"
+                    android:text="(4)"
+                    android:textSize="15sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@android:color/darker_gray" />
+
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="20dp"
-                android:text="Notes notes notes notes notes notes notes notes notes notes notes notes notes notes notes notes notes notes notes..."/>
+                android:orientation="vertical">
+                <!--android:layout_marginStart="65dp"-->
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/flat_recycler_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                </android.support.v7.widget.RecyclerView>
+            </LinearLayout>
         </LinearLayout>
     </android.support.v7.widget.CardView>
-
-
 </LinearLayout>

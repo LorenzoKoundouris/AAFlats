@@ -14,7 +14,7 @@ import java.util.ArrayList;
 public class PropertyViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
     protected CardView cardView;
     protected TextView propertyAddrline1;
-    protected TextView propertyFlats;
+    protected TextView propertyNotes;
     protected TextView propertyPostcode;
     protected ArrayList<Property> propertyList;
     private ArrayList<String> propertyKeys;
@@ -24,11 +24,13 @@ public class PropertyViewHolder extends RecyclerView.ViewHolder implements View.
         cardView = (CardView) itemView.findViewById(R.id.property_card_view);
         propertyAddrline1 = (TextView) itemView.findViewById(R.id.property_addrline1);
         propertyPostcode = (TextView) itemView.findViewById(R.id.property_postcode);
-        propertyFlats = (TextView) itemView.findViewById(R.id.property_flats);
+        propertyNotes = (TextView) itemView.findViewById(R.id.property_details_notes);
 
         this.propertyList = propertyList;
         this.propertyKeys = propertyKeys;
+        itemView.setOnClickListener(this);
     }
+
 
     @Override
     public void onClick(View v)

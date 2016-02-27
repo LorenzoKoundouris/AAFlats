@@ -47,7 +47,7 @@
         </activity>
         <activity
             android:name=".PropertyDetails"
-            android:label="@string/title_activity_properties"
+            android:label="@string/title_activity_property_details"
             android:parentActivityName=".Homepage"
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
@@ -82,6 +82,10 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.lorenzo.aaflats.Homepage" />
         </activity>
+        <activity
+            android:name=".FlatDetails"
+            android:label="@string/title_activity_flat_details"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 
 </manifest>

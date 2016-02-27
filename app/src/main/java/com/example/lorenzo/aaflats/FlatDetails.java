@@ -1,0 +1,113 @@
+package com.example.lorenzo.aaflats;
+
+import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
+import android.view.View;
+import android.widget.TextView;
+
+import com.firebase.client.DataSnapshot;
+import com.firebase.client.Firebase;
+import com.firebase.client.FirebaseError;
+import com.firebase.client.Query;
+import com.firebase.client.ValueEventListener;
+
+import java.util.ArrayList;
+
+public class FlatDetails extends AppCompatActivity {
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_flat_details);
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show();
+            }
+        });
+
+        Bundle intent = getIntent().getExtras();
+        Flat parceableFlat = intent.getParcelable("parceable_flat");
+        String parceableFlatKey = intent.getString("parceable_flat_key");
+
+        setTitle(parceableFlatKey);
+
+        final TextView flatAddrline1 = (TextView) findViewById(R.id.flat_details_addrline1);
+        flatAddrline1.setText(parceableFlat.getAddressLine1());
+
+        TextView flatPostcode = (TextView) findViewById(R.id.flat_details_postcode);
+        flatPostcode.setText(parceableFlat.getPostcode());
+
+        TextView flatTenant = (TextView) findViewById(R.id.flat_details_tenant);
+        flatTenant.setText(parceableFlat.getTenant());
+
+        TextView flatNotes = (TextView) findViewById(R.id.flat_details_notes);
+        flatNotes.setText(parceableFlat.getNotes());
+
+
+//        final ArrayList<String> pendingTaskKeys = new ArrayList<>();
+//        Firebase flatRef = new Firebase(getString(R.string.flats_location));
+//        Query pendingTaskKeysQ = flatRef.child(parceableFlatKey).child("pendingTask");
+//        pendingTaskKeysQ.addListenerForSingleValueEvent(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(DataSnapshot dataSnapshot) {
+//                for (DataSnapshot childSnapShot : dataSnapshot.getChildren()) {
+//                    pendingTaskKeys.add(childSnapShot.getKey());
+//                }
+//            }
+//
+//            @Override
+//            public void onCancelled(FirebaseError firebaseError) {
+//
+//            }
+//        });
+
+        final ArrayList<Task> flatPendingTasks = new ArrayList<>();
+        final ArrayList<Task> flatCompletedTasks = new ArrayList<>();
+        final ArrayList<String> flatPendingTasksKeys = new ArrayList<>();
+        final ArrayList<String> flatCompletedTasksKeys = new ArrayList<>();
+        Firebase taskRef = new Firebase(getString(R.string.tasks_location));
+        Query flatPendingTasksQ = taskRef.orderByChild("property").equalTo(parceableFlatKey);// .orderByChild("status").equalTo("false");
+        flatPendingTasksQ.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                flatPendingTasks.clear();
+                flatCompletedTasks.clear();
+                flatPendingTasksKeys.clear();
+                flatCompletedTasksKeys.clear();
+                for (DataSnapshot childSnapShot : dataSnapshot.getChildren()) {
+                    Task tsk = childSnapShot.getValue(Task.class);
+                    if (!tsk.getStatus()) {
+                        flatPendingTasks.add(tsk);
+                        flatPendingTasksKeys.add(childSnapShot.getKey());
+                    } else {
+                        flatCompletedTasks.add(tsk);
+                        flatCompletedTasksKeys.add(childSnapShot.getKey());
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+
+            }
+        });
+
+        RecyclerView fltDtPdgTskRecyclerView = (RecyclerView) findViewById(R.id.flt_det_pdg_tsk_recyclerview);
+        RecyclerView fltDtCompTskRecyclerView = (RecyclerView) findViewById(R.id.flt_det_comp_tsk_recyclerview);
+        fltDtPdgTskRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        fltDtCompTskRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        fltDtPdgTskRecyclerView.setAdapter(new FlatPendingTasksAdapter(flatPendingTasks, flatPendingTasksKeys));
+        fltDtCompTskRecyclerView.setAdapter(new FlatCompletedTasksAdapter(flatCompletedTasks, flatCompletedTasksKeys));
+    }
+}

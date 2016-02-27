@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -13,6 +15,15 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
+
+import com.firebase.client.DataSnapshot;
+import com.firebase.client.Firebase;
+import com.firebase.client.FirebaseError;
+import com.firebase.client.Query;
+import com.firebase.client.ValueEventListener;
+
+import java.util.ArrayList;
 
 public class PropertyDetails extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -20,7 +31,7 @@ public class PropertyDetails extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_properties);
+        setContentView(R.layout.activity_property_details);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -42,6 +53,57 @@ public class PropertyDetails extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        Property parceableProperty;
+        String parceablePropertyKey;
+
+        Bundle intent = getIntent().getExtras();
+        parceableProperty = intent.getParcelable("parceable_property");
+        parceablePropertyKey = intent.getString("parceable_property_key");
+
+        final ArrayList<Flat> flatList = new ArrayList<>();
+        final ArrayList<String> flatKeys = new ArrayList<>();
+        final ArrayList<String> flatNums = new ArrayList<>();
+
+        setTitle(parceablePropertyKey);
+        TextView propertyPostcode = (TextView) findViewById(R.id.property_details_postcode);
+        TextView propertyAddrline1 = (TextView) findViewById(R.id.property_details_addrline1);
+        TextView propertyFlats = (TextView) findViewById(R.id.property_details_flats);
+        TextView propertyNotes = (TextView) findViewById(R.id.property_details_notes);
+
+        propertyPostcode.setText(parceableProperty.getPostcode().toUpperCase());
+        propertyAddrline1.setText(parceablePropertyKey);
+        propertyFlats.setText("("+ parceableProperty.getNoOfFlats()+")");
+        propertyNotes.setText(parceableProperty.getNotes());
+
+        final RecyclerView flatRecyclerView = (RecyclerView) findViewById(R.id.flat_recycler_view);
+        flatRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+        Firebase flatsRef = new Firebase(getResources().getString(R.string.flats_location));
+        Query flatQuery = flatsRef.orderByChild("addressLine1").equalTo(parceablePropertyKey);
+
+        flatQuery.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                flatList.clear();
+                for(DataSnapshot childSnapShot : dataSnapshot.getChildren()){
+                    Flat flt = childSnapShot.getValue(Flat.class);
+                    flatList.add(flt);
+                    flatKeys.add(childSnapShot.getKey());
+                    String[] split = childSnapShot.getKey().split(" - ");
+                    flatNums.add(split[1].trim().substring(0, 1).toUpperCase() +
+                            split[1].substring(1).trim());
+                }
+                flatRecyclerView.setAdapter(new FlatAdapter(flatList, flatKeys, flatNums));
+
+
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+
+            }
+        });
     }
 
     @Override
@@ -57,7 +119,7 @@ public class PropertyDetails extends AppCompatActivity
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.properties, menu);
+        getMenuInflater().inflate(R.menu.property_details, menu);
         return true;
     }
 
