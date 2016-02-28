@@ -1,6 +1,8 @@
 package com.example.lorenzo.aaflats;
 
+import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -15,6 +17,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.EditText;
 import android.widget.TextView;
 
 import com.firebase.client.DataSnapshot;
@@ -28,13 +31,16 @@ import java.util.ArrayList;
 public class PropertyDetails extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
+    Property parceableProperty;
+    String parceablePropertyKey;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_property_details);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -54,9 +60,6 @@ public class PropertyDetails extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        Property parceableProperty;
-        String parceablePropertyKey;
-
         Bundle intent = getIntent().getExtras();
         parceableProperty = intent.getParcelable("parceable_property");
         parceablePropertyKey = intent.getString("parceable_property_key");
@@ -66,14 +69,14 @@ public class PropertyDetails extends AppCompatActivity
         final ArrayList<String> flatNums = new ArrayList<>();
 
         setTitle(parceablePropertyKey);
-        TextView propertyPostcode = (TextView) findViewById(R.id.property_details_postcode);
-        TextView propertyAddrline1 = (TextView) findViewById(R.id.property_details_addrline1);
-        TextView propertyFlats = (TextView) findViewById(R.id.property_details_flats);
-        TextView propertyNotes = (TextView) findViewById(R.id.property_details_notes);
+        EditText propertyPostcode = (EditText) findViewById(R.id.property_details_postcode);
+        EditText propertyAddrline1 = (EditText) findViewById(R.id.property_details_addrline1);
+        EditText propertyFlats = (EditText) findViewById(R.id.property_details_flats);
+        EditText propertyNotes = (EditText) findViewById(R.id.property_details_notes);
 
         propertyPostcode.setText(parceableProperty.getPostcode().toUpperCase());
         propertyAddrline1.setText(parceablePropertyKey);
-        propertyFlats.setText("("+ parceableProperty.getNoOfFlats()+")");
+        propertyFlats.setText("(" + parceableProperty.getNoOfFlats() + ")");
         propertyNotes.setText(parceableProperty.getNotes());
 
         final RecyclerView flatRecyclerView = (RecyclerView) findViewById(R.id.flat_recycler_view);
@@ -86,7 +89,7 @@ public class PropertyDetails extends AppCompatActivity
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 flatList.clear();
-                for(DataSnapshot childSnapShot : dataSnapshot.getChildren()){
+                for (DataSnapshot childSnapShot : dataSnapshot.getChildren()) {
                     Flat flt = childSnapShot.getValue(Flat.class);
                     flatList.add(flt);
                     flatKeys.add(childSnapShot.getKey());
@@ -94,9 +97,7 @@ public class PropertyDetails extends AppCompatActivity
                     flatNums.add(split[1].trim().substring(0, 1).toUpperCase() +
                             split[1].substring(1).trim());
                 }
-                flatRecyclerView.setAdapter(new FlatAdapter(flatList, flatKeys, flatNums));
-
-
+                flatRecyclerView.setAdapter(new FlatAdapter(flatList, flatKeys, flatNums, parceableProperty, parceablePropertyKey));
             }
 
             @Override
@@ -119,7 +120,13 @@ public class PropertyDetails extends AppCompatActivity
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.property_details, menu);
+//        if (!attemptEdit) {
+            getMenuInflater().inflate(R.menu.property_details, menu);
+//            saveEdit = menu.findItem(R.id.edit_task);
+//        } else {
+//            getMenuInflater().inflate(R.menu.task_details_save, menu);
+//            saveEdit = menu.findItem(R.id.save_edited_task);
+//        }
         return true;
     }
 

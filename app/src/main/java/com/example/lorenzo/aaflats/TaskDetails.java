@@ -179,44 +179,6 @@ public class TaskDetails extends AppCompatActivity {
         });
 
         loadCorrespondingFlats();
-//        Query flatQuery = flatRef.orderByChild("addressLine1").equalTo(actvProperty.getText().toString());
-//        flatQuery.addValueEventListener(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(DataSnapshot dataSnapshot) {
-//                flatList.clear();
-//                flatAddrLine1s.clear();
-//                for (DataSnapshot fltSnapshot : dataSnapshot.getChildren()) {
-//                    Flat flt = fltSnapshot.getValue(Flat.class);
-//                    flatList.add(flt);
-//                    String[] split = fltSnapshot.getKey().split(" - ");
-//                    flatAddrLine1s.add(split[1].trim().substring(0, 1).toUpperCase() +
-//                            split[1].substring(1).trim());
-//                }
-//
-//                ArrayAdapter<String> flatAdapter = new ArrayAdapter<>(getBaseContext(),
-//                        R.layout.spinner_dropdown_item, flatAddrLine1s);
-//                flatAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
-//                flatSpinner.setAdapter(flatAdapter);
-//                flatAdapter.notifyDataSetChanged();
-//                for (int i = 0; i < flatAddrLine1s.size(); i++) {
-//                    if (Objects.equals(splitProp[1].trim().substring(0, 1).toUpperCase()
-//                            + splitProp[1].substring(1).trim(), flatSpinner.getItemAtPosition(i).toString())) {
-//                        flatSpinner.setSelection(i);
-//                        prefEditor.putInt("tFlatSpinner", i);
-//                        prefEditor.commit();
-//                        break;
-//                    }
-//                }
-//            }
-//
-//            @Override
-//            public void onCancelled(FirebaseError firebaseError) {
-//                Toast toast = Toast.makeText(TaskDetails.this, "Flat not found: " +
-//                        firebaseError.getMessage(), Toast.LENGTH_SHORT);
-//                toast.setGravity(Gravity.CENTER, 0, 0);
-//                toast.show();
-//            }
-//        });
 
         findReportQuery.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override

@@ -1,5 +1,7 @@
 package com.example.lorenzo.aaflats;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -7,8 +9,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.view.Gravity;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
@@ -19,6 +24,8 @@ import com.firebase.client.ValueEventListener;
 import java.util.ArrayList;
 
 public class FlatDetails extends AppCompatActivity {
+    private Property parceableProperty;
+    private String parceablePropertyKey;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,7 +33,7 @@ public class FlatDetails extends AppCompatActivity {
         setContentView(R.layout.activity_flat_details);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -39,6 +46,8 @@ public class FlatDetails extends AppCompatActivity {
         Bundle intent = getIntent().getExtras();
         Flat parceableFlat = intent.getParcelable("parceable_flat");
         String parceableFlatKey = intent.getString("parceable_flat_key");
+        parceableProperty = intent.getParcelable("parceable_property");
+        parceablePropertyKey = intent.getString("parceable_property_key");
 
         setTitle(parceableFlatKey);
 
@@ -53,24 +62,6 @@ public class FlatDetails extends AppCompatActivity {
 
         TextView flatNotes = (TextView) findViewById(R.id.flat_details_notes);
         flatNotes.setText(parceableFlat.getNotes());
-
-
-//        final ArrayList<String> pendingTaskKeys = new ArrayList<>();
-//        Firebase flatRef = new Firebase(getString(R.string.flats_location));
-//        Query pendingTaskKeysQ = flatRef.child(parceableFlatKey).child("pendingTask");
-//        pendingTaskKeysQ.addListenerForSingleValueEvent(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(DataSnapshot dataSnapshot) {
-//                for (DataSnapshot childSnapShot : dataSnapshot.getChildren()) {
-//                    pendingTaskKeys.add(childSnapShot.getKey());
-//                }
-//            }
-//
-//            @Override
-//            public void onCancelled(FirebaseError firebaseError) {
-//
-//            }
-//        });
 
         final ArrayList<Task> flatPendingTasks = new ArrayList<>();
         final ArrayList<Task> flatCompletedTasks = new ArrayList<>();
@@ -109,5 +100,25 @@ public class FlatDetails extends AppCompatActivity {
         fltDtCompTskRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         fltDtPdgTskRecyclerView.setAdapter(new FlatPendingTasksAdapter(flatPendingTasks, flatPendingTasksKeys));
         fltDtCompTskRecyclerView.setAdapter(new FlatCompletedTasksAdapter(flatCompletedTasks, flatCompletedTasksKeys));
+    }
+    @Override
+    public void onBackPressed() {
+        Intent intent = new Intent(this, PropertyDetails.class);
+        intent.putExtra("parceable_property", parceableProperty);
+        intent.putExtra("parceable_property_key", parceablePropertyKey);
+        System.out.println(parceableProperty.getAddrline1() + "  -  " + parceablePropertyKey);
+        this.startActivity(intent);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                //Toast.makeText(getApplicationContext(), "Back button clicked", Toast.LENGTH_SHORT).show();
+                onBackPressed();
+                break;
+
+        }
+        return true;
     }
 }

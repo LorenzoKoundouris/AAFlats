@@ -41,7 +41,5 @@ public class PropertyViewHolder extends RecyclerView.ViewHolder implements View.
         intent.putExtra("parceable_property", pProperty);
         intent.putExtra("parceable_property_key", pPropertyKey);
         v.getContext().startActivity(intent);
-
-
     }
 }

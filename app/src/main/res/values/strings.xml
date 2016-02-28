@@ -26,6 +26,6 @@
 
     <string name="action_settings">Settings</string>
     <string name="title_activity_map_property">Map</string>
-    <string name="title_activity_all_properties">AllProperties</string>
+    <string name="title_activity_all_properties">All properties</string>
     <string name="title_activity_flat_details">FlatDetails</string>
 </resources>

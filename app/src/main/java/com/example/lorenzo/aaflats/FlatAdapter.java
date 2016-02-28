@@ -15,17 +15,21 @@ public class FlatAdapter extends RecyclerView.Adapter<FlatViewHolder>{
     private ArrayList<Flat> flatList = new ArrayList<>();
     private ArrayList<String> flatKeys = new ArrayList<>();
     private ArrayList<String> flatNums = new ArrayList<>();
+    private Property parceableProperty;
+    private String parceablePropertyKey;
 
-    public FlatAdapter(ArrayList<Flat> flatList, ArrayList<String> flatKeys, ArrayList<String> flatNums) {
+    public FlatAdapter(ArrayList<Flat> flatList, ArrayList<String> flatKeys, ArrayList<String> flatNums, Property parceableProperty, String parceablePropertyKey) {
         this.flatList = flatList;
         this.flatNums = flatNums;
         this.flatKeys = flatKeys;
+        this.parceableProperty = parceableProperty;
+        this.parceablePropertyKey = parceablePropertyKey;
     }
 
     @Override
     public FlatViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
         View flatView = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.flat_item, viewGroup, false);
-        return new FlatViewHolder(flatView, flatList, flatKeys, flatNums);
+        return new FlatViewHolder(flatView, flatList, flatKeys, flatNums, parceableProperty, parceablePropertyKey);
     }
 
     @Override

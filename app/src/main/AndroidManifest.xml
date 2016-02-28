@@ -48,7 +48,7 @@
         <activity
             android:name=".PropertyDetails"
             android:label="@string/title_activity_property_details"
-            android:parentActivityName=".Homepage"
+            android:parentActivityName=".AllProperties"
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -76,7 +76,7 @@
         <activity
             android:name=".AllProperties"
             android:label="@string/title_activity_all_properties"
-            android:parentActivityName=".Homepage"
+            android:parentActivityName=".PropertyDetails"
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
@@ -85,7 +85,9 @@
         <activity
             android:name=".FlatDetails"
             android:label="@string/title_activity_flat_details"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar">
+            
+        </activity>
     </application>
 
 </manifest>

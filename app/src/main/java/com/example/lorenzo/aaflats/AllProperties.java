@@ -36,7 +36,6 @@ public class AllProperties extends AppCompatActivity {
             }
         });
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
         final RecyclerView propertyRecyclerView;
         final ArrayList<Property> propertyList = new ArrayList<>();
         final ArrayList<String> propertyKeys = new ArrayList<>();

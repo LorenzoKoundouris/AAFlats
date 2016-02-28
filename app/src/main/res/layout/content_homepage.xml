@@ -27,7 +27,7 @@
         android:id="@+id/swipe_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingTop="12dp"
+        android:paddingTop="6dp"
         android:layout_below="@+id/text_view_today">
 
         <android.support.v7.widget.RecyclerView

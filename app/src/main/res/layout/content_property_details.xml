@@ -40,12 +40,14 @@
                     android:textColor="@color/colorPrimary"
                     android:textSize="18sp" />
 
-                <TextView
+                <EditText
                     android:id="@+id/property_details_postcode"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="23dp"
                     android:text="PL4 6QS"
+                    android:textColor="@drawable/disabled_text"
+                    android:enabled="false"
                     android:textSize="18sp" />
 
             </LinearLayout>
@@ -62,11 +64,13 @@
                     android:textColor="@color/colorPrimary"
                     android:textSize="18sp" />
 
-                <TextView
+                <EditText
                     android:id="@+id/property_details_addrline1"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="32dp"
+                    android:enabled="false"
+                    android:textColor="@drawable/disabled_text"
                     android:text="12 Trematon Terrace"
                     android:textSize="18sp" />
             </LinearLayout>
@@ -83,11 +87,13 @@
                     android:textColor="@color/colorPrimary"
                     android:textSize="18sp" />
 
-                <TextView
+                <EditText
                     android:id="@+id/property_details_notes"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="50dp"
+                    android:enabled="false"
+                    android:textColor="@drawable/disabled_text"
                     android:text="Notes notes notes notes notes notes notes notes notes notes notes notes notes notes notes notes notes notes notes..."
                     android:textSize="18sp"
                     android:textStyle="italic" />
@@ -121,15 +127,18 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Flats: "
+                    android:layout_gravity="center_vertical"
                     android:textColor="@color/colorPrimary"
                     android:textSize="18sp" />
 
-                <TextView
+                <EditText
                     android:id="@+id/property_details_flats"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="6dp"
                     android:layout_gravity="center_vertical"
+                    android:enabled="false"
+                    android:textColor="@drawable/disabled_text"
                     android:text="(4)"
                     android:textSize="15sp"
                     android:textStyle="bold" />
