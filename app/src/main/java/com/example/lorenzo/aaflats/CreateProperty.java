@@ -29,7 +29,8 @@ import java.util.Objects;
 public class CreateProperty extends AppCompatActivity {
 
     private ArrayList<Property> propertyList = new ArrayList<>();
-    private ArrayList<String> propertyAddrLine1s, propertyPostcodes = new ArrayList<>();
+    private ArrayList<String> propertyAddrLine1s = new ArrayList<>();
+    private ArrayList<String> propertyPostcodes = new ArrayList<>();
     private boolean validPostcode, validAddress, validNotes = false;
     private EditText npPostcode, npAddress, npNotes = null;
 
@@ -79,9 +80,10 @@ public class CreateProperty extends AppCompatActivity {
         npPostcode.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
-                if(hasFocus){
-                    npPostcode.setBackgroundColor(Color.WHITE);
-                } else if(!hasFocus && Objects.equals(npPostcode.getText().toString(), "")){
+                if (hasFocus) {
+                    npPostcode.setBackgroundColor(Color.parseColor("#eeeeee"));
+                }
+                if (!hasFocus && Objects.equals(npPostcode.getText().toString(), "")) {
                     Toast toast = Toast.makeText(CreateProperty.this, "No postcode ?", Toast.LENGTH_SHORT);
                     toast.setGravity(Gravity.CENTER, 0, 0);
                     toast.show();
@@ -93,29 +95,13 @@ public class CreateProperty extends AppCompatActivity {
         npAddress.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
-                boolean addressExists = false;
-                if (!hasFocus && !Objects.equals(npAddress.getText().toString(), "")) {
-                    for (int i = 0; i < propertyAddrLine1s.size(); i++) {
-                        if (Objects.equals(propertyAddrLine1s.get(i), npAddress.getText().toString().toLowerCase().trim())) {
-                            addressExists = true;
-                            break;
-                        }
-                    }
-                    if (addressExists) {
-                        new AlertDialog.Builder(v.getContext())
-                                .setTitle("Address exists")
-                                .setMessage("This address belongs to an existing property record.")
-                                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        npAddress.setText("");
-                                    }
-                                })
-                                .setIcon(android.R.drawable.ic_dialog_alert)
-                                .show();
-                        validAddress = false;
-                    } else {
-                        validAddress = true;
-                    }
+                if (hasFocus) {
+                    npAddress.setBackgroundColor(Color.parseColor("#eeeeee"));
+                }
+                if (!hasFocus && Objects.equals(npAddress.getText().toString(), "")) {
+                    Toast toast = Toast.makeText(CreateProperty.this, "No address ?", Toast.LENGTH_SHORT);
+                    toast.setGravity(Gravity.CENTER, 0, 0);
+                    toast.show();
                 }
             }
         });
@@ -124,19 +110,9 @@ public class CreateProperty extends AppCompatActivity {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if (!hasFocus && Objects.equals(npNotes.getText().toString(), "")) {
-                    new AlertDialog.Builder(v.getContext())
-                            .setTitle("Null Notes")
-                            .setMessage("Whoops! Looks like you forgot to compose some notes.")
-                            .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int which) {
-                                    npNotes.setText("No notes yet :( That's okay, you can add some later..");
-                                }
-                            })
-                            .setIcon(android.R.drawable.ic_dialog_alert)
-                            .show();
-                    validNotes = true;
-                } else{
-                    validNotes = true;
+                    Toast toast = Toast.makeText(CreateProperty.this, "No notes ?", Toast.LENGTH_SHORT);
+                    toast.setGravity(Gravity.CENTER, 0, 0);
+                    toast.show();
                 }
             }
         });
@@ -184,6 +160,7 @@ public class CreateProperty extends AppCompatActivity {
                 .setNegativeButton("No", null)
                 .show();
     }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -206,14 +183,7 @@ public class CreateProperty extends AppCompatActivity {
         validateData();
 
 
-
-
-
-
-
-
-
-        if(validPostcode && validAddress && validNotes){
+        if (validPostcode && validAddress && validNotes) {
             Property newProperty = new Property();
             newProperty.setAddrline1(npAddress.getText().toString().trim());
             newProperty.setPostcode(npPostcode.getText().toString().trim().toUpperCase());
@@ -234,30 +204,33 @@ public class CreateProperty extends AppCompatActivity {
                         }
 
                     })
-                    .setNegativeButton("No", new DialogInterface.OnClickListener(){
+                    .setNegativeButton("No", new DialogInterface.OnClickListener() {
                         @Override
-                    public void onClick(DialogInterface dialog, int which){
+                        public void onClick(DialogInterface dialog, int which) {
                             startActivity(new Intent(CreateProperty.this, AllProperties.class));
                         }
                     })
                     .show();
 
-        } else {
-            new AlertDialog.Builder(this)
-                    .setIcon(android.R.drawable.ic_dialog_alert)
-                    .setTitle("Error")
-                    .setMessage("All fields must contain valid data before saving.")
-                    .setPositiveButton(android.R.string.ok, null)
-                    .show();
         }
+//        else {
+//            new AlertDialog.Builder(this)
+//                    .setIcon(android.R.drawable.ic_dialog_alert)
+//                    .setTitle("Error")
+//                    .setMessage("All fields must contain valid data before saving.")
+//                    .setPositiveButton(android.R.string.ok, null)
+//                    .show();
+//        }
     }
 
     private void validateData() {
 
+        ArrayList<String> nullFields = new ArrayList<>();
+
         boolean postcodeExists = false;
         validPostcode = false;
         if (!Objects.equals(npPostcode.getText().toString(), "")) {
-            isValidPostcodeFormat(npPostcode.getText().toString());
+            isValidPostcodeFormat(npPostcode.getText().toString().trim());
             if (validPostcode) {
                 for (int i = 0; i < propertyPostcodes.size(); i++) {
                     if (Objects.equals(propertyPostcodes.get(i), npPostcode.getText().toString().toUpperCase().trim())) {
@@ -285,8 +258,8 @@ public class CreateProperty extends AppCompatActivity {
         } else {
             npPostcode.setBackgroundColor(Color.parseColor("#EF9A9A"));
             validPostcode = false;
+            nullFields.add("- Postcode");
         }
-
 
 
         boolean addressExists = false;
@@ -312,7 +285,32 @@ public class CreateProperty extends AppCompatActivity {
             } else {
                 validAddress = true;
             }
+        } else {
+            npAddress.setBackgroundColor(Color.parseColor("#EF9A9A"));
+            validAddress = false;
+            nullFields.add("- Address");
         }
 
+        if (Objects.equals(npNotes.getText().toString(), "")) {
+            npNotes.setText("No notes yet :( \nThat's okay, you can add some later..");
+            validNotes = false;
+            nullFields.add("- Notes");
+
+        } else {
+            validNotes = true;
+        }
+
+        if (nullFields.size() > 0) {
+            String nullVals = "";
+            for (int i = 0; i < nullFields.size(); i++) {
+                nullVals += "\t\t\t\t" + nullFields.get(i) + "\n";
+            }
+            new AlertDialog.Builder(this)
+                    .setTitle("Empty fields")
+                    .setMessage("Whoops! Looks like you forgot to fill in these property fields:\n\n" + nullVals)
+                    .setPositiveButton(android.R.string.ok, null)
+                    .setIcon(android.R.drawable.ic_dialog_alert)
+                    .show();
+        }
     }
 }

@@ -17,6 +17,7 @@ import com.firebase.client.FirebaseError;
 import com.firebase.client.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 public class AllProperties extends AppCompatActivity {
 

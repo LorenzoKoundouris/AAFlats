@@ -30,14 +30,11 @@ import java.util.ArrayList;
 public class Homepage extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
-    private final static String SAVED_ADAPTER_ITEMS = "SAVED_ADAPTER_ITEMS";
-    private final static String SAVED_ADAPTER_KEYS = "SAVED_ADAPTER_KEYS";
-    private Query mQuery;
-    private TaskAdapter mTaskAdapter;
-    private ArrayList<Task> mAdapterItems;
-    private ArrayList<String> mAdapterKeys;
+    final ArrayList<Task> mTaskList = new ArrayList<>();
+    final ArrayList<String> taskKeys = new ArrayList<>();
     private RecyclerView taskRecyclerView;
     private SwipeRefreshLayout refreshLayout;
+    private boolean notFirstLoad = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,13 +68,14 @@ public class Homepage extends AppCompatActivity
 
         refreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_layout);
         //refreshLayout.setColorSchemeColors(android.R.color.holo_green_dark, android.R.color.holo_green_light, android.R.color.holo_blue_dark, android.R.color.holo_blue_bright, android.R.color.holo_blue_light, android.R.color.holo_orange_dark, android.R.color.holo_orange_light, android.R.color.holo_purple);
-        refreshLayout.setColorSchemeResources(R.color.refresh_progress_1,
+        refreshLayout.setColorSchemeResources(
                 R.color.refresh_progress_2,
-                R.color.refresh_progress_3);
+                R.color.refresh_progress_3,
+                R.color.refresh_progress_1);
         refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-
+                setRecyclerAdapterContents(taskKeys, mTaskList);
             }
         });
 //        refreshLayout.post(new Runnable() {
@@ -100,9 +98,7 @@ public class Homepage extends AppCompatActivity
     private void setupFirebase() {
         Firebase.setAndroidContext(this);
         String tasksLocation = getResources().getString(R.string.tasks_location);
-        final ArrayList<Task> mTaskList = new ArrayList<Task>();
-        final ArrayList<String> taskKeys = new ArrayList<>();
-        mQuery = new Firebase(tasksLocation);
+        Query mQuery = new Firebase(tasksLocation);
 
         mQuery.addValueEventListener(new ValueEventListener() {
             @Override
@@ -115,29 +111,26 @@ public class Homepage extends AppCompatActivity
 //                taskRecyclerView.setAdapter(new TaskAdapter(mQuery, Task.class));
                 mTaskList.clear();
                 taskKeys.clear();
-                System.out.println("PRINT OUT OF FOR-LOOP+++++++++++++++++++++");
-                int i=0;
+//                System.out.println("PRINT OUT OF FOR-LOOP+++++++++++++++++++++");
+
                 for (DataSnapshot tskSnapshot : dataSnapshot.getChildren()) {
 //                    System.out.println("There are " + dataSnapshot.getChildrenCount()
 //                            + " tasks - " + dataSnapshot.getValue());
                     Task tsk = tskSnapshot.getValue(Task.class);
-                    System.out.println("PRINT INSIDE OF FOR-LOOP: "+tskSnapshot.getValue());
+//                    System.out.println("PRINT INSIDE OF FOR-LOOP: "+tskSnapshot.getValue());
                     //System.out.println("onData Title: " + tsk.getTitle());
                     //System.out.println("onData Description : " + tsk.getDescription());
                     mTaskList.add(tsk);
                     //mTaskList.get(i).setTaskKey(tskSnapshot.getKey());
                     taskKeys.add(tskSnapshot.getKey());
                     //System.out.println("taskArrayList contents: " + mTaskList); //It has tasks here
-
-                    // specify an adapter (see also next example)
-
-                    i++;
                 }
-                taskRecyclerView.setAdapter(new TaskAdapter(taskKeys, mTaskList)); //, Task.class
-                refreshLayout.setRefreshing(false);
-                taskRecyclerView.setVisibility(View.VISIBLE);
-                ProgressBar mProgressBar = (ProgressBar) findViewById(R.id.progressBar);
-                mProgressBar.setVisibility(View.INVISIBLE);
+                setRecyclerAdapterContents(taskKeys, mTaskList);
+//                taskRecyclerView.setAdapter(new TaskAdapter(taskKeys, mTaskList)); //, Task.class
+//                refreshLayout.setRefreshing(false);
+//                taskRecyclerView.setVisibility(View.VISIBLE);
+//                ProgressBar mProgressBar = (ProgressBar) findViewById(R.id.progressBar);
+//                mProgressBar.setVisibility(View.INVISIBLE);
             }
 
             @Override
@@ -182,6 +175,17 @@ public class Homepage extends AppCompatActivity
 
             }
         });
+    }
+
+    public void setRecyclerAdapterContents(ArrayList<String> taskKeys, ArrayList<Task> mTaskList) {
+        taskRecyclerView.setAdapter(new TaskAdapter(taskKeys, mTaskList)); //, Task.class
+        if(!notFirstLoad){
+            taskRecyclerView.setVisibility(View.VISIBLE);
+            ProgressBar mProgressBar = (ProgressBar) findViewById(R.id.progressBar);
+            mProgressBar.setVisibility(View.INVISIBLE);
+        }
+        notFirstLoad = true;
+        refreshLayout.setRefreshing(false);
     }
 
     @Override

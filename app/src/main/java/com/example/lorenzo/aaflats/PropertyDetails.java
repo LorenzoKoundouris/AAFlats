@@ -92,7 +92,7 @@ public class PropertyDetails extends AppCompatActivity {
         final ArrayList<String> flatKeys = new ArrayList<>();
         final ArrayList<String> flatNums = new ArrayList<>();
 
-        setTitle(parceablePropertyKey);
+
         propertyPostcode = (EditText) findViewById(R.id.property_details_postcode);
         propertyAddrline1 = (EditText) findViewById(R.id.property_details_addrline1);
         propertyFlats = (TextView) findViewById(R.id.property_details_flats);
@@ -107,12 +107,13 @@ public class PropertyDetails extends AppCompatActivity {
         propertyNotes.setText(parceableProperty.getNotes());
         prefEditor.putString("pNotes", parceableProperty.getNotes());
         prefEditor.commit();
+        setTitle(parceableProperty.getAddrline1());
 
         final RecyclerView flatRecyclerView = (RecyclerView) findViewById(R.id.flat_recycler_view);
         flatRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         Firebase flatsRef = new Firebase(getResources().getString(R.string.flats_location));
-        Query flatQuery = flatsRef.orderByChild("addressLine1").equalTo(parceablePropertyKey);
+        Query flatQuery = flatsRef.orderByChild("addressLine1").equalTo(parceableProperty.getAddrline1());
 
         flatQuery.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override

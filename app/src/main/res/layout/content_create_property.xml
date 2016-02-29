@@ -5,6 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:focusable="true"
+    android:focusableInTouchMode="true"
     android:paddingBottom="@dimen/activity_vertical_margin"
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
@@ -18,7 +20,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:paddingBottom="8dp">
+        android:paddingBottom="12dp">
 
         <TextView
             android:id="@+id/np_address_textview"
@@ -35,7 +37,8 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="3"
-            android:hint="12 trematon terrace"
+            android:layout_marginStart="6dp"
+            android:hint="street address"
             android:textStyle="italic" />
     </LinearLayout>
 
@@ -45,7 +48,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:paddingBottom="8dp">
+        android:paddingBottom="12dp">
 
         <TextView
             android:id="@+id/np_postcode_textview"
@@ -62,6 +65,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="3"
+            android:layout_marginStart="6dp"
             android:inputType="textCapCharacters"
             android:hint="XXX XXX"
             android:textStyle="italic" />
@@ -72,7 +76,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:paddingBottom="8dp">
+        android:paddingBottom="12dp">
 
         <TextView
             android:id="@+id/np_notes_textview"
@@ -89,6 +93,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="3"
+            android:layout_marginStart="6dp"
             android:hint="n..o..t..e..s"
             android:textStyle="italic" />
     </LinearLayout>

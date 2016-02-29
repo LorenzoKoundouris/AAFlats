@@ -31,9 +31,16 @@ public class PropertyAdapter extends RecyclerView.Adapter<PropertyViewHolder>{
     @Override
     public void onBindViewHolder(PropertyViewHolder propertyViewHolder, int position) {
         mProperty = propertyList.get(position);
-        propertyViewHolder.propertyAddrline1.setText(propertyKeys.get(position));
+        propertyViewHolder.propertyAddrline1.setText(mProperty.getAddrline1());
         propertyViewHolder.propertyPostcode.setText(mProperty.getPostcode().toUpperCase());
-        propertyViewHolder.propertyNotes.setText(mProperty.getNotes());
+
+        String notesLengthCheck = mProperty.getNotes();
+        if (notesLengthCheck.length() > 23) {
+            notesLengthCheck = notesLengthCheck.substring(0, 23);
+            propertyViewHolder.propertyNotes.setText(notesLengthCheck + "..");
+        } else {
+            propertyViewHolder.propertyNotes.setText(mProperty.getNotes());
+        }
     }
 
     @Override
