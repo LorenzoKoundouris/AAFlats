@@ -1,166 +1,170 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
-    app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context=".PropertyDetails"
-    tools:showIn="@layout/app_bar_property_details">
 
-    <android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/properties_card_view"
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingTop="6dp"
-        app:cardCornerRadius="3dp"
-        app:cardElevation="4dp"
-        app:cardUseCompatPadding="true">
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:paddingBottom="@dimen/activity_vertical_margin"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin"
+        android:paddingTop="@dimen/activity_vertical_margin"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        tools:context=".PropertyDetails"
+        tools:showIn="@layout/app_bar_property_details">
 
-        <LinearLayout
+        <android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/properties_card_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="12dp"
-            android:orientation="vertical">
+            android:paddingTop="6dp"
+            app:cardCornerRadius="3dp"
+            app:cardElevation="4dp"
+            app:cardUseCompatPadding="true">
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Postcode: "
-                    android:textColor="@color/colorPrimary"
-                    android:textSize="18sp" />
-
-                <EditText
-                    android:id="@+id/property_details_postcode"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="23dp"
-                    android:text="PL4 6QS"
-                    android:textColor="@drawable/disabled_text"
-                    android:enabled="false"
-                    android:textSize="18sp" />
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Address: "
-                    android:textColor="@color/colorPrimary"
-                    android:textSize="18sp" />
-
-                <EditText
-                    android:id="@+id/property_details_addrline1"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="32dp"
-                    android:enabled="false"
-                    android:textColor="@drawable/disabled_text"
-                    android:text="12 Trematon Terrace"
-                    android:textSize="18sp" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Notes: "
-                    android:textColor="@color/colorPrimary"
-                    android:textSize="18sp" />
-
-                <EditText
-                    android:id="@+id/property_details_notes"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="50dp"
-                    android:enabled="false"
-                    android:textColor="@drawable/disabled_text"
-                    android:text="Notes notes notes notes notes notes notes notes notes notes notes notes notes notes notes notes notes notes notes..."
-                    android:textSize="18sp"
-                    android:textStyle="italic" />
-            </LinearLayout>
-
-        </LinearLayout>
-
-    </android.support.v7.widget.CardView>
-
-    <android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/notes_card_view"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingTop="6dp"
-        app:cardCornerRadius="3dp"
-        app:cardElevation="4dp"
-        app:cardUseCompatPadding="true">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-            <LinearLayout
-                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="12dp"
-                android:layout_marginBottom="12dp">
+                android:orientation="vertical">
 
-                <TextView
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Flats: "
-                    android:layout_gravity="center_vertical"
-                    android:textColor="@color/colorPrimary"
-                    android:textSize="18sp" />
+                    android:orientation="horizontal">
 
-                <EditText
-                    android:id="@+id/property_details_flats"
-                    android:layout_width="wrap_content"
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Postcode: "
+                        android:textColor="@color/colorPrimary"
+                        android:textSize="18sp" />
+
+                    <EditText
+                        android:id="@+id/property_details_postcode"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="23dp"
+                        android:enabled="false"
+                        android:inputType="textCapCharacters"
+                        android:text="PL4 6QS"
+                        android:textColor="@drawable/disabled_text"
+                        android:textSize="18sp" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="6dp"
-                    android:layout_gravity="center_vertical"
-                    android:enabled="false"
-                    android:textColor="@drawable/disabled_text"
-                    android:text="(4)"
-                    android:textSize="15sp"
-                    android:textStyle="bold" />
+                    android:layout_marginTop="12dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Address: "
+                        android:textColor="@color/colorPrimary"
+                        android:textSize="18sp" />
+
+                    <EditText
+                        android:id="@+id/property_details_addrline1"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="32dp"
+                        android:enabled="false"
+                        android:text="12 Trematon Terrace"
+                        android:textColor="@drawable/disabled_text"
+                        android:textSize="18sp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Notes: "
+                        android:textColor="@color/colorPrimary"
+                        android:textSize="18sp" />
+
+                    <EditText
+                        android:id="@+id/property_details_notes"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="50dp"
+                        android:enabled="false"
+                        android:text="Notes notes notes notes notes notes notes notes notes notes notes notes notes notes notes notes notes notes notes..."
+                        android:textColor="@drawable/disabled_text"
+                        android:textSize="18sp"
+                        android:textStyle="italic" />
+                </LinearLayout>
+
             </LinearLayout>
 
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="@android:color/darker_gray" />
+        </android.support.v7.widget.CardView>
+
+        <android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/flatrecycler_card_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="6dp"
+            app:cardCornerRadius="3dp"
+            app:cardElevation="4dp"
+            app:cardUseCompatPadding="true">
 
             <LinearLayout
+                android:id="@+id/property_flat_list_lnr"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
-                <!--android:layout_marginStart="65dp"-->
-                <android.support.v7.widget.RecyclerView
-                    android:id="@+id/flat_recycler_view"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
 
-                </android.support.v7.widget.RecyclerView>
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="12dp"
+                    android:layout_marginBottom="12dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:text="Flats: "
+                        android:textColor="@color/colorPrimary"
+                        android:textSize="18sp" />
+
+                    <TextView
+                        android:id="@+id/property_details_flats"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginStart="6dp"
+                        android:enabled="false"
+                        android:text="(4)"
+                        android:textColor="@drawable/disabled_text"
+                        android:textSize="18sp" />
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@android:color/darker_gray" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+                    <!--android:layout_marginStart="65dp"-->
+                    <android.support.v7.widget.RecyclerView
+                        android:id="@+id/flat_recycler_view"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+
+                    </android.support.v7.widget.RecyclerView>
+                </LinearLayout>
             </LinearLayout>
-        </LinearLayout>
-    </android.support.v7.widget.CardView>
-</LinearLayout>
+        </android.support.v7.widget.CardView>
+    </LinearLayout>

@@ -172,8 +172,7 @@ public class CreateTask extends AppCompatActivity implements AdapterView.OnItemS
                 for (DataSnapshot prtSnapshot : dataSnapshot.getChildren()) {
                     Property prt = prtSnapshot.getValue(Property.class);
                     propertyList.add(prt);
-                    propertyAddrLine1s.add(prtSnapshot.getKey().substring(0, 1).toUpperCase()
-                            + prtSnapshot.getKey().substring(1));
+                    propertyAddrLine1s.add(prt.getAddrline1());
                 }
             }
 

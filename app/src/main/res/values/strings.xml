@@ -4,7 +4,7 @@
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
-    <string name="cancel_task_creation">Cancel task creation</string>
+    <string name="cancel_creation">Cancel creation</string>
     <string name="title_activity_task_details">TaskDetails</string>
 
     <string name="firebase_location" translatable="false">https://aaflats.firebaseio.com/</string>
@@ -28,4 +28,5 @@
     <string name="title_activity_map_property">Map</string>
     <string name="title_activity_all_properties">All properties</string>
     <string name="title_activity_flat_details">FlatDetails</string>
+    <string name="title_activity_create_property">CreateProperty</string>
 </resources>

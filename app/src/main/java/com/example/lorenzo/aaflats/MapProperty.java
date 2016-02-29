@@ -1,14 +1,22 @@
 package com.example.lorenzo.aaflats;
 
+import android.location.Address;
+import android.location.Geocoder;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.view.View;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+
+import java.io.IOException;
+import java.util.List;
 
 public class MapProperty extends FragmentActivity implements OnMapReadyCallback {
 
@@ -36,13 +44,34 @@ public class MapProperty extends FragmentActivity implements OnMapReadyCallback 
      */
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        mMap = googleMap;
+        Bundle intent = getIntent().getExtras();
+        String locaddr = intent.getString("findProperty");
+        String locaddrPlym = locaddr  + ", plymouth";
 
-        // Add a marker in Sydney and move the camera
-        LatLng trematonMarker = new LatLng(50.382281, -4.135601);
-        mMap.addMarker(new MarkerOptions().position(trematonMarker).title("Marker in Mutley"));
-        //mMap.moveCamera(CameraUpdateFactory.newLatLng(trematonMarker));
+        mMap = googleMap;
+        List<Address> addressList= null;
+        Geocoder geocoder = new Geocoder(this);
+
+        try{
+            addressList = geocoder.getFromLocationName(locaddrPlym, 1);
+        } catch(IOException e){
+            e.printStackTrace();
+        }
+
+        Address resultAddr = addressList.get(0);
+        LatLng latLang = new LatLng(resultAddr.getLatitude(), resultAddr.getLongitude());
+        MarkerOptions myMarker = new MarkerOptions().position(latLang).title(locaddr);
+        myMarker.icon(BitmapDescriptorFactory.fromResource(R.drawable.custom_house_icon));
+        mMap.addMarker(myMarker);
+
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(latLang));
         float zoomLevel = (float) 16.0; //This goes up to 21
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(trematonMarker, zoomLevel));
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLang, zoomLevel));
+//        // Add a marker in Sydney and move the camera
+//        //LatLng trematonMarker = new LatLng(50.382281, -4.135601);
+//        mMap.addMarker(new MarkerOptions().position(trematonMarker).title("Marker in Mutley"));
+//        //mMap.moveCamera(CameraUpdateFactory.newLatLng(trematonMarker));
+//        float zoomLevel = (float) 16.0; //This goes up to 21
+//        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(trematonMarker, zoomLevel));
     }
 }

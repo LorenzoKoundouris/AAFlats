@@ -55,7 +55,7 @@ public class TaskDetails extends AppCompatActivity {
     final ArrayList<String> reportTitles = new ArrayList<>();
     final ArrayList<String> reportKeys = new ArrayList<>();
     final ArrayList<Flat> flatList = new ArrayList<>();
-    final ArrayList<String> flatAddrLine1s = new ArrayList<>();
+    final ArrayList<String> flatNums = new ArrayList<>();
     TextView tvSender;// = (TextView) findViewById(R.id.tv_sender);
     TextView tvTimestamp;// = (TextView) findViewById(R.id.tv_timestamp);
     TextView tvReportContent;// = (TextView) findViewById(R.id.tv_report_content);
@@ -83,6 +83,8 @@ public class TaskDetails extends AppCompatActivity {
         setContentView(R.layout.activity_task_details);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
 
         pref = getApplicationContext().getSharedPreferences("MyPrefs", MODE_PRIVATE);
         prefEditor = pref.edit();
@@ -102,8 +104,6 @@ public class TaskDetails extends AppCompatActivity {
         taskRef = new Firebase(getString(R.string.tasks_location));
         flatRef = new Firebase(getString(R.string.flats_location));
         findReportQuery = reportRef.orderByKey().equalTo(parceableTask.getReport());
-
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         //Page components
         tdTitle = (EditText) findViewById(R.id.td_title);
@@ -167,8 +167,9 @@ public class TaskDetails extends AppCompatActivity {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for (DataSnapshot prtSnapshot : dataSnapshot.getChildren()) {
                     Property prt = prtSnapshot.getValue(Property.class);
-                    propertyAddrLine1s.add(prtSnapshot.getKey().substring(0, 1).toUpperCase()
-                            + prtSnapshot.getKey().substring(1));
+                    propertyAddrLine1s.add(prt.getAddrline1().trim());
+//                    propertyAddrLine1s.add(prtSnapshot.getKey().substring(0, 1).toUpperCase()
+//                            + prtSnapshot.getKey().substring(1));
                 }
             }
 
@@ -302,21 +303,22 @@ public class TaskDetails extends AppCompatActivity {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 flatList.clear();
-                flatAddrLine1s.clear();
+                flatNums.clear();
                 for (DataSnapshot fltSnapshot : dataSnapshot.getChildren()) {
                     Flat flt = fltSnapshot.getValue(Flat.class);
                     flatList.add(flt);
-                    String[] split = fltSnapshot.getKey().split(" - ");
-                    flatAddrLine1s.add(split[1].trim().substring(0, 1).toUpperCase() +
-                            split[1].substring(1).trim());
+                    flatNums.add(flt.getAddressLine1());
+//                    String[] split = fltSnapshot.getKey().split(" - ");
+//                    flatNums.add(split[1].trim().substring(0, 1).toUpperCase() +
+//                            split[1].substring(1).trim());
                 }
 
                 ArrayAdapter<String> flatAdapter = new ArrayAdapter<>(getBaseContext(),
-                        R.layout.spinner_dropdown_item, flatAddrLine1s);
+                        R.layout.spinner_dropdown_item, flatNums);
                 flatAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
                 flatSpinner.setAdapter(flatAdapter);
                 flatAdapter.notifyDataSetChanged();
-                for (int i = 0; i < flatAddrLine1s.size(); i++) {
+                for (int i = 0; i < flatNums.size(); i++) {
                     if (Objects.equals(splitProp[1].trim().substring(0, 1).toUpperCase()
                             + splitProp[1].substring(1).trim(), flatSpinner.getItemAtPosition(i).toString())) {
                         flatSpinner.setSelection(i);
@@ -381,6 +383,10 @@ public class TaskDetails extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
+            case R.id.action_settings:
+                onBackPressed();
+                break;
+
             case android.R.id.home:
                 //Toast.makeText(getApplicationContext(), "Back button clicked", Toast.LENGTH_SHORT).show();
                 onBackPressed();
@@ -432,8 +438,8 @@ public class TaskDetails extends AppCompatActivity {
             tdTitle.setText(pref.getString("tTitle", "crashTitle"));
             //String[] split = parceableTask.getProperty().split("-");
             actvProperty.setText(pref.getString("tPropertyA1", "crashProperty"));
-//            for (int i=0; i < flatAddrLine1s.size(); i++){
-//                if(Objects.equals(flatSpinner.getSelectedItem().toString(), flatAddrLine1s.get(i))){
+//            for (int i=0; i < flatNums.size(); i++){
+//                if(Objects.equals(flatSpinner.getSelectedItem().toString(), flatNums.get(i))){
 //                    flatSpinner.setSelection(i);
 //                }
 //            }
@@ -581,7 +587,7 @@ public class TaskDetails extends AppCompatActivity {
 //            actvProperty.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 //                @Override
 //                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-//                    loadCorrespondingFlats(actvProperty.getText().toString().toLowerCase(), flatRef, flatList, flatAddrLine1s);
+//                    loadCorrespondingFlats(actvProperty.getText().toString().toLowerCase(), flatRef, flatList, flatNums);
 //                }
 //            });
 

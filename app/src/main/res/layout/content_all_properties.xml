@@ -20,14 +20,20 @@
         android:text="All properties"
         android:textSize="18sp"
         android:textColor="#FF5722" />
-
+    <ProgressBar
+        android:id="@+id/progressBar2"
+        style="?android:progressBarStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true"/>
     <android.support.v7.widget.RecyclerView
+        android:visibility="invisible"
         android:layout_below="@+id/text_view_all_properties"
-        android:paddingTop="12dp"
+        android:paddingTop="6dp"
         android:id="@+id/properties_recycler_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-
     </android.support.v7.widget.RecyclerView>
 
 </RelativeLayout>

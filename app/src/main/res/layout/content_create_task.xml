@@ -18,64 +18,71 @@
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
         tools:context="com.example.lorenzo.aaflats.CreateTask"
         tools:showIn="@layout/activity_create_task">
-<RelativeLayout
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content">
-    <LinearLayout
-        android:id="@+id/nt_target_date_lnr_layout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:visibility="invisible"
-        android:paddingBottom="8dp">
-        <ImageView
-            android:id="@+id/cancel_date_pick"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:layout_gravity="center_vertical"
-            android:background="@color/colorAccent"
-            android:layout_marginEnd="12dp"
-            android:src="@drawable/ic_close_white_24dp"/>
-        <Button
-            android:id="@+id/tomorrow_button"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:text="Tomorrow"
-            android:layout_height="wrap_content" />
-        <Button
-            android:id="@+id/nt_date_picker_button"
-            android:text="Pick a date"
-            android:layout_width="0dp"
-            android:layout_weight="1"
-            android:layout_height="match_parent"/>
 
-    </LinearLayout>
-    <LinearLayout
-        android:id="@+id/nt_date_text_lnr_layout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <TextView
-            android:id="@+id/nt_target_date_textview"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_gravity="center_vertical"
-            android:textColor="@color/colorPrimary"
-            android:textSize="18sp"
-            android:text="Target date: " />
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
 
-        <EditText
-            android:id="@+id/nt_date_value_edittext"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="3"
-            android:hint="Target date - DD/MM/YYYY" />
+            <LinearLayout
+                android:id="@+id/nt_target_date_lnr_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingBottom="8dp"
+                android:visibility="invisible">
+
+                <ImageView
+                    android:id="@+id/cancel_date_pick"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginEnd="12dp"
+                    android:background="@color/colorAccent"
+                    android:src="@drawable/ic_close_white_24dp" />
+
+                <Button
+                    android:id="@+id/tomorrow_button"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Tomorrow" />
+
+                <Button
+                    android:id="@+id/nt_date_picker_button"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:text="Pick a date" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/nt_date_text_lnr_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/nt_target_date_textview"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_weight="1"
+                    android:text="Target date: "
+                    android:textColor="@color/colorPrimary"
+                    android:textSize="18sp" />
+
+                <EditText
+                    android:id="@+id/nt_date_value_edittext"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="3"
+                    android:hint="Target date - DD/MM/YYYY" />
 
 
-    </LinearLayout>
+            </LinearLayout>
 
 
-</RelativeLayout>
+        </RelativeLayout>
 
         <LinearLayout
             android:id="@+id/nt_title_lnr_layout"
@@ -88,11 +95,11 @@
                 android:id="@+id/nt_title_textview"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:layout_gravity="center_vertical"
+                android:layout_weight="1"
+                android:text="Title: "
                 android:textColor="@color/colorPrimary"
-                android:textSize="18sp"
-                android:text="Title: " />
+                android:textSize="18sp" />
 
             <EditText
                 android:id="@+id/nt_title_editview"
@@ -114,11 +121,11 @@
                 android:id="@+id/nt_property_textview"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:layout_gravity="center_vertical"
+                android:layout_weight="1"
+                android:text="Property: "
                 android:textColor="@color/colorPrimary"
-                android:textSize="18sp"
-                android:text="Property: " />
+                android:textSize="18sp" />
 
             <AutoCompleteTextView
                 android:id="@+id/nt_property_actv"
@@ -143,9 +150,9 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:layout_weight="1"
+                android:text="Flat: "
                 android:textColor="@color/colorPrimary"
-                android:textSize="18sp"
-                android:text="Flat: " />
+                android:textSize="18sp" />
 
             <Spinner
                 android:id="@+id/nt_flat_spinner"
@@ -171,11 +178,11 @@
                 android:id="@+id/nt_notes_textview"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:layout_gravity="center_vertical"
+                android:layout_weight="1"
+                android:text="Notes: "
                 android:textColor="@color/colorPrimary"
-                android:textSize="18sp"
-                android:text="Notes: " />
+                android:textSize="18sp" />
 
             <EditText
                 android:id="@+id/nt_notes_editview"
@@ -201,9 +208,9 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:layout_weight="1"
+                android:text="Priority: "
                 android:textColor="@color/colorPrimary"
-                android:textSize="18sp"
-                android:text="Priority: " />
+                android:textSize="18sp" />
 
             <!--<EditText
                 android:id="@+id/nt_status_editview"
@@ -233,9 +240,9 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:layout_weight="1"
+                android:text="Based on: "
                 android:textColor="@color/colorPrimary"
-                android:textSize="18sp"
-                android:text="Based on: " />
+                android:textSize="18sp" />
 
             <android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
                 xmlns:card_view="http://schemas.android.com/apk/res-auto"
@@ -244,9 +251,9 @@
                 android:layout_height="wrap_content"
                 android:layout_margin="6dp"
                 android:layout_weight="3"
+                app:cardUseCompatPadding="true"
                 card_view:cardBackgroundColor="#009688"
                 card_view:cardCornerRadius="3dp"
-                app:cardUseCompatPadding="true"
                 card_view:cardElevation="6dp">
 
                 <TextView
@@ -265,24 +272,27 @@
 
             </android.support.v7.widget.CardView>
         </LinearLayout>
+
         <LinearLayout
             android:id="@+id/nt_error_lnr_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:visibility="invisible">
+
             <ImageView
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                android:src="@drawable/not_complete"
-                android:layout_gravity="center_vertical"/>
+                android:layout_gravity="center_vertical"
+                android:src="@drawable/not_complete" />
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
                 android:layout_gravity="center_vertical"
-                android:textStyle="bold"
-                android:text="Please complete all fields with relevant task data"/>
+                android:layout_marginStart="8dp"
+                android:text="Please complete all fields with relevant task data"
+                android:textStyle="bold" />
         </LinearLayout>
     </LinearLayout>
 </ScrollView>

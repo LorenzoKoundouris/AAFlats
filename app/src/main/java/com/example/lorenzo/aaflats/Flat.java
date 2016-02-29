@@ -14,6 +14,7 @@ public class Flat implements Parcelable{
     private String notes;
     private String postcode;
     private String addressLine1;
+    private String flatNum;
 
     public Flat(){}
 
@@ -23,6 +24,7 @@ public class Flat implements Parcelable{
         notes = in.readString();
         postcode = in.readString();
         addressLine1 = in.readString();
+        flatNum = in.readString();
     }
 
     public static final Creator<Flat> CREATOR = new Creator<Flat>() {
@@ -77,6 +79,14 @@ public class Flat implements Parcelable{
         this.addressLine1 = addressLine1;
     }
 
+    public String getFlatNum() {
+        return flatNum;
+    }
+
+    public void setFlatNum(String flatNum) {
+        this.flatNum = flatNum;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -89,5 +99,6 @@ public class Flat implements Parcelable{
         dest.writeString(notes);
         dest.writeString(postcode);
         dest.writeString(addressLine1);
+        dest.writeString(flatNum);
     }
 }

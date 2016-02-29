@@ -85,8 +85,15 @@
         <activity
             android:name=".FlatDetails"
             android:label="@string/title_activity_flat_details"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
+        <activity
+            android:name=".CreateProperty"
+            android:label="@string/title_activity_create_property"
+            android:parentActivityName=".AllProperties"
             android:theme="@style/AppTheme.NoActionBar">
-            
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.lorenzo.aaflats.AllProperties" />
         </activity>
     </application>
 

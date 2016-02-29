@@ -16,6 +16,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ProgressBar;
 
 import com.firebase.client.ChildEventListener;
 import com.firebase.client.DataSnapshot;
@@ -134,6 +135,9 @@ public class Homepage extends AppCompatActivity
                 }
                 taskRecyclerView.setAdapter(new TaskAdapter(taskKeys, mTaskList)); //, Task.class
                 refreshLayout.setRefreshing(false);
+                taskRecyclerView.setVisibility(View.VISIBLE);
+                ProgressBar mProgressBar = (ProgressBar) findViewById(R.id.progressBar);
+                mProgressBar.setVisibility(View.INVISIBLE);
             }
 
             @Override
