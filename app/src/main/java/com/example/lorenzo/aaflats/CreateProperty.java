@@ -182,16 +182,18 @@ public class CreateProperty extends AppCompatActivity {
     private void saveNewProperty() {
         validateData();
 
-
         if (validPostcode && validAddress && validNotes) {
-            Property newProperty = new Property();
-            newProperty.setAddrline1(npAddress.getText().toString().trim());
+            final Property newProperty = new Property();
+            newProperty.setAddrline1(npAddress.getText().toString().trim().toLowerCase());
             newProperty.setPostcode(npPostcode.getText().toString().trim().toUpperCase());
             newProperty.setNotes(npNotes.getText().toString().trim());
             newProperty.setNoOfFlats("No flats yet");
 
             Firebase newPropertyRef = new Firebase(getString(R.string.properties_location));
             newPropertyRef.push().setValue(newProperty);
+
+//            propertyList.add(newProperty);
+//            propertyAddrLine1s.add(newProperty.getAddrline1());
 
             new AlertDialog.Builder(this)
                     .setIcon(android.R.drawable.ic_dialog_alert)
@@ -200,13 +202,18 @@ public class CreateProperty extends AppCompatActivity {
                     .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            finish();
+                            Intent intent = new Intent(CreateProperty.this, CreateFlat.class);
+                            intent.putExtra("created_property", newProperty);
+                            intent.putExtra("propertyList", propertyList);
+                            intent.putExtra("propertyAddrLine1s", propertyAddrLine1s);
+                            startActivity(intent);
                         }
 
                     })
                     .setNegativeButton("No", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
+
                             startActivity(new Intent(CreateProperty.this, AllProperties.class));
                         }
                     })
@@ -225,11 +232,12 @@ public class CreateProperty extends AppCompatActivity {
 
     private void validateData() {
 
-        ArrayList<String> nullFields = new ArrayList<>();
-
-        boolean postcodeExists = false;
-        validPostcode = false;
-        if (!Objects.equals(npPostcode.getText().toString(), "")) {
+        if (Objects.equals(npPostcode.getText().toString(), "")) {
+            npPostcode.setBackgroundColor(Color.parseColor("#EF9A9A"));
+            validPostcode = false;
+        } else {
+            boolean postcodeExists = false;
+            validPostcode = false;
             isValidPostcodeFormat(npPostcode.getText().toString().trim());
             if (validPostcode) {
                 for (int i = 0; i < propertyPostcodes.size(); i++) {
@@ -252,65 +260,68 @@ public class CreateProperty extends AppCompatActivity {
                     validPostcode = false;
                 } else {
                     validPostcode = true;
-                    npPostcode.setBackgroundColor(Color.WHITE);
+                    npPostcode.setBackgroundColor(Color.parseColor("#eeeeee"));
                 }
             }
-        } else {
-            npPostcode.setBackgroundColor(Color.parseColor("#EF9A9A"));
-            validPostcode = false;
-            nullFields.add("- Postcode");
-        }
 
+////////////////////////////////////////////////////////////////////////////////////////////////
 
-        boolean addressExists = false;
-        if (!Objects.equals(npAddress.getText().toString(), "")) {
-            for (int i = 0; i < propertyAddrLine1s.size(); i++) {
-                if (Objects.equals(propertyAddrLine1s.get(i), npAddress.getText().toString().toLowerCase().trim())) {
-                    addressExists = true;
-                    break;
-                }
-            }
-            if (addressExists) {
-                new AlertDialog.Builder(this)
-                        .setTitle("Address exists")
-                        .setMessage("This address belongs to an existing property record.")
-                        .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                npAddress.setText("");
-                            }
-                        })
-                        .setIcon(android.R.drawable.ic_dialog_alert)
-                        .show();
+            if (Objects.equals(npAddress.getText().toString(), "")) {
+                npAddress.setBackgroundColor(Color.parseColor("#EF9A9A"));
                 validAddress = false;
             } else {
-                validAddress = true;
+                boolean addressExists = false;
+                for (int i = 0; i < propertyAddrLine1s.size(); i++) {
+                    if (Objects.equals(propertyAddrLine1s.get(i), npAddress.getText().toString().toLowerCase().trim())) {
+                        addressExists = true;
+                        break;
+                    }
+                }
+                if (addressExists) {
+                    new AlertDialog.Builder(this)
+                            .setTitle("Address exists")
+                            .setMessage("This address belongs to an existing property record.")
+                            .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    npAddress.setText("");
+                                }
+                            })
+                            .setIcon(android.R.drawable.ic_dialog_alert)
+                            .show();
+                    validAddress = false;
+                } else {
+                    validAddress = true;
+                }
             }
-        } else {
-            npAddress.setBackgroundColor(Color.parseColor("#EF9A9A"));
-            validAddress = false;
-            nullFields.add("- Address");
-        }
 
-        if (Objects.equals(npNotes.getText().toString(), "")) {
-            npNotes.setText("No notes yet :( \nThat's okay, you can add some later..");
-            validNotes = false;
-            nullFields.add("- Notes");
-
-        } else {
-            validNotes = true;
-        }
-
-        if (nullFields.size() > 0) {
+////////////////////////////////////////////////////////////////////////////////////////////////
+            if (Objects.equals(npNotes.getText().toString(), "")) {
+                npNotes.setText("No notes yet :( \nThat's okay, you can add some later..");
+                validNotes = false;
+            } else {
+                validNotes = true;
+            }
+///////////////////////////////////////////////////////////////////////////////////////////////
             String nullVals = "";
-            for (int i = 0; i < nullFields.size(); i++) {
-                nullVals += "\t\t\t\t" + nullFields.get(i) + "\n";
+            if (!validAddress) {
+                nullVals += "\n- Address";
             }
-            new AlertDialog.Builder(this)
-                    .setTitle("Empty fields")
-                    .setMessage("Whoops! Looks like you forgot to fill in these property fields:\n\n" + nullVals)
-                    .setPositiveButton(android.R.string.ok, null)
-                    .setIcon(android.R.drawable.ic_dialog_alert)
-                    .show();
+            if (!validPostcode) {
+                nullVals += "\n- Postcode";
+            }
+            if (!validNotes) {
+                nullVals += "\n- Notes";
+            }
+
+            if (!Objects.equals(nullVals, "")) {
+                new AlertDialog.Builder(this)
+                        .setTitle("Invalid data")
+                        .setMessage("Whoops! Looks like these fields contain wrong information or none at all:" +
+                                "\n\n" + nullVals)
+                        .setPositiveButton(android.R.string.ok, null)
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .show();
+            }
         }
     }
 }

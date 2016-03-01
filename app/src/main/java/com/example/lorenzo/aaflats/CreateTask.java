@@ -86,7 +86,7 @@ public class CreateTask extends AppCompatActivity implements AdapterView.OnItemS
         final ArrayList<Property> propertyList = new ArrayList<>();
         final ArrayList<String> propertyAddrLine1s = new ArrayList<>();
         final ArrayList<Flat> flatList = new ArrayList<>();
-        final ArrayList<String> flatAddrLine1s = new ArrayList<>();
+        final ArrayList<String> flatNums = new ArrayList<>();
         final ArrayList<Report> reportList = new ArrayList<>();
         final ArrayList<String> reportTitles = new ArrayList<>();
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -186,7 +186,7 @@ public class CreateTask extends AppCompatActivity implements AdapterView.OnItemS
         actvProperty.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                loadCorrespondingFlats(actvProperty.getText().toString().toLowerCase(), flatRef, flatList, flatAddrLine1s);
+                loadCorrespondingFlats(actvProperty.getText().toString().toLowerCase(), flatRef, flatList, flatNums);
             }
         });
 
@@ -356,19 +356,21 @@ public class CreateTask extends AppCompatActivity implements AdapterView.OnItemS
     };
 
     private void loadCorrespondingFlats(String s, Firebase flatRef, final ArrayList<Flat> flatList,
-                                        final ArrayList<String> flatAddrLine1s) {
-        Query flatQuery = flatRef.orderByKey().startAt(s); //
+                                        final ArrayList<String> flatNums) {
+        Query flatQuery = flatRef.orderByChild("addressLine1").equalTo(s); //
         flatQuery.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for (DataSnapshot fltSnapshot : dataSnapshot.getChildren()) {
                     Flat flt = fltSnapshot.getValue(Flat.class);
                     flatList.add(flt);
-                    String[] split = fltSnapshot.getKey().split(" - ");
-                    flatAddrLine1s.add(split[1].trim().substring(0, 1).toUpperCase() + split[1].trim().substring(1));
+                    flatNums.add(flt.getFlatNum());
+//                    String[] split = fltSnapshot.getKey().split(" - ");
+//                    flatNums.add(split[1].trim().substring(0, 1).toUpperCase() + split[1].trim().substring(1));
                 }
                 flatSpinner = (Spinner) findViewById(R.id.nt_flat_spinner);
-                ArrayAdapter<String> flatAdapter = new ArrayAdapter<>(getBaseContext(), R.layout.spinner_dropdown_item, flatAddrLine1s);
+                ArrayAdapter<String> flatAdapter = new ArrayAdapter<>(getBaseContext(),
+                        R.layout.spinner_dropdown_item, flatNums);
                 flatAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
                 flatSpinner.setAdapter(flatAdapter);
                 flatAdapter.notifyDataSetChanged();
@@ -422,7 +424,7 @@ public class CreateTask extends AppCompatActivity implements AdapterView.OnItemS
                 saveNewTask();
                 break;
             case R.id.action_settings:
-                startActivity(new Intent(CreateTask.this, Homepage.class));
+                onBackPressed();
                 break;
         }
         return true;

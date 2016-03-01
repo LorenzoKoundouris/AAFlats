@@ -17,9 +17,8 @@ public class PropertyViewHolder extends RecyclerView.ViewHolder implements View.
     protected TextView propertyNotes;
     protected TextView propertyPostcode;
     protected ArrayList<Property> propertyList;
-    private ArrayList<String> propertyKeys;
 
-    public PropertyViewHolder(View itemView, ArrayList<Property> propertyList, ArrayList<String> propertyKeys) {
+    public PropertyViewHolder(View itemView, ArrayList<Property> propertyList) {
         super(itemView);
         cardView = (CardView) itemView.findViewById(R.id.property_card_view);
         propertyAddrline1 = (TextView) itemView.findViewById(R.id.property_addrline1);
@@ -27,7 +26,6 @@ public class PropertyViewHolder extends RecyclerView.ViewHolder implements View.
         propertyNotes = (TextView) itemView.findViewById(R.id.property_details_notes);
 
         this.propertyList = propertyList;
-        this.propertyKeys = propertyKeys;
         itemView.setOnClickListener(this);
     }
 
@@ -36,10 +34,8 @@ public class PropertyViewHolder extends RecyclerView.ViewHolder implements View.
     public void onClick(View v)
     {
         Property pProperty = propertyList.get(getAdapterPosition());
-        String pPropertyKey = propertyKeys.get(getAdapterPosition());
         Intent intent = new Intent(v.getContext(), PropertyDetails.class);
         intent.putExtra("parceable_property", pProperty);
-        intent.putExtra("parceable_property_key", pPropertyKey);
         v.getContext().startActivity(intent);
     }
 }

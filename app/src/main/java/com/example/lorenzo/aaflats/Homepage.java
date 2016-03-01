@@ -241,7 +241,7 @@ public class Homepage extends AppCompatActivity
         } else if (id == R.id.nav_properties) {
             startActivity(new Intent(Homepage.this, AllProperties.class));
         } else if (id == R.id.nav_something) {
-
+            startActivity(new Intent(Homepage.this, CreateFlat.class));
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

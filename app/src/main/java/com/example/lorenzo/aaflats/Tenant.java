@@ -1,94 +1,102 @@
 package com.example.lorenzo.aaflats;
 
-import java.util.Date;
-
 /**
  * Created by Lorenzo on 15/02/2016.
  */
 public class Tenant {
 
-    private String tenantForename;
-    private String tenantMiddlename;
-    private String tenantSurname;
-    private long tenantDoB;
-    private int tenantTelephone;
-    private String tenantEmail;
-    private Property tenantProperty;
-    private long tenantContractStart;
-    private long tenantContractEnd;
+    private String contractEnd;
+    private String contractStart;
+    private boolean currentTenant;
+    private String dob;
+    private String email;
+    private String forename;
+    private String middlename;
+    private String property;
+    private String surname;
+    private String telephone;
+
 
     public Tenant() {
     }
 
-    public String getTenantForename() {
-        return tenantForename;
+    public String getForename() {
+        return forename;
     }
 
-    public void setTenantForename(String tenantForename) {
-        this.tenantForename = tenantForename;
+    public void setForename(String forename) {
+        this.forename = forename;
     }
 
-    public String getTenantMiddlename() {
-        return tenantMiddlename;
+    public String getMiddlename() {
+        return middlename;
     }
 
-    public void setTenantMiddlename(String tenantMiddlename) {
-        this.tenantMiddlename = tenantMiddlename;
+    public void setMiddlename(String middlename) {
+        this.middlename = middlename;
     }
 
-    public String getTenantSurname() {
-        return tenantSurname;
+    public String getSurname() {
+        return surname;
     }
 
-    public void setTenantSurname(String tenantSurname) {
-        this.tenantSurname = tenantSurname;
+    public void setSurname(String surname) {
+        this.surname = surname;
     }
 
-    public long getTenantDoB() {
-        return tenantDoB;
+    public String getDob() {
+        return dob;
     }
 
-    public void setTenantDoB(long tenantDoB) {
-        this.tenantDoB = tenantDoB;
+    public void setDob(String dob) {
+        this.dob = dob;
     }
 
-    public int getTenantTelephone() {
-        return tenantTelephone;
+    public String getTelephone() {
+        return telephone;
     }
 
-    public void setTenantTelephone(int tenantTelephone) {
-        this.tenantTelephone = tenantTelephone;
+    public void setTelephone(String telephone) {
+        this.telephone = telephone;
     }
 
-    public String getTenantEmail() {
-        return tenantEmail;
+    public String getEmail() {
+        return email;
     }
 
-    public void setTenantEmail(String tenantEmail) {
-        this.tenantEmail = tenantEmail;
+    public void setEmail(String email) {
+        this.email = email;
     }
 
-    public Property getTenantProperty() {
-        return tenantProperty;
+    public String getProperty() {
+        return property;
     }
 
-    public void setTenantProperty(Property tenantProperty) {
-        this.tenantProperty = tenantProperty;
+    public void setProperty(String property) {
+        this.property = property;
     }
 
-    public long getTenantContractStart() {
-        return tenantContractStart;
+    public String getContractStart() {
+        return contractStart;
     }
 
-    public void setTenantContractStart(long tenantContractStart) {
-        this.tenantContractStart = tenantContractStart;
+    public void setContractStart(String contractStart) {
+        this.contractStart = contractStart;
     }
 
-    public long getTenantContractEnd() {
-        return tenantContractEnd;
+    public String getContractEnd() {
+        return contractEnd;
     }
 
-    public void setTenantContractEnd(long tenantContractEnd) {
-        this.tenantContractEnd = tenantContractEnd;
+    public void setContractEnd(String contractEnd) {
+        this.contractEnd = contractEnd;
+    }
+
+    public boolean isCurrentTenant() {
+        return currentTenant;
+    }
+
+    public void setCurrentTenant(boolean currentTenant) {
+        this.currentTenant = currentTenant;
     }
 }

@@ -60,6 +60,7 @@ public class PropertyDetails extends AppCompatActivity {
     CardView flatListCardView;
 
     Firebase propertyRef;
+    Firebase flatsRef;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,13 +87,27 @@ public class PropertyDetails extends AppCompatActivity {
 
         Bundle intent = getIntent().getExtras();
         parceableProperty = intent.getParcelable("parceable_property");
-        parceablePropertyKey = intent.getString("parceable_property_key");
+
+        Query thisPropertyKeyQ = propertyRef.orderByChild("addrline1").equalTo(parceableProperty.getAddrline1());
+        thisPropertyKeyQ.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                for (DataSnapshot childSnap : dataSnapshot.getChildren()) {
+                    parceablePropertyKey = childSnap.getKey();
+                }
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+
+            }
+        });
 
         final ArrayList<Flat> flatList = new ArrayList<>();
         final ArrayList<String> flatKeys = new ArrayList<>();
         final ArrayList<String> flatNums = new ArrayList<>();
-
-
+        
         propertyPostcode = (EditText) findViewById(R.id.property_details_postcode);
         propertyAddrline1 = (EditText) findViewById(R.id.property_details_addrline1);
         propertyFlats = (TextView) findViewById(R.id.property_details_flats);
@@ -103,7 +118,7 @@ public class PropertyDetails extends AppCompatActivity {
         prefEditor.putString("pPostcode", parceableProperty.getPostcode().toUpperCase());
         propertyAddrline1.setText(parceableProperty.getAddrline1());
         prefEditor.putString("pAddress", parceableProperty.getAddrline1());
-        propertyFlats.setText("(" + parceableProperty.getNoOfFlats() + ")");
+//        propertyFlats.setText("(" + parceableProperty.getNoOfFlats() + ")");
         propertyNotes.setText(parceableProperty.getNotes());
         prefEditor.putString("pNotes", parceableProperty.getNotes());
         prefEditor.commit();
@@ -112,7 +127,7 @@ public class PropertyDetails extends AppCompatActivity {
         final RecyclerView flatRecyclerView = (RecyclerView) findViewById(R.id.flat_recycler_view);
         flatRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        Firebase flatsRef = new Firebase(getResources().getString(R.string.flats_location));
+        flatsRef = new Firebase(getResources().getString(R.string.flats_location));
         Query flatQuery = flatsRef.orderByChild("addressLine1").equalTo(parceableProperty.getAddrline1());
 
         flatQuery.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -129,6 +144,11 @@ public class PropertyDetails extends AppCompatActivity {
 //                    flatNums.add(split[1].trim().substring(0, 1).toUpperCase() +
 //                            split[1].substring(1).trim());
                 }
+                String numFlatsCast = Integer.toString(flatList.size());
+                if(!Objects.equals(parceableProperty.getNoOfFlats(), numFlatsCast)){
+                    parceableProperty.setNoOfFlats(numFlatsCast);
+                }
+                propertyFlats.setText("(" + parceableProperty.getNoOfFlats() + ")");
                 flatRecyclerView.setAdapter(new FlatAdapter(flatList, flatKeys, flatNums, parceableProperty, parceablePropertyKey));
             }
 

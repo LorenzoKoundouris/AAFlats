@@ -85,7 +85,7 @@
         <activity
             android:name=".FlatDetails"
             android:label="@string/title_activity_flat_details"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".CreateProperty"
             android:label="@string/title_activity_create_property"
@@ -94,6 +94,15 @@
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.lorenzo.aaflats.AllProperties" />
+        </activity>
+        <activity
+            android:name=".CreateFlat"
+            android:label="@string/title_activity_create_flat"
+            android:parentActivityName=".PropertyDetails"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.lorenzo.aaflats.PropertyDetails" />
         </activity>
     </application>
 

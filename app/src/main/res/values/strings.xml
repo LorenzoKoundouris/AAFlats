@@ -10,6 +10,7 @@
     <string name="firebase_location" translatable="false">https://aaflats.firebaseio.com/</string>
     <string name="users_location" translatable="false">https://aaflats.firebaseio.com/users</string>
     <string name="tasks_location" translatable="false">https://aaflats.firebaseio.com/tasks</string>
+    <string name="tenants_location" translatable="false">https://aaflats.firebaseio.com/tenants</string>
     <string name="reports_location" translatable="false">https://aaflats.firebaseio.com/reports</string>
     <string name="properties_location" translatable="false">https://aaflats.firebaseio.com/properties</string>
     <string name="flats_location" translatable="false">https://aaflats.firebaseio.com/flats</string>
@@ -29,4 +30,5 @@
     <string name="title_activity_all_properties">All properties</string>
     <string name="title_activity_flat_details">FlatDetails</string>
     <string name="title_activity_create_property">CreateProperty</string>
+    <string name="title_activity_create_flat">CreateFlat</string>
 </resources>

@@ -13,19 +13,17 @@ import java.util.ArrayList;
 public class PropertyAdapter extends RecyclerView.Adapter<PropertyViewHolder>{
     public static Property mProperty = new Property();
     private ArrayList<Property> propertyList;
-    private ArrayList<String> propertyKeys;
 
 
-    public PropertyAdapter(ArrayList<Property> propertyList, ArrayList<String> propertyKeys){
+    public PropertyAdapter(ArrayList<Property> propertyList){
         this.propertyList = propertyList;
-        this.propertyKeys = propertyKeys;
     }
 
 
     @Override
     public PropertyViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
         View propertyView = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.property_item, viewGroup, false);
-        return new PropertyViewHolder(propertyView, propertyList, propertyKeys);
+        return new PropertyViewHolder(propertyView, propertyList);
     }
 
     @Override

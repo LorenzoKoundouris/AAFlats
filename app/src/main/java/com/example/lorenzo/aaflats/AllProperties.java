@@ -18,6 +18,7 @@ import com.firebase.client.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 
 public class AllProperties extends AppCompatActivity {
 
@@ -52,13 +53,25 @@ public class AllProperties extends AppCompatActivity {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 propertyList.clear();
-                propertyKeys.clear();
                 for (DataSnapshot childSnap : dataSnapshot.getChildren()) {
                     Property prt = childSnap.getValue(Property.class);
                     propertyList.add(prt);
-                    propertyKeys.add(childSnap.getKey());
                 }
-                propertyRecyclerView.setAdapter(new PropertyAdapter(propertyList, propertyKeys));
+                for(int i=0; i<propertyList.size(); i++){
+                    String[] splitter = propertyList.get(i).getAddrline1().split(" ");
+                    propertyList.get(i).setAddrline1(splitter[1] + " " + splitter[2] + " " + splitter[0]);
+                }
+                Collections.sort(propertyList, new Comparator<Property>() {
+                    @Override
+                    public int compare(Property lhs, Property rhs) {
+                        return lhs.getAddrline1().compareTo(rhs.getAddrline1());
+                    }
+                });
+                for(int i=0; i<propertyList.size(); i++){
+                    String[] splitter = propertyList.get(i).getAddrline1().split(" ");
+                    propertyList.get(i).setAddrline1(splitter[2] + " " + splitter[0] + " " + splitter[1]);
+                }
+                propertyRecyclerView.setAdapter(new PropertyAdapter(propertyList));
                 propertyRecyclerView.setVisibility(View.VISIBLE);
                 ProgressBar mProgressBar = (ProgressBar) findViewById(R.id.progressBar2);
                 mProgressBar.setVisibility(View.INVISIBLE);
