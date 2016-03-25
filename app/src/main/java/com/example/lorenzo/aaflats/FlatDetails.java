@@ -22,10 +22,13 @@ import com.firebase.client.Query;
 import com.firebase.client.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Objects;
 
 public class FlatDetails extends AppCompatActivity {
     private Property parceableProperty;
     private String parceablePropertyKey;
+    private String parceableFlatKey;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,12 +47,46 @@ public class FlatDetails extends AppCompatActivity {
         });
 
         Bundle intent = getIntent().getExtras();
-        Flat parceableFlat = intent.getParcelable("parceable_flat");
-        String parceableFlatKey = intent.getString("parceable_flat_key");
+        final Flat parceableFlat = intent.getParcelable("parceable_flat");
+//        parceableFlatKey = intent.getString("parceable_flat_key");
         parceableProperty = intent.getParcelable("parceable_property");
         parceablePropertyKey = intent.getString("parceable_property_key");
 
-        setTitle(parceableFlatKey);
+
+
+
+
+        Firebase flatsRef = new Firebase(getResources().getString(R.string.flats_location));
+        Query flatQuery = flatsRef.orderByChild("addressLine1").equalTo(parceableProperty.getAddrline1());
+        final ArrayList<Flat> flatList = new ArrayList<>();
+        flatQuery.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                //flatList.clear();
+                for (DataSnapshot childSnapShot : dataSnapshot.getChildren()) {
+                    Flat flt = childSnapShot.getValue(Flat.class);
+                    flatList.add(flt);
+                    if (Objects.equals(flt.getFlatNum(), parceableFlat.getFlatNum())) {
+                        parceableFlatKey = childSnapShot.getKey();
+                        break;
+                    }
+                }
+                System.out.println(parceableFlatKey.toString());
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+
+            }
+        });
+
+
+
+
+
+
+
+        setTitle(parceableFlat.getAddressLine1().toString()+ " - " + parceableFlat.getFlatNum().toString());
 
         final TextView flatAddrline1 = (TextView) findViewById(R.id.flat_details_addrline1);
         flatAddrline1.setText(parceableFlat.getAddressLine1());
@@ -108,6 +145,7 @@ public class FlatDetails extends AppCompatActivity {
         intent.putExtra("parceable_property_key", parceablePropertyKey);
         System.out.println(parceableProperty.getAddrline1() + "  -  " + parceablePropertyKey);
         this.startActivity(intent);
+        finish();
     }
 
     @Override

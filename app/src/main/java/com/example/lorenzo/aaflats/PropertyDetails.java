@@ -36,6 +36,8 @@ import com.firebase.client.Query;
 import com.firebase.client.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Objects;
 
 public class PropertyDetails extends AppCompatActivity {
@@ -144,6 +146,13 @@ public class PropertyDetails extends AppCompatActivity {
 //                    flatNums.add(split[1].trim().substring(0, 1).toUpperCase() +
 //                            split[1].substring(1).trim());
                 }
+                Collections.sort(flatList, new Comparator<Flat>() {
+                    @Override
+                    public int compare(Flat lhs, Flat rhs) {
+                        return lhs.getFlatNum().compareTo(rhs.getFlatNum());
+                    }
+                });
+
                 String numFlatsCast = Integer.toString(flatList.size());
                 if(!Objects.equals(parceableProperty.getNoOfFlats(), numFlatsCast)){
                     parceableProperty.setNoOfFlats(numFlatsCast);
@@ -384,6 +393,7 @@ public class PropertyDetails extends AppCompatActivity {
                     .setNegativeButton("No", null)
                     .show();
         } else{
+            startActivity(new Intent(PropertyDetails.this, AllProperties.class));
             finish();
         }
     }

@@ -2,6 +2,7 @@ package com.example.lorenzo.aaflats;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -31,7 +32,10 @@ import com.firebase.client.FirebaseError;
 import com.firebase.client.Query;
 import com.firebase.client.ValueEventListener;
 
+import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -70,6 +74,7 @@ public class TaskDetails extends AppCompatActivity {
     Firebase propertyRef;
     Firebase reportRef;
     Firebase flatRef;
+    Firebase deleteTask;
 
     Query findReportQuery;
 
@@ -190,6 +195,7 @@ public class TaskDetails extends AppCompatActivity {
                     prefEditor.putString("rKey", childSnap.getKey());
                     prefEditor.commit();
                 }
+
                 try {
                     String lc = foundReportList.get(0).getContent().toLowerCase().
                             substring(0, 1).toUpperCase() + foundReportList.get(0).getContent().
@@ -280,16 +286,24 @@ public class TaskDetails extends AppCompatActivity {
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 Firebase changeTaskStatusRef = taskRef.child(parceableTaskKey);
                 Map<String, Object> statusChangeMap = new HashMap<>();
+                Map<String, Object> timestampChangeMap = new HashMap<>();
                 if (isChecked) {
                     parceableTask.setStatus(true);
-                    statusChangeMap.put("status", "true");
+                    SimpleDateFormat s = new SimpleDateFormat("ddMMyyyyHHmmss");
+                    String format = s.format(new Date());
+                    parceableTask.setCompletionTimestamp(format);
+                    statusChangeMap.put("status", true);
+                    timestampChangeMap.put("completionTimestamp", format);
                     //taskCompletionCheckBox.setChecked(true);
                 } else if (!isChecked) {
                     parceableTask.setStatus(false);
-                    statusChangeMap.put("status", "false");
+                    parceableTask.setCompletionTimestamp("pending");
+                    timestampChangeMap.put("completionTimestamp", "pending");
+                    statusChangeMap.put("status", false);
                     //taskCompletionCheckBox.setChecked(false);
                 }
                 changeTaskStatusRef.updateChildren(statusChangeMap);
+                changeTaskStatusRef.updateChildren(timestampChangeMap);
                 TextView completionTV = (TextView) findViewById(R.id.completion_text_view);
                 completionTV.setTextColor(Color.parseColor("#FF5722"));
             }
@@ -307,7 +321,7 @@ public class TaskDetails extends AppCompatActivity {
                 for (DataSnapshot fltSnapshot : dataSnapshot.getChildren()) {
                     Flat flt = fltSnapshot.getValue(Flat.class);
                     flatList.add(flt);
-                    flatNums.add(flt.getAddressLine1());
+                    flatNums.add(flt.getFlatNum());
 //                    String[] split = fltSnapshot.getKey().split(" - ");
 //                    flatNums.add(split[1].trim().substring(0, 1).toUpperCase() +
 //                            split[1].substring(1).trim());
@@ -392,6 +406,36 @@ public class TaskDetails extends AppCompatActivity {
                 onBackPressed();
                 break;
 
+            case R.id.delete_task:
+                new AlertDialog.Builder(this)
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .setTitle("Delete?")
+                        .setMessage("Are you sure you want to permanently delete this task?")
+                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                startActivity(new Intent(TaskDetails.this, Homepage.class));
+                                String delTskURL = taskRef + "/" + parceableTaskKey;
+                                try{
+                                    deleteTask = new Firebase(delTskURL);
+                                    deleteTask.removeValue();
+                                }catch(Exception ex){
+                                    Toast toast = Toast.makeText(TaskDetails.this, "Deletion failed", Toast.LENGTH_SHORT);
+                                    toast.setGravity(Gravity.CENTER, 0, 0);
+                                    toast.show();
+                                }
+
+                                Toast toast = Toast.makeText(TaskDetails.this, "Task deleted", Toast.LENGTH_SHORT);
+                                toast.setGravity(Gravity.CENTER, 0, 0);
+                                toast.show();
+                            }
+
+                        })
+                        .setNegativeButton("No", null)
+                        .show();
+
+                break;
+
             case R.id.edit_task:
                 Toast.makeText(getApplicationContext(), "Edit button clicked", Toast.LENGTH_SHORT).show();
                 editTaskDetails();
@@ -418,11 +462,18 @@ public class TaskDetails extends AppCompatActivity {
                         flatSpinner.getSelectedItem().toString().toLowerCase());
                 parceableTask.setDescription(tdNotes.getText().toString());
                 parceableTask.setPriority(prioritySpinner.getSelectedItem().toString().toLowerCase());
-                if(Objects.equals(attachedReportKey, "")){
-                   parceableTask.setReport(pref.getString("rKey", "crashReportKey"));
+
+                if(Objects.equals(btReport.getText().toString(), pref.getString("btReportText", "crashReport"))){
+                    parceableTask.setReport(pref.getString("rKey", "crashReport"));
                 } else {
                     parceableTask.setReport(attachedReportKey);
                 }
+
+//                if(Objects.equals(attachedReportKey, "")){
+//                   parceableTask.setReport(pref.getString("rKey", "crashReportKey"));
+//                } else {
+//                    parceableTask.setReport(attachedReportKey);
+//                }
 
                 //taskRef.child(parceableTask.getTaskKey()).setValue(parceableTask);
                 taskRef.child(parceableTaskKey).setValue(parceableTask);

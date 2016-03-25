@@ -35,7 +35,8 @@ public class FlatAdapter extends RecyclerView.Adapter<FlatViewHolder>{
     @Override
     public void onBindViewHolder(FlatViewHolder flatViewHolder, int position) {
         mFlat = flatList.get(position);
-        flatViewHolder.flatTenant.setText(flatNums.get(position) + " - " + mFlat.getTenant());
+//        flatViewHolder.flatTenant.setText(flatNums.get(position) + " - " + mFlat.getTenant());
+        flatViewHolder.flatTenant.setText(flatList.get(position).getFlatNum() + " - " + mFlat.getTenant());
     }
 
     @Override

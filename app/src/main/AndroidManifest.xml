@@ -76,7 +76,7 @@
         <activity
             android:name=".AllProperties"
             android:label="@string/title_activity_all_properties"
-            android:parentActivityName=".PropertyDetails"
+            android:parentActivityName=".Homepage"
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"

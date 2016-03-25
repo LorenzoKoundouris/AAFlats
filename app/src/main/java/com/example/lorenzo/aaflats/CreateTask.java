@@ -44,6 +44,8 @@ import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Objects;
@@ -368,7 +370,13 @@ public class CreateTask extends AppCompatActivity implements AdapterView.OnItemS
 //                    String[] split = fltSnapshot.getKey().split(" - ");
 //                    flatNums.add(split[1].trim().substring(0, 1).toUpperCase() + split[1].trim().substring(1));
                 }
-                flatSpinner = (Spinner) findViewById(R.id.nt_flat_spinner);
+                Collections.sort(flatNums, new Comparator<String>() {
+                            @Override
+                            public int compare(String lhs, String rhs) {
+                                return lhs.compareTo(rhs);
+                            }
+                        });
+                        flatSpinner = (Spinner) findViewById(R.id.nt_flat_spinner);
                 ArrayAdapter<String> flatAdapter = new ArrayAdapter<>(getBaseContext(),
                         R.layout.spinner_dropdown_item, flatNums);
                 flatAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);

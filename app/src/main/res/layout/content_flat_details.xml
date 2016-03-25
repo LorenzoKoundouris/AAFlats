@@ -45,7 +45,10 @@
                     android:id="@+id/flat_details_addrline1"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="12dp" />
+                    android:layout_gravity="center_vertical"
+                    android:textSize="18sp"
+                    android:text="ff"
+                    android:layout_marginStart="30dp" />
             </LinearLayout>
 
             <LinearLayout
@@ -65,7 +68,10 @@
                     android:id="@+id/flat_details_postcode"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="40dp" />
+                    android:textSize="18sp"
+                    android:layout_gravity="center_vertical"
+                    android:text="ff"
+                    android:layout_marginStart="19dp" />
             </LinearLayout>
 
             <LinearLayout
@@ -85,7 +91,10 @@
                     android:id="@+id/flat_details_tenant"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="56dp" />
+                    android:textSize="18sp"
+                    android:layout_gravity="center_vertical"
+                    android:text="ff"
+                    android:layout_marginStart="40dp" />
             </LinearLayout>
 
             <LinearLayout
@@ -105,7 +114,10 @@
                     android:id="@+id/flat_details_notes"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="62dp" />
+                    android:textSize="18sp"
+                    android:text="ff"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginStart="48dp" />
             </LinearLayout>
 
         </LinearLayout>
@@ -118,66 +130,84 @@
         app:cardCornerRadius="3dp"
         app:cardElevation="4dp"
         app:cardUseCompatPadding="true">
-
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <LinearLayout
-                android:layout_width="0dp"
+            android:orientation="vertical">
+            <TextView
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:paddingStart="12dp"
-                android:paddingTop="12dp"
-                android:paddingBottom="12dp"
-                android:orientation="vertical">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:textColor="@color/colorPrimary"
-                    android:textSize="18sp"
-                    android:text="Pending tasks: " />
-
-                <android.support.v7.widget.RecyclerView
-                    android:id="@+id/flt_det_pdg_tsk_recyclerview"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="6dp">
-
-                </android.support.v7.widget.RecyclerView>
-            </LinearLayout>
-
-
+                android:textColor="@color/colorPrimary"
+                android:textSize="18sp"
+                android:padding="6dp"
+                android:textAlignment="center"
+                android:text="Tasks"/>
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@android:color/darker_gray"/>
             <LinearLayout
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:paddingEnd="12dp"
-                android:paddingTop="12dp"
-                android:paddingBottom="12dp"
-                android:background="#eeeeee"
-                android:orientation="vertical">
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:layout_marginStart="12dp"
-                    android:textColor="@color/colorPrimary"
-                    android:textSize="18sp"
-                    android:text="Completed tasks: "/>
-                <android.support.v7.widget.RecyclerView
-                    android:id="@+id/flt_det_comp_tsk_recyclerview"
-                    android:layout_marginStart="12dp"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="6dp">
+                android:orientation="horizontal">
 
-                </android.support.v7.widget.RecyclerView>
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:paddingStart="12dp"
+                    android:paddingTop="12dp"
+                    android:paddingBottom="12dp"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:textColor="@color/colorPrimary"
+                        android:textSize="18sp"
+                        android:text="Pending: " />
+
+                    <android.support.v7.widget.RecyclerView
+                        android:id="@+id/flt_det_pdg_tsk_recyclerview"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp">
+
+                    </android.support.v7.widget.RecyclerView>
+                </LinearLayout>
+
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:paddingEnd="12dp"
+                    android:paddingTop="12dp"
+                    android:paddingBottom="12dp"
+                    android:background="#eeeeee"
+                    android:orientation="vertical">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginStart="12dp"
+                        android:textColor="@color/colorPrimary"
+                        android:textSize="18sp"
+                        android:text="Completed: "/>
+                    <android.support.v7.widget.RecyclerView
+                        android:id="@+id/flt_det_comp_tsk_recyclerview"
+                        android:layout_marginStart="12dp"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp">
+
+                    </android.support.v7.widget.RecyclerView>
+                </LinearLayout>
             </LinearLayout>
         </LinearLayout>
+
+
 
     </android.support.v7.widget.CardView>
 </LinearLayout>
