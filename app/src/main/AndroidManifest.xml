@@ -104,6 +104,19 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.lorenzo.aaflats.PropertyDetails" />
         </activity>
+        <activity
+            android:name=".TenantHomepage"
+            android:label="@string/title_activity_tenant_homepage"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".ComposeNew"
+            android:label="@string/title_activity_compose_new"
+            android:parentActivityName=".TenantHomepage"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.lorenzo.aaflats.TenantHomepage" />
+        </activity>
     </application>
 
 </manifest>

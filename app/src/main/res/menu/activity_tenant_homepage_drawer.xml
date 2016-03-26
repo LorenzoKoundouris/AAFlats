@@ -15,21 +15,25 @@
             android:icon="@drawable/ic_menu_slideshow"
             android:title="Slideshow" />
         <item
-            android:id="@+id/nav_manage"
-            android:icon="@drawable/ic_menu_manage"
-            android:title="Tools" />
+            android:id="@+id/nav_my_account"
+            android:icon="@drawable/ic_account_circle_black_48dp"
+            android:title="My account" />
     </group>
 
     <item android:title="Communicate">
         <menu>
             <item
-                android:id="@+id/nav_share"
-                android:icon="@drawable/ic_menu_share"
-                android:title="Share" />
+                android:id="@+id/nav_compose_report"
+                android:icon="@drawable/ic_assignment_black_48dp"
+                android:title="Compose Report" />
             <item
-                android:id="@+id/nav_send"
-                android:icon="@drawable/ic_menu_send"
-                android:title="Send" />
+                android:id="@+id/nav_compose_enquiry"
+                android:icon="@drawable/ic_help_black_48dp"
+                android:title="Compose Enquiry" />
+            <item
+                android:id="@+id/nav_contact_details"
+                android:icon="@drawable/ic_contact_phone_black_48dp"
+                android:title="Contact details"/>
         </menu>
     </item>
 

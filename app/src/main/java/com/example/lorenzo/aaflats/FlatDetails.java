@@ -52,10 +52,6 @@ public class FlatDetails extends AppCompatActivity {
         parceableProperty = intent.getParcelable("parceable_property");
         parceablePropertyKey = intent.getString("parceable_property_key");
 
-
-
-
-
         Firebase flatsRef = new Firebase(getResources().getString(R.string.flats_location));
         Query flatQuery = flatsRef.orderByChild("addressLine1").equalTo(parceableProperty.getAddrline1());
         final ArrayList<Flat> flatList = new ArrayList<>();
@@ -71,7 +67,6 @@ public class FlatDetails extends AppCompatActivity {
                         break;
                     }
                 }
-                System.out.println(parceableFlatKey.toString());
             }
 
             @Override
@@ -79,12 +74,6 @@ public class FlatDetails extends AppCompatActivity {
 
             }
         });
-
-
-
-
-
-
 
         setTitle(parceableFlat.getAddressLine1().toString()+ " - " + parceableFlat.getFlatNum().toString());
 
@@ -138,6 +127,7 @@ public class FlatDetails extends AppCompatActivity {
         fltDtPdgTskRecyclerView.setAdapter(new FlatPendingTasksAdapter(flatPendingTasks, flatPendingTasksKeys));
         fltDtCompTskRecyclerView.setAdapter(new FlatCompletedTasksAdapter(flatCompletedTasks, flatCompletedTasksKeys));
     }
+
     @Override
     public void onBackPressed() {
         Intent intent = new Intent(this, PropertyDetails.class);

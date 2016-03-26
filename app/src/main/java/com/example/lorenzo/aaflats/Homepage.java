@@ -231,7 +231,7 @@ public class Homepage extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_inbox) {
-            // Handle the camera action
+            startActivity(new Intent(Homepage.this, TenantHomepage.class));
         } else if (id == R.id.nav_today) {
 
         } else if (id == R.id.nav_next7) {

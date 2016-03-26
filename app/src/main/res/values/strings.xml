@@ -23,6 +23,11 @@
         <item>Medium</item>
         <item>Low</item>
     </string-array>
+    <string-array name="report_enquiry">
+        <item>Report</item>
+        <item>Enquiry</item>
+    </string-array>
+
     <string name="title_activity_property_details">Property details</string>
 
     <string name="action_settings">Settings</string>
@@ -31,4 +36,6 @@
     <string name="title_activity_flat_details">FlatDetails</string>
     <string name="title_activity_create_property">CreateProperty</string>
     <string name="title_activity_create_flat">CreateFlat</string>
+    <string name="title_activity_tenant_homepage">TenantHomepage</string>
+    <string name="title_activity_compose_new">ComposeNew</string>
 </resources>
