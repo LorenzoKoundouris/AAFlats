@@ -117,6 +117,15 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.lorenzo.aaflats.TenantHomepage" />
         </activity>
+        <activity
+            android:name=".CreateTenant"
+            android:label="@string/title_activity_create_tenant"
+            android:parentActivityName=".Homepage"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.lorenzo.aaflats.Homepage" />
+        </activity>
     </application>
 
 </manifest>

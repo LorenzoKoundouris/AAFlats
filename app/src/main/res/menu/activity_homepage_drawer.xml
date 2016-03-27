@@ -19,28 +19,52 @@
             android:icon="@drawable/ic_filter_list_black_48dp"
             android:title="Filters" />
     </group>
+
     <item android:title="Management">
     <menu>
         <item
             android:id="@+id/nav_properties"
-            android:icon="@drawable/ic_home_black_48dp"
+            android:icon="@drawable/ic_business_black_48dp"
             android:title="Properties"/>
         <item
             android:id="@+id/nav_tenants"
             android:icon="@drawable/ic_group_black_24dp"
             android:title="Tenants"/>
+        <item
+            android:id="@+id/nav_reports"
+            android:icon="@drawable/ic_assignment_black_48dp"
+            android:title="Reports" />
     </menu>
     </item>
-    <item android:title="Communicate">
+
+    <item android:title="Contact">
         <menu>
             <item
-                android:id="@+id/map"
+                android:id="@+id/nav_map"
                 android:icon="@drawable/ic_map_black_48dp"
                 android:title="Map" />
             <item
-                android:id="@+id/nav_something"
-                android:icon="@drawable/ic_group_black_24dp"
+                android:id="@+id/nav_chat"
+                android:icon="@drawable/ic_chat_black_48dp"
+                android:title="Chat" />
+
+        </menu>
+    </item>
+
+    <item android:title="Operations">
+        <menu>
+            <item
+                android:id="@+id/nav_add_tenant"
+                android:icon="@drawable/ic_person_add_black_48dp"
+                android:title="Add tenant" />
+            <item
+                android:id="@+id/nav_add_flat"
+                android:icon="@drawable/ic_add_home_black_48dp"
                 android:title="Add flat" />
+            <item
+                android:id="@+id/nav_add_property"
+                android:icon="@drawable/ic_add_property_black_48dp"
+                android:title="Add property" />
         </menu>
     </item>
 

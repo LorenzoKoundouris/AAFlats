@@ -233,15 +233,27 @@ public class Homepage extends AppCompatActivity
         if (id == R.id.nav_inbox) {
             startActivity(new Intent(Homepage.this, TenantHomepage.class));
         } else if (id == R.id.nav_today) {
-
+            startActivity(new Intent(Homepage.this, CreateFlat.class));
         } else if (id == R.id.nav_next7) {
 
         } else if (id == R.id.nav_filter) {
 
         } else if (id == R.id.nav_properties) {
             startActivity(new Intent(Homepage.this, AllProperties.class));
-        } else if (id == R.id.nav_something) {
+        } else if (id == R.id.nav_tenants) {
+
+        } else if (id == R.id.nav_reports) {
+
+        } else if (id == R.id.nav_map) {
+
+        } else if (id == R.id.nav_chat) {
+
+        } else if (id == R.id.nav_add_tenant) {
+            startActivity(new Intent(Homepage.this, CreateTenant.class));
+        } else if (id == R.id.nav_add_flat) {
             startActivity(new Intent(Homepage.this, CreateFlat.class));
+        } else if (id == R.id.nav_add_property) {
+            startActivity(new Intent(Homepage.this, CreateProperty.class));
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

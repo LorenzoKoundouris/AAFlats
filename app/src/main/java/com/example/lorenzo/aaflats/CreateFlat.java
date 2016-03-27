@@ -75,7 +75,7 @@ public class CreateFlat extends AppCompatActivity {
         flatNotes = (EditText) findViewById(R.id.nf_notes_editext);
         flatTenant = (AutoCompleteTextView) findViewById(R.id.actv_nf_tenant);
 
-        getProperties();
+//        getProperties();
         recipientProperty = (AutoCompleteTextView) findViewById(R.id.actv_recipient_property);
         propertyAdapter = new ArrayAdapter<>
                 (this, android.R.layout.simple_dropdown_item_1line, propertyAddrLine1s);
@@ -133,6 +133,32 @@ public class CreateFlat extends AppCompatActivity {
                 }
             }
         });
+
+
+        Firebase propertyRef = new Firebase(getResources().getString(R.string.properties_location));
+        propertyRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                propertyList.clear();
+                propertyAddrLine1s.clear();
+                for (DataSnapshot prtSnapshot : dataSnapshot.getChildren()) {
+                    Property prt = prtSnapshot.getValue(Property.class);
+                    propertyList.add(prt);
+                    propertyAddrLine1s.add(prt.getAddrline1());
+                }
+
+                System.out.print("I FOUND THIS : " + propertyAddrLine1s.get(0).toString());
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+                System.out.println("Property: " + "The read failed: " + firebaseError.getMessage());
+            }
+        });
+
+
+
+
 
 
         recipientProperty.addTextChangedListener(new TextWatcher() {
@@ -414,13 +440,13 @@ public class CreateFlat extends AppCompatActivity {
     private void validateData() {
         String nullVals = "";
 
-        if (Objects.equals(flatNum.getText().toString(), "")) {
+        if (flatNum.getText().toString() == "") {
             flatNum.setBackgroundColor(Color.parseColor("#EF9A9A"));
             isValidFlatNum = false;
         } else {
             boolean flatExists = false;
             for (int i = 0; i < flatNums.size(); i++) {
-                if (Objects.equals(flatNums.get(i), "Flat " + flatNum.getText().toString().trim())) {
+                if (flatNums.get(i) == "Flat " + flatNum.getText().toString().trim()) {
                     flatExists = true;
                     break;
                 }
@@ -444,7 +470,7 @@ public class CreateFlat extends AppCompatActivity {
 
 ////////////////////////////////////////// Validate flat number ^
 
-        if (Objects.equals(flatTenant.getText().toString(), "")) {
+        if (flatTenant.getText().toString() == "") {
             if(addTenant){
                 flatTenant.setBackgroundColor(Color.parseColor("#EF9A9A"));
                 isValidTenant = false;
@@ -458,7 +484,7 @@ public class CreateFlat extends AppCompatActivity {
 //            int j = 0;
             int i;
             for (i = 0; i < tenantFullNames.size(); i++) {
-                if (Objects.equals(tenantFullNames.get(i), flatTenant.getText().toString().trim())) {
+                if (tenantFullNames.get(i) == flatTenant.getText().toString().trim()) {
                     isTenant = true;
                     break;
                 }
@@ -477,7 +503,7 @@ public class CreateFlat extends AppCompatActivity {
                         .setIcon(android.R.drawable.ic_dialog_alert)
                         .show();
                 isValidTenant = false;
-            } else if (Objects.equals(tenantList.get(i - 1).isCurrentTenant(), true)) {
+            } else if (tenantList.get(i - 1).isCurrentTenant()) {
                 new AlertDialog.Builder(this)
                         .setTitle("Wrong tenant")
                         .setMessage(tenantFullNames.get(i - 1) + " is already registered to a flat.")
@@ -521,26 +547,26 @@ public class CreateFlat extends AppCompatActivity {
         }
     }
 
-    public void getProperties() {
-        Firebase propertyRef = new Firebase(getResources().getString(R.string.properties_location));
-        propertyRef.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                propertyList.clear();
-                propertyAddrLine1s.clear();
-                for (DataSnapshot prtSnapshot : dataSnapshot.getChildren()) {
-                    Property prt = prtSnapshot.getValue(Property.class);
-                    propertyList.add(prt);
-                    propertyAddrLine1s.add(prt.getAddrline1());
-                }
-
-                System.out.print("I FOUND THIS : " + propertyAddrLine1s.get(0).toString());
-            }
-
-            @Override
-            public void onCancelled(FirebaseError firebaseError) {
-                System.out.println("Property: " + "The read failed: " + firebaseError.getMessage());
-            }
-        });
-    }
+//    public void getProperties() {
+//        Firebase propertyRef = new Firebase(getResources().getString(R.string.properties_location));
+//        propertyRef.addValueEventListener(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(DataSnapshot dataSnapshot) {
+//                propertyList.clear();
+//                propertyAddrLine1s.clear();
+//                for (DataSnapshot prtSnapshot : dataSnapshot.getChildren()) {
+//                    Property prt = prtSnapshot.getValue(Property.class);
+//                    propertyList.add(prt);
+//                    propertyAddrLine1s.add(prt.getAddrline1());
+//                }
+//
+//                System.out.print("I FOUND THIS : " + propertyAddrLine1s.get(0).toString());
+//            }
+//
+//            @Override
+//            public void onCancelled(FirebaseError firebaseError) {
+//                System.out.println("Property: " + "The read failed: " + firebaseError.getMessage());
+//            }
+//        });
+//    }
 }

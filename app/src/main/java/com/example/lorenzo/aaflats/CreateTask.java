@@ -196,7 +196,7 @@ public class CreateTask extends AppCompatActivity implements AdapterView.OnItemS
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 Boolean isProperty = false;
-                if (!hasFocus && !Objects.equals(actvProperty.getText().toString(), "")) {
+                if (!hasFocus && actvProperty.getText().toString() != "") {
                     for (int i = 0; i < propertyAddrLine1s.size(); i++) {
                         if (Objects.equals(propertyAddrLine1s.get(i), actvProperty.getText().toString().toLowerCase())) {
                             isProperty = true;

@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_marginTop="50dp"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:paddingBottom="@dimen/activity_vertical_margin"
+        android:paddingLeft="@dimen/activity_horizontal_margin"
+        android:paddingRight="@dimen/activity_horizontal_margin"
+        android:paddingTop="@dimen/activity_vertical_margin"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        tools:context="com.example.lorenzo.aaflats.CreateTenant"
+        tools:showIn="@layout/activity_create_tenant">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingBottom="12dp">
+
+            <TextView
+                android:id="@+id/nt_forename_textview"
+                android:layout_width="0dp"
+                android:layout_height="fill_parent"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                android:text="Name: "
+                android:textColor="@color/colorPrimary"
+                android:textSize="18sp" />
+
+            <EditText
+                android:id="@+id/nt_forename_editview"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="6dp"
+                android:layout_marginStart="6dp"
+                android:layout_marginTop="5dp"
+                android:layout_weight="3"
+                android:hint="first name"
+                android:inputType="textPersonName"
+                android:textStyle="italic" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingBottom="12dp">
+
+            <TextView
+                android:id="@+id/nt_middlename_textview"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                android:text="Middle: "
+                android:textColor="@color/colorPrimary"
+                android:textSize="18sp" />
+
+            <EditText
+                android:id="@+id/nt_middlename_editview"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginLeft="6dp"
+                android:layout_marginStart="6dp"
+                android:layout_marginTop="5dp"
+                android:layout_weight="3"
+                android:hint="middle name"
+                android:inputType="textPersonName"
+                android:textStyle="italic" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingBottom="12dp">
+
+            <TextView
+                android:id="@+id/nt_surname_textview"
+                android:layout_width="0dp"
+                android:layout_height="fill_parent"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                android:text="Surname: "
+                android:textColor="@color/colorPrimary"
+                android:textSize="18sp" />
+
+            <EditText
+                android:id="@+id/nt_surname_editview"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginLeft="6dp"
+                android:layout_marginStart="6dp"
+                android:layout_marginTop="5dp"
+                android:layout_weight="3"
+                android:hint="last name"
+                android:inputType="textPersonName"
+                android:textStyle="italic" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingBottom="12dp">
+
+            <TextView
+                android:id="@+id/nt_dob_textview"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical"
+                android:layout_weight="1"
+                android:text="DoB: "
+                android:textColor="@color/colorPrimary"
+                android:textSize="18sp" />
+
+            <EditText
+                android:id="@+id/nt_dob_editview"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_marginLeft="6dp"
+                android:layout_marginStart="6dp"
+                android:layout_marginTop="5dp"
+                android:layout_weight="2.5"
+                android:hint="date of birth"
+                android:inputType="date"
+                android:textStyle="italic" />
+
+            <ImageView
+                android:id="@+id/nt_calendar_button"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="0.5"
+                android:src="@drawable/calendar_icon" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingBottom="12dp">
+
+            <TextView
+                android:id="@+id/nt_email_textview"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical"
+                android:layout_weight="1"
+                android:text="Email: "
+                android:textColor="@color/colorPrimary"
+                android:textSize="18sp" />
+
+            <EditText
+                android:id="@+id/nt_email_editview"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="6dp"
+                android:layout_marginStart="6dp"
+                android:layout_marginTop="5dp"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="3"
+                android:hint="email address"
+                android:inputType="textEmailAddress"
+                android:textStyle="italic" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:paddingBottom="12dp">
+
+            <TextView
+                android:id="@+id/nt_telephone_textview"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical"
+                android:layout_weight="1"
+                android:text="Tel.:"
+                android:textColor="@color/colorPrimary"
+                android:textSize="18sp" />
+
+            <EditText
+                android:id="@+id/nt_telephone_editview"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="6dp"
+                android:layout_marginStart="6dp"
+                android:layout_marginTop="5dp"
+                android:layout_weight="3"
+                android:hint="telephone number"
+                android:inputType="phone"
+                android:textStyle="italic" />
+        </LinearLayout>
+
+    </LinearLayout>
+</ScrollView>

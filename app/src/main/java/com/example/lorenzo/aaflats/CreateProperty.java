@@ -83,7 +83,7 @@ public class CreateProperty extends AppCompatActivity {
                 if (hasFocus) {
                     npPostcode.setBackgroundColor(Color.parseColor("#eeeeee"));
                 }
-                if (!hasFocus && Objects.equals(npPostcode.getText().toString(), "")) {
+                if (!hasFocus && npPostcode.getText().toString() == "") {
                     Toast toast = Toast.makeText(CreateProperty.this, "No postcode ?", Toast.LENGTH_SHORT);
                     toast.setGravity(Gravity.CENTER, 0, 0);
                     toast.show();
@@ -98,7 +98,7 @@ public class CreateProperty extends AppCompatActivity {
                 if (hasFocus) {
                     npAddress.setBackgroundColor(Color.parseColor("#eeeeee"));
                 }
-                if (!hasFocus && Objects.equals(npAddress.getText().toString(), "")) {
+                if (!hasFocus && npAddress.getText().toString() == "") {
                     Toast toast = Toast.makeText(CreateProperty.this, "No address ?", Toast.LENGTH_SHORT);
                     toast.setGravity(Gravity.CENTER, 0, 0);
                     toast.show();
@@ -109,7 +109,7 @@ public class CreateProperty extends AppCompatActivity {
         npNotes.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
-                if (!hasFocus && Objects.equals(npNotes.getText().toString(), "")) {
+                if (!hasFocus && npNotes.getText().toString()== "") {
                     Toast toast = Toast.makeText(CreateProperty.this, "No notes ?", Toast.LENGTH_SHORT);
                     toast.setGravity(Gravity.CENTER, 0, 0);
                     toast.show();
@@ -232,7 +232,7 @@ public class CreateProperty extends AppCompatActivity {
 
     private void validateData() {
 
-        if (Objects.equals(npPostcode.getText().toString(), "")) {
+        if (npPostcode.getText().toString() == "") {
             npPostcode.setBackgroundColor(Color.parseColor("#EF9A9A"));
             validPostcode = false;
         } else {
@@ -241,7 +241,7 @@ public class CreateProperty extends AppCompatActivity {
             isValidPostcodeFormat(npPostcode.getText().toString().trim());
             if (validPostcode) {
                 for (int i = 0; i < propertyPostcodes.size(); i++) {
-                    if (Objects.equals(propertyPostcodes.get(i), npPostcode.getText().toString().toUpperCase().trim())) {
+                    if (propertyPostcodes.get(i) == npPostcode.getText().toString().toUpperCase().trim()) {
                         postcodeExists = true;
                         break;
                     }
@@ -266,13 +266,13 @@ public class CreateProperty extends AppCompatActivity {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-            if (Objects.equals(npAddress.getText().toString(), "")) {
+            if (npAddress.getText().toString() == "") {
                 npAddress.setBackgroundColor(Color.parseColor("#EF9A9A"));
                 validAddress = false;
             } else {
                 boolean addressExists = false;
                 for (int i = 0; i < propertyAddrLine1s.size(); i++) {
-                    if (Objects.equals(propertyAddrLine1s.get(i), npAddress.getText().toString().toLowerCase().trim())) {
+                    if (propertyAddrLine1s.get(i) == npAddress.getText().toString().toLowerCase().trim()) {
                         addressExists = true;
                         break;
                     }

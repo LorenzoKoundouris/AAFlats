@@ -38,4 +38,5 @@
     <string name="title_activity_create_flat">CreateFlat</string>
     <string name="title_activity_tenant_homepage">TenantHomepage</string>
     <string name="title_activity_compose_new">ComposeNew</string>
+    <string name="title_activity_create_tenant">CreateTenant</string>
 </resources>
