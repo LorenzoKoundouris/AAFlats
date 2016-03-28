@@ -241,7 +241,7 @@ public class Homepage extends AppCompatActivity
         } else if (id == R.id.nav_properties) {
             startActivity(new Intent(Homepage.this, AllProperties.class));
         } else if (id == R.id.nav_tenants) {
-
+            startActivity(new Intent(Homepage.this, AllTenants.class));
         } else if (id == R.id.nav_reports) {
 
         } else if (id == R.id.nav_map) {

@@ -46,8 +46,7 @@ public class AllProperties extends AppCompatActivity {
         propertyRecyclerView = (RecyclerView) findViewById(R.id.properties_recycler_view);
         propertyRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        String propertiesRefString = getResources().getString(R.string.properties_location);
-        Firebase propertiesRef = new Firebase(propertiesRefString);
+        Firebase propertiesRef = new Firebase(getResources().getString(R.string.properties_location));
 
         propertiesRef.addValueEventListener(new ValueEventListener() {
             @Override

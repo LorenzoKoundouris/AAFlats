@@ -10,6 +10,7 @@
          location permissions for the 'MyLocation' functionality. 
     -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.CALL_PHONE" />
 
     <application
         android:allowBackup="true"
@@ -125,6 +126,24 @@
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.lorenzo.aaflats.Homepage" />
+        </activity>
+        <activity
+            android:name=".AllTenants"
+            android:label="@string/title_activity_all_tenants"
+            android:parentActivityName=".Homepage"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.lorenzo.aaflats.Homepage" />
+        </activity>
+        <activity
+            android:name=".TenantDetails"
+            android:label="@string/title_activity_tenant_details"
+            android:parentActivityName=".AllTenants"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.lorenzo.aaflats.AllTenants" />
         </activity>
     </application>
 

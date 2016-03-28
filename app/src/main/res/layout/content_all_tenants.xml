@@ -5,24 +5,23 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#E0E0E0"
-    android:paddingBottom="12dp"
-    android:paddingLeft="12dp"
-    android:paddingRight="12dp"
-    android:paddingTop="@dimen/activity_vertical_margin"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="com.example.lorenzo.aaflats.AllProperties"
-    tools:showIn="@layout/activity_all_properties">
+    tools:context="com.example.lorenzo.aaflats.AllTenants"
+    tools:showIn="@layout/activity_all_tenants">
 
     <TextView
-        android:id="@+id/text_view_all_properties"
+        android:id="@+id/text_view_all_tenants"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="All properties"
+        android:text="All tenants"
         android:textColor="#FF5722"
+        android:layout_marginLeft="12dp"
+        android:layout_marginStart="12dp"
+        android:layout_marginTop="12dp"
         android:textSize="18sp" />
 
     <ProgressBar
-        android:id="@+id/progressBar2"
+        android:id="@+id/progressBar3"
         style="?android:progressBarStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -30,11 +29,11 @@
         android:layout_centerVertical="true" />
 
     <android.support.v7.widget.RecyclerView
-        android:id="@+id/properties_recycler_view"
+        android:id="@+id/tenants_recycler_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/text_view_all_properties"
-        android:paddingTop="6dp"
+        android:layout_below="@+id/text_view_all_tenants"
+        android:paddingTop="12dp"
         android:visibility="invisible"/>
 
 </RelativeLayout>

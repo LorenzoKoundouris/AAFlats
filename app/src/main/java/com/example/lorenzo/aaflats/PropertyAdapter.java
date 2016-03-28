@@ -11,6 +11,7 @@ import java.util.ArrayList;
  * Created by Lorenzo on 23/02/2016.
  */
 public class PropertyAdapter extends RecyclerView.Adapter<PropertyViewHolder>{
+
     public static Property mProperty = new Property();
     private ArrayList<Property> propertyList;
 
@@ -18,7 +19,6 @@ public class PropertyAdapter extends RecyclerView.Adapter<PropertyViewHolder>{
     public PropertyAdapter(ArrayList<Property> propertyList){
         this.propertyList = propertyList;
     }
-
 
     @Override
     public PropertyViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {

@@ -32,6 +32,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="2dp"
+                android:layout_marginLeft="2dp"
                 android:layout_below="@id/property_addrline1"
                 android:text="postcode" />
 
@@ -40,6 +41,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"
                 android:textStyle="italic"
                 android:text="notes"
                 android:layout_alignBottom="@id/property_postcode"/>
