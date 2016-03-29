@@ -26,15 +26,23 @@ import com.firebase.client.Query;
 import com.firebase.client.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 public class Homepage extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
+    private Firebase taskRef = new Firebase(getResources().getString(R.string.tasks_location));
+    private ArrayList<Task> highPT = new ArrayList<>();
+    private ArrayList<Task> mediumPT = new ArrayList<>();
+    private ArrayList<Task> lowPT = new ArrayList<>();
+    private ArrayList<Task> prioritisedTasks= new ArrayList<>();
     final ArrayList<Task> mTaskList = new ArrayList<>();
     final ArrayList<String> taskKeys = new ArrayList<>();
     private RecyclerView taskRecyclerView;
     private SwipeRefreshLayout refreshLayout;
     private boolean notFirstLoad = false;
+    private boolean filterTasks = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,7 +74,7 @@ public class Homepage extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        refreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_layout);
+        refreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_layout_homepage);
         //refreshLayout.setColorSchemeColors(android.R.color.holo_green_dark, android.R.color.holo_green_light, android.R.color.holo_blue_dark, android.R.color.holo_blue_bright, android.R.color.holo_blue_light, android.R.color.holo_orange_dark, android.R.color.holo_orange_light, android.R.color.holo_purple);
         refreshLayout.setColorSchemeResources(
                 R.color.refresh_progress_2,
@@ -97,40 +105,27 @@ public class Homepage extends AppCompatActivity
 
     private void setupFirebase() {
         Firebase.setAndroidContext(this);
-        String tasksLocation = getResources().getString(R.string.tasks_location);
-        Query mQuery = new Firebase(tasksLocation);
 
-        mQuery.addValueEventListener(new ValueEventListener() {
+        taskRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-//                for (DataSnapshot tskSnapshot : snapshot.getChildren()) {
-//                    Task tsk = tskSnapshot.getValue(Task.class);
-//                    System.out.println("Task: " + tsk.getTitle() + ": " + tsk.getDescription());
-////                    mAdapterItems.add(tsk);
-//                }
-//                taskRecyclerView.setAdapter(new TaskAdapter(mQuery, Task.class));
                 mTaskList.clear();
                 taskKeys.clear();
-//                System.out.println("PRINT OUT OF FOR-LOOP+++++++++++++++++++++");
 
                 for (DataSnapshot tskSnapshot : dataSnapshot.getChildren()) {
-//                    System.out.println("There are " + dataSnapshot.getChildrenCount()
-//                            + " tasks - " + dataSnapshot.getValue());
                     Task tsk = tskSnapshot.getValue(Task.class);
-//                    System.out.println("PRINT INSIDE OF FOR-LOOP: "+tskSnapshot.getValue());
-                    //System.out.println("onData Title: " + tsk.getTitle());
-                    //System.out.println("onData Description : " + tsk.getDescription());
                     mTaskList.add(tsk);
-                    //mTaskList.get(i).setTaskKey(tskSnapshot.getKey());
                     taskKeys.add(tskSnapshot.getKey());
-                    //System.out.println("taskArrayList contents: " + mTaskList); //It has tasks here
+                    if(tsk.getPriority().matches("high")){
+                        highPT.add(tsk);
+                    } else if(tsk.getPriority().matches("medium")){
+                        mediumPT.add(tsk);
+                    } else if(tsk.getPriority().matches("low")){
+                        lowPT.add(tsk);
+                    }
                 }
+
                 setRecyclerAdapterContents(taskKeys, mTaskList);
-//                taskRecyclerView.setAdapter(new TaskAdapter(taskKeys, mTaskList)); //, Task.class
-//                refreshLayout.setRefreshing(false);
-//                taskRecyclerView.setVisibility(View.VISIBLE);
-//                ProgressBar mProgressBar = (ProgressBar) findViewById(R.id.progressBar);
-//                mProgressBar.setVisibility(View.INVISIBLE);
             }
 
             @Override
@@ -138,26 +133,16 @@ public class Homepage extends AppCompatActivity
                 //System.out.println("Task: " + "The read failed: " + firebaseError.getMessage());
             }
         });
-        mQuery.addChildEventListener(new ChildEventListener() {
+        taskRef.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-
-                //for (DataSnapshot tskSnapshot : dataSnapshot.getChildren()) {
-
                 Task tsk = dataSnapshot.getValue(Task.class);
-                //System.out.println("PRINT THIS CHILD: " + dataSnapshot.getValue() +"$$$$$$$$$$$$$$$$$$$");
-                // specify an adapter (see also next example)
-                //mRecyclerView.setAdapter(new TaskAdapter(mQuery, taskArrayList)); //, Task.class
-                //}
-
-
             }
 
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot, String s) {
                 mTaskList.clear();
                 Task newTask = dataSnapshot.getValue(Task.class);
-                //taskArrayList.add(newTask);
             }
 
             @Override
@@ -181,7 +166,7 @@ public class Homepage extends AppCompatActivity
         taskRecyclerView.setAdapter(new TaskAdapter(taskKeys, mTaskList)); //, Task.class
         if(!notFirstLoad){
             taskRecyclerView.setVisibility(View.VISIBLE);
-            ProgressBar mProgressBar = (ProgressBar) findViewById(R.id.progressBar);
+            ProgressBar mProgressBar = (ProgressBar) findViewById(R.id.progressBar_homepage);
             mProgressBar.setVisibility(View.INVISIBLE);
         }
         notFirstLoad = true;
@@ -215,10 +200,41 @@ public class Homepage extends AppCompatActivity
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             return true;
+        } else if (id == R.id.filter_tasks){
+            filterTasks = true;
+        } else if (id == R.id.sort_tasks){
+            prioritiseTaskss();
         }
 
         return super.onOptionsItemSelected(item);
     }
+
+    private void prioritiseTaskss() {
+        prioritisedTasks.clear();
+        Collections.sort(highPT, new Comparator<Task>() {
+            @Override
+            public int compare(Task lhs, Task rhs) {
+                return lhs.getProperty().compareTo(rhs.getProperty());
+            }
+        });
+        Collections.sort(mediumPT, new Comparator<Task>() {
+            @Override
+            public int compare(Task lhs, Task rhs) {
+                return lhs.getProperty().compareTo(rhs.getProperty());
+            }
+        });
+        Collections.sort(lowPT, new Comparator<Task>() {
+            @Override
+            public int compare(Task lhs, Task rhs) {
+                return lhs.getProperty().compareTo(rhs.getProperty());
+            }
+        });
+        prioritisedTasks.addAll(highPT);
+        prioritisedTasks.addAll(mediumPT);
+        prioritisedTasks.addAll(lowPT);
+//        setRecyclerAdapterContents(prioritisedTasks);
+    }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();

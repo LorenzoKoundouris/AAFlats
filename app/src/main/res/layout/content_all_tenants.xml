@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:background="#E0E0E0"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context="com.example.lorenzo.aaflats.AllTenants"
@@ -17,16 +17,23 @@
         android:textColor="#FF5722"
         android:layout_marginLeft="12dp"
         android:layout_marginStart="12dp"
-        android:layout_marginTop="12dp"
+        android:layout_marginTop="16dp"
         android:textSize="18sp" />
 
     <ProgressBar
-        android:id="@+id/progressBar3"
+        android:id="@+id/progressBar_alltenants"
         style="?android:progressBarStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true" />
+
+    <android.support.v4.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/swipe_layout_alltenants"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/text_view_all_tenants"
+        android:paddingTop="6dp">
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/tenants_recycler_view"
@@ -35,5 +42,6 @@
         android:layout_below="@+id/text_view_all_tenants"
         android:paddingTop="12dp"
         android:visibility="invisible"/>
+    </android.support.v4.widget.SwipeRefreshLayout>
 
 </RelativeLayout>

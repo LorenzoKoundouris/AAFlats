@@ -5,7 +5,6 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="#E0E0E0"
-    android:orientation="vertical"
     android:paddingBottom="12dp"
     android:paddingLeft="12dp"
     android:paddingRight="12dp"
@@ -24,25 +23,25 @@
         android:textSize="18sp" />
 
     <ProgressBar
-        android:id="@+id/progressBar"
+        android:id="@+id/progressBar_homepage"
         style="?android:progressBarStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerVertical="true"
-        android:layout_centerHorizontal="true"/>
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true" />
 
     <android.support.v4.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/swipe_layout"
+        android:id="@+id/swipe_layout_homepage"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@+id/text_view_today"
         android:paddingTop="6dp">
 
         <android.support.v7.widget.RecyclerView
-            android:visibility="invisible"
             android:id="@+id/task_recycler_view"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"></android.support.v7.widget.RecyclerView>
+            android:layout_height="wrap_content"
+            android:visibility="invisible" />
 
     </android.support.v4.widget.SwipeRefreshLayout>
 </RelativeLayout>

@@ -40,9 +40,9 @@ public class TenantViewHolder extends RecyclerView.ViewHolder implements View.On
     @Override
     public void onClick(View v){
         Tenant tTenant = tenantList.get(getAdapterPosition());
-//        Intent intent = new Intent(v.getContext(), TenantDetails.class);
-//        intent.putExtra("parceable_tenant", tTenant);
-//        v.getContext().startActivity(intent);
+        Intent intent = new Intent(v.getContext(), TenantDetails.class);
+        intent.putExtra("parceable_tenant", tTenant);
+        v.getContext().startActivity(intent);
         Toast.makeText(v.getContext(), tTenant.getSurname(), Toast.LENGTH_SHORT).show();
     }
 }

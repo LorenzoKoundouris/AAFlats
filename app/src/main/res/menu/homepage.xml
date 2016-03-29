@@ -6,4 +6,15 @@
         android:orderInCategory="100"
         android:title="@string/action_settings"
         app:showAsAction="never" />
+
+        <item android:id="@+id/filter_tasks"
+        android:orderInCategory="200"
+        android:title="Filter by"
+        app:showAsAction="never" />
+
+    <item android:id="@+id/sort_tasks"
+        android:orderInCategory="300"
+        android:title="Sort by"
+        app:showAsAction="never" />
+
 </menu>

@@ -3,11 +3,12 @@ package com.example.lorenzo.aaflats;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
 
@@ -22,7 +23,9 @@ import java.util.Comparator;
 
 public class AllProperties extends AppCompatActivity {
 
-
+    private SwipeRefreshLayout refreshLayout;
+    private RecyclerView propertyRecyclerView;
+    private boolean notFirstLoad = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,6 +33,8 @@ public class AllProperties extends AppCompatActivity {
         setContentView(R.layout.activity_all_properties);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        setupRecyclerview();
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -39,9 +44,20 @@ public class AllProperties extends AppCompatActivity {
             }
         });
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        final RecyclerView propertyRecyclerView;
         final ArrayList<Property> propertyList = new ArrayList<>();
         final ArrayList<String> propertyKeys = new ArrayList<>();
+
+        refreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_layout_allproperties);
+        refreshLayout.setColorSchemeResources(
+                R.color.refresh_progress_2,
+                R.color.refresh_progress_3,
+                R.color.refresh_progress_1);
+        refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                setRecyclerAdapterContents(propertyList);
+            }
+        });
 
         propertyRecyclerView = (RecyclerView) findViewById(R.id.properties_recycler_view);
         propertyRecyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -56,7 +72,7 @@ public class AllProperties extends AppCompatActivity {
                     Property prt = childSnap.getValue(Property.class);
                     propertyList.add(prt);
                 }
-                for(int i=0; i<propertyList.size(); i++){
+                for (int i = 0; i < propertyList.size(); i++) {
                     String[] splitter = propertyList.get(i).getAddrline1().split(" ");
                     propertyList.get(i).setAddrline1(splitter[1] + " " + splitter[2] + " " + splitter[0]);
                 }
@@ -66,14 +82,11 @@ public class AllProperties extends AppCompatActivity {
                         return lhs.getAddrline1().compareTo(rhs.getAddrline1());
                     }
                 });
-                for(int i=0; i<propertyList.size(); i++){
+                for (int i = 0; i < propertyList.size(); i++) {
                     String[] splitter = propertyList.get(i).getAddrline1().split(" ");
                     propertyList.get(i).setAddrline1(splitter[2] + " " + splitter[0] + " " + splitter[1]);
                 }
-                propertyRecyclerView.setAdapter(new PropertyAdapter(propertyList));
-                propertyRecyclerView.setVisibility(View.VISIBLE);
-                ProgressBar mProgressBar = (ProgressBar) findViewById(R.id.progressBar2);
-                mProgressBar.setVisibility(View.INVISIBLE);
+                setRecyclerAdapterContents(propertyList);
             }
 
             @Override
@@ -81,7 +94,38 @@ public class AllProperties extends AppCompatActivity {
 
             }
         });
+    }
 
+    private void setupRecyclerview() {
+        propertyRecyclerView = (RecyclerView) findViewById(R.id.properties_recycler_view);
+        propertyRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+    }
+
+    private void setRecyclerAdapterContents(ArrayList<Property> propertyList) {
+        propertyRecyclerView.setAdapter(new PropertyAdapter(propertyList));
+        if (!notFirstLoad) {
+            propertyRecyclerView.setVisibility(View.VISIBLE);
+            ProgressBar mProgressBar = (ProgressBar) findViewById(R.id.progressBar_allproperties);
+            mProgressBar.setVisibility(View.INVISIBLE);
+        }
+        notFirstLoad = true;
+        refreshLayout.setRefreshing(false);
+    }
+
+    @Override
+    public void onBackPressed() {
+        finish();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                //Toast.makeText(getApplicationContext(), "Back button clicked", Toast.LENGTH_SHORT).show();
+                onBackPressed();
+                break;
+        }
+        return true;
     }
 
 }

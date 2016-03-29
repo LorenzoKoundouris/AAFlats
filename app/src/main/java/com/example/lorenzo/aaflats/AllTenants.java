@@ -1,10 +1,9 @@
 package com.example.lorenzo.aaflats;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -23,7 +22,9 @@ import java.util.Comparator;
 
 public class AllTenants extends AppCompatActivity {
 
+    private boolean notFirstLoad = false;
     private RecyclerView tenantRecyclerView;
+    private SwipeRefreshLayout refreshLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,6 +32,8 @@ public class AllTenants extends AppCompatActivity {
         setContentView(R.layout.activity_all_tenants);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        setupRecyclerview();
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -41,12 +44,22 @@ public class AllTenants extends AppCompatActivity {
         });
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-
-
         final ArrayList<Tenant> tenantList = new ArrayList<>();
-
         tenantRecyclerView = (RecyclerView) findViewById(R.id.tenants_recycler_view);
         tenantRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+        refreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_layout_alltenants);
+        refreshLayout.setColorSchemeResources(
+                R.color.refresh_progress_2,
+                R.color.refresh_progress_3,
+                R.color.refresh_progress_1);
+        refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                setRecyclerAdapterContents(tenantList);
+            }
+        });
+
 
         Firebase tenantsRef = new Firebase(getResources().getString(R.string.tenants_location));
 
@@ -66,11 +79,9 @@ public class AllTenants extends AppCompatActivity {
                     }
                 });
 
-                sendContext(tenantList);
+                setRecyclerAdapterContents(tenantList);
 
                 tenantRecyclerView.setVisibility(View.VISIBLE);
-                ProgressBar mProgressBar = (ProgressBar) findViewById(R.id.progressBar3);
-                mProgressBar.setVisibility(View.INVISIBLE);
             }
 
             @Override
@@ -80,7 +91,19 @@ public class AllTenants extends AppCompatActivity {
         });
     }
 
-    private void sendContext(ArrayList<Tenant> tenantList) {
+    private void setupRecyclerview() {
+        tenantRecyclerView = (RecyclerView) findViewById(R.id.tenants_recycler_view);
+        tenantRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+    }
+
+    private void setRecyclerAdapterContents(ArrayList<Tenant> tenantList) {
         tenantRecyclerView.setAdapter(new TenantAdapter(tenantList, this));
+        if (!notFirstLoad) {
+            tenantRecyclerView.setVisibility(View.VISIBLE);
+            ProgressBar mProgressBar = (ProgressBar) findViewById(R.id.progressBar_alltenants);
+            mProgressBar.setVisibility(View.INVISIBLE);
+        }
+        notFirstLoad = true;
+        refreshLayout.setRefreshing(false);
     }
 }

@@ -52,30 +52,33 @@ public class FlatDetails extends AppCompatActivity {
         parceableProperty = intent.getParcelable("parceable_property");
         parceablePropertyKey = intent.getString("parceable_property_key");
 
-        Firebase flatsRef = new Firebase(getResources().getString(R.string.flats_location));
-        Query flatQuery = flatsRef.orderByChild("addressLine1").equalTo(parceableProperty.getAddrline1());
-        final ArrayList<Flat> flatList = new ArrayList<>();
-        flatQuery.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                //flatList.clear();
-                for (DataSnapshot childSnapShot : dataSnapshot.getChildren()) {
-                    Flat flt = childSnapShot.getValue(Flat.class);
-                    flatList.add(flt);
-                    if (Objects.equals(flt.getFlatNum(), parceableFlat.getFlatNum())) {
-                        parceableFlatKey = childSnapShot.getKey();
-                        break;
-                    }
-                }
-            }
+//        Firebase flatsRef = new Firebase(getResources().getString(R.string.flats_location));
+//        Query flatQuery = flatsRef.orderByChild("addressLine1").equalTo(parceableProperty.getAddrline1());
+//        final ArrayList<Flat> flatList = new ArrayList<>();
+//        flatQuery.addListenerForSingleValueEvent(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(DataSnapshot dataSnapshot) {
+//                //flatList.clear();
+//                for (DataSnapshot childSnapShot : dataSnapshot.getChildren()) {
+//                    Flat flt = childSnapShot.getValue(Flat.class);
+//                    flatList.add(flt);
+//                    assert parceableFlat != null;
+//                    if (flt.getFlatNum().matches(parceableFlat.getFlatNum())) {
+//                        parceableFlatKey = childSnapShot.getKey();
+//                        break;
+//                    }
+//                }
+//                ttestt = flatList.get(0).getFlatNum();
+//            }
+//
+//            @Override
+//            public void onCancelled(FirebaseError firebaseError) {
+//
+//            }
+//        });
 
-            @Override
-            public void onCancelled(FirebaseError firebaseError) {
-
-            }
-        });
-
-        setTitle(parceableFlat.getAddressLine1().toString()+ " - " + parceableFlat.getFlatNum().toString());
+        assert parceableFlat != null;
+        setTitle(parceableFlat.getAddressLine1() + " - " + parceableFlat.getFlatNum());
 
         final TextView flatAddrline1 = (TextView) findViewById(R.id.flat_details_addrline1);
         flatAddrline1.setText(parceableFlat.getAddressLine1());
@@ -94,14 +97,15 @@ public class FlatDetails extends AppCompatActivity {
         final ArrayList<String> flatPendingTasksKeys = new ArrayList<>();
         final ArrayList<String> flatCompletedTasksKeys = new ArrayList<>();
         Firebase taskRef = new Firebase(getString(R.string.tasks_location));
-        Query flatPendingTasksQ = taskRef.orderByChild("property").equalTo(parceableFlatKey);// .orderByChild("status").equalTo("false");
-        flatPendingTasksQ.addValueEventListener(new ValueEventListener() {
+        //Query tasksOfThisFlatQ = taskRef.orderByChild("property").equalTo(parceableFlatKey);// .orderByChild("status").equalTo("false");
+        Query tasksOfThisFlatQ = taskRef.orderByChild("property").equalTo(parceableProperty.getAddrline1() + " - " + parceableFlat.getFlatNum().toLowerCase());
+        tasksOfThisFlatQ.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                flatPendingTasks.clear();
-                flatCompletedTasks.clear();
-                flatPendingTasksKeys.clear();
-                flatCompletedTasksKeys.clear();
+//                flatPendingTasks.clear();
+//                flatCompletedTasks.clear();
+//                flatPendingTasksKeys.clear();
+//                flatCompletedTasksKeys.clear();
                 for (DataSnapshot childSnapShot : dataSnapshot.getChildren()) {
                     Task tsk = childSnapShot.getValue(Task.class);
                     if (!tsk.getStatus()) {

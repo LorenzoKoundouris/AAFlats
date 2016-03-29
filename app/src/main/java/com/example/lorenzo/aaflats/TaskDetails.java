@@ -142,11 +142,20 @@ public class TaskDetails extends AppCompatActivity {
         //flat done in onDataChange
         tdNotes.setText(parceableTask.getDescription());
         prefEditor.putString("tNotes", parceableTask.getDescription());
-        if (Objects.equals(parceableTask.getPriority().toLowerCase(), "high")) {
+
+        // Create an ArrayAdapter using the string array
+        ArrayAdapter<CharSequence> priorityAdapter = ArrayAdapter.createFromResource(this,
+                R.array.priorities, R.layout.custom_spinner);
+        // Specify the layout to use when the list of choices appears
+        priorityAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
+        // Apply the adapter to the prioritySpinner
+        prioritySpinner.setAdapter(priorityAdapter);
+
+        if (parceableTask.getPriority().toLowerCase().matches("high")) {
             //high priority
             prioritySpinner.setSelection(0);
             prefEditor.putInt("tPriority", 0);
-        } else if (Objects.equals(parceableTask.getPriority().toLowerCase(), "medium")) {
+        } else if (parceableTask.getPriority().toLowerCase().matches("medium")) {
             //medium priority
             prioritySpinner.setSelection(1);
             prefEditor.putInt("tPriority", 1);
@@ -155,13 +164,7 @@ public class TaskDetails extends AppCompatActivity {
             prefEditor.putInt("tPriority", 2);
         }
         prefEditor.commit();
-        // Create an ArrayAdapter using the string array
-        ArrayAdapter<CharSequence> priorityAdapter = ArrayAdapter.createFromResource(this,
-                R.array.priorities, R.layout.custom_spinner);
-        // Specify the layout to use when the list of choices appears
-        priorityAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
-        // Apply the adapter to the prioritySpinner
-        prioritySpinner.setAdapter(priorityAdapter);
+
 
         ArrayAdapter<String> propertyAdapter = new ArrayAdapter<>
                 (this, android.R.layout.simple_dropdown_item_1line, propertyAddrLine1s);
@@ -342,6 +345,9 @@ public class TaskDetails extends AppCompatActivity {
                     }
                 }
             }
+
+//            if (Objects.equals(splitProp[1].trim().substring(0, 1).toUpperCase()
+//            + splitProp[1].substring(1).trim(), flatSpinner.getItemAtPosition(i).toString()))
 
             @Override
             public void onCancelled(FirebaseError firebaseError) {
