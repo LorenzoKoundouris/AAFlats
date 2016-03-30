@@ -36,11 +36,8 @@ import com.firebase.client.FirebaseError;
 import com.firebase.client.Query;
 import com.firebase.client.ValueEventListener;
 
-import java.text.DateFormat;
 import java.text.DecimalFormat;
-import java.text.FieldPosition;
 import java.text.ParseException;
-import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -198,7 +195,7 @@ public class CreateTask extends AppCompatActivity implements AdapterView.OnItemS
                 Boolean isProperty = false;
                 if (!hasFocus && actvProperty.getText().toString() != "") {
                     for (int i = 0; i < propertyAddrLine1s.size(); i++) {
-                        if (Objects.equals(propertyAddrLine1s.get(i), actvProperty.getText().toString().toLowerCase())) {
+                        if (propertyAddrLine1s.get(i).matches(actvProperty.getText().toString().toLowerCase())) {
                             isProperty = true;
                             break;
                         }
@@ -371,12 +368,12 @@ public class CreateTask extends AppCompatActivity implements AdapterView.OnItemS
 //                    flatNums.add(split[1].trim().substring(0, 1).toUpperCase() + split[1].trim().substring(1));
                 }
                 Collections.sort(flatNums, new Comparator<String>() {
-                            @Override
-                            public int compare(String lhs, String rhs) {
-                                return lhs.compareTo(rhs);
-                            }
-                        });
-                        flatSpinner = (Spinner) findViewById(R.id.nt_flat_spinner);
+                    @Override
+                    public int compare(String lhs, String rhs) {
+                        return lhs.compareTo(rhs);
+                    }
+                });
+                flatSpinner = (Spinner) findViewById(R.id.nt_flat_spinner);
                 ArrayAdapter<String> flatAdapter = new ArrayAdapter<>(getBaseContext(),
                         R.layout.spinner_dropdown_item, flatNums);
                 flatAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
@@ -456,29 +453,32 @@ public class CreateTask extends AppCompatActivity implements AdapterView.OnItemS
         LinearLayout llTitle = (LinearLayout) findViewById(R.id.nt_title_lnr_layout);
         LinearLayout llProperty = (LinearLayout) findViewById(R.id.nt_property_lnr_layout);
         LinearLayout llFlat = (LinearLayout) findViewById(R.id.nt_flat_lnr_layout);
+        LinearLayout llDescription = (LinearLayout) findViewById(R.id.nt_description_lnr_layout);
         LinearLayout llNotes = (LinearLayout) findViewById(R.id.nt_notes_lnr_layout);
         LinearLayout llPriority = (LinearLayout) findViewById(R.id.nt_priority_lnr_layout);
         LinearLayout llReport = (LinearLayout) findViewById(R.id.nt_report_lnr_layout);
         LinearLayout llError = (LinearLayout) findViewById(R.id.nt_error_lnr_layout);
 //        etTitle = (EditText) findViewById(R.id.nt_title_editview);
         AutoCompleteTextView actvProperty = (AutoCompleteTextView) findViewById(R.id.nt_property_actv);
-        EditText etDescription = (EditText) findViewById(R.id.nt_notes_editview); //Notes
+        EditText etDescription = (EditText) findViewById(R.id.nt_description_editview); //Notes
+        EditText etNotes = (EditText) findViewById(R.id.nt_notes_editview);
         TextView cardTV = (TextView) findViewById(R.id.nt_card_text_view);
         boolean validTitle = false;
         boolean validProperty = false;
-        boolean validNotes = false;
+        boolean validDescription = false;
         boolean validReport = false;
+        boolean validNotes = false;
 
 
         llError.setVisibility(llError.VISIBLE);
-        if (Objects.equals(etTitle.getText().toString(), "")) {
+        if (etTitle.getText().toString().matches("")) {
             llTitle.setBackgroundColor(Color.parseColor("#EF9A9A"));
             etTitle.setHint(Html.fromHtml("Any meaningful " + "<b><u>" + "title" + "</u></b>"));
         } else {
             llTitle.setBackgroundColor(Color.parseColor("#eeeeee"));
             validTitle = true;
         }
-        if (Objects.equals(actvProperty.getText().toString(), "")) {
+        if (actvProperty.getText().toString().matches("")) {
             llProperty.setBackgroundColor(Color.parseColor("#EF9A9A"));
             actvProperty.setHint(Html.fromHtml("<b>" + "i.e" + "</b>" + "<i>" +
                     "\"  12 Trematon Terrace\"" + "</i>"));
@@ -487,27 +487,36 @@ public class CreateTask extends AppCompatActivity implements AdapterView.OnItemS
             llProperty.setBackgroundColor(Color.parseColor("#eeeeee"));
             validProperty = true;
         }
-        if (Objects.equals(etDescription.getText().toString(), "")) {
-            llNotes.setBackgroundColor(Color.parseColor("#EF9A9A"));
+        if (etDescription.getText().toString().matches("")) {
+            llDescription.setBackgroundColor(Color.parseColor("#EF9A9A"));
             etDescription.setHint(Html.fromHtml("<b>Details about task..</b>\n<i>\"What, how, why..\"</i>"));
             etDescription.setTypeface(Typeface.DEFAULT_BOLD);
         } else {
+            llDescription.setBackgroundColor(Color.parseColor("#eeeeee"));
+            validDescription = true;
+        }
+        if (etNotes.getText().toString().matches("")) {
+            llNotes.setBackgroundColor(Color.parseColor("#EF9A9A"));
+            etNotes.setHint(Html.fromHtml("<b>Extra notes..</b>\n<i>\"Special tools?..\"</i>"));
+            etNotes.setTypeface(Typeface.DEFAULT_BOLD);
+        } else{
             llNotes.setBackgroundColor(Color.parseColor("#eeeeee"));
             validNotes = true;
         }
+
         if (prioritySpinner.getSelectedItem() == null) {
             llPriority.setBackgroundColor(Color.parseColor("#EF9A9A"));
         } else {
             llPriority.setBackgroundColor(Color.parseColor("#eeeeee"));
         }
-        if (Objects.equals(cardTV.getText().toString(), "ATTACH A REPORT")) {
+        if (cardTV.getText().toString().matches("ATTACH A REPORT")) {
             llReport.setBackgroundColor(Color.parseColor("#EF9A9A"));
         } else {
             llReport.setBackgroundColor(Color.parseColor("#eeeeee"));
             validReport = true;
         }
 
-        if (validTitle && validProperty && validNotes && validReport) {
+        if (validTitle && validProperty && validDescription && validReport && validNotes) {
             try {
                 Task newTask = new Task();
 
@@ -531,6 +540,8 @@ public class CreateTask extends AppCompatActivity implements AdapterView.OnItemS
                 newTask.setStatus(false);
 
                 newTask.setReport(attachedReport.getContent().substring(0, 23));
+
+                newTask.setNotes(etNotes.getText().toString().trim());
 
                 Firebase newTaskRef = new Firebase(getString(R.string.tasks_location));
                 //newTaskRef.child(newTask.getTitle()).setValue(newTask);

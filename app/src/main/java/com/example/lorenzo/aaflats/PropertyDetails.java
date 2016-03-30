@@ -391,7 +391,7 @@ public class PropertyDetails extends AppCompatActivity {
                     .setNegativeButton("No", null)
                     .show();
         } else{
-            startActivity(new Intent(PropertyDetails.this, AllProperties.class));
+//            startActivity(new Intent(PropertyDetails.this, AllProperties.class));
             finish();
         }
     }

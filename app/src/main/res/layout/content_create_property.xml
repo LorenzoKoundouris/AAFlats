@@ -38,6 +38,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="3"
             android:layout_marginStart="6dp"
+            android:layout_marginLeft="6dp"
             android:hint="street address"
             android:textStyle="italic" />
     </LinearLayout>
@@ -66,7 +67,8 @@
             android:layout_height="wrap_content"
             android:layout_weight="3"
             android:layout_marginStart="6dp"
-            android:inputType="textCapCharacters"
+            android:layout_marginLeft="6dp"
+            android:inputType="textEmailAddress"
             android:hint="XXX XXX"
             android:textStyle="italic" />
     </LinearLayout>
@@ -94,6 +96,8 @@
             android:layout_height="wrap_content"
             android:layout_weight="3"
             android:layout_marginStart="6dp"
+            android:layout_marginLeft="6dp"
+            android:inputType="textCapSentences|textMultiLine"
             android:hint="n..o..t..e..s"
             android:textStyle="italic" />
     </LinearLayout>

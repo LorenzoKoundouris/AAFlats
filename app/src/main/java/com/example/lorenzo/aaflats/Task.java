@@ -18,6 +18,7 @@ public class Task implements Parcelable {
     private String taskKey;
     private String completionTimestamp;
     private String targetDate;
+    private String notes;
 
 
     public Task() {
@@ -96,7 +97,13 @@ public class Task implements Parcelable {
         this.targetDate = targetDate;
     }
 
+    public String getNotes() {
+        return notes;
+    }
 
+    public void setNotes(String notes) {
+        this.notes = notes;
+    }
 
     public Task(Parcel in) {
         title = in.readString();
@@ -108,6 +115,7 @@ public class Task implements Parcelable {
         taskKey = in.readString();
         completionTimestamp = in.readString();
         targetDate = in.readString();
+        notes = in.readString();
     }
 
     @Override
@@ -126,6 +134,7 @@ public class Task implements Parcelable {
         dest.writeString(taskKey);
         dest.writeString(completionTimestamp);
         dest.writeString(targetDate);
+        dest.writeString(notes);
     }
 
     @SuppressWarnings("unused")

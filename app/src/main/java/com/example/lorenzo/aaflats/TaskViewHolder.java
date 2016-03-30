@@ -7,6 +7,9 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.firebase.client.Firebase;
+import com.firebase.client.Query;
+
 import java.util.ArrayList;
 
 /**
@@ -21,7 +24,7 @@ public class TaskViewHolder extends RecyclerView.ViewHolder implements View.OnCl
     protected ArrayList<Task> mTaskList;
     protected ArrayList<String> taskKeys;
 
-    public TaskViewHolder(View itemView, ArrayList<Task> taskList, ArrayList<String> taskKeys) {
+    public TaskViewHolder(View itemView, ArrayList<Task> taskList) {
         super(itemView);
         cardView = (CardView) itemView.findViewById(R.id.task_card_view);
         taskTitle = (TextView) itemView.findViewById(R.id.task_title);
@@ -29,7 +32,6 @@ public class TaskViewHolder extends RecyclerView.ViewHolder implements View.OnCl
         taskPhoto = (ImageView) itemView.findViewById(R.id.task_photo);
         taskButton = (ImageView) itemView.findViewById(R.id.task_check);
 
-        this.taskKeys = taskKeys;
         this.mTaskList = taskList;
         itemView.setOnClickListener(this);
 //            taskButton.setOnClickListener(this);
@@ -41,7 +43,8 @@ public class TaskViewHolder extends RecyclerView.ViewHolder implements View.OnCl
     {
 //        //v.getContext().startActivity(new Intent(v.getContext(), TaskDetails.class).putExtra(TaskDetails.taskTitle, mTask.getTitle()));
         Task pTask = mTaskList.get(getAdapterPosition());
-        String pTaskKey = taskKeys.get(getAdapterPosition());
+        String pTaskKey = mTaskList.get(getAdapterPosition()).getTaskKey();
+//        String pTaskKey = taskKeys.get(getAdapterPosition());
         Intent intent = new Intent(v.getContext(), TaskDetails.class);
         intent.putExtra("parceable_task", pTask);
         //intent.putExtra("parceable_tasklist", mTaskList);

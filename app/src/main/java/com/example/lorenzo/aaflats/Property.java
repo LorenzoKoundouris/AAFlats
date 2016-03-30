@@ -11,6 +11,7 @@ public class Property implements Parcelable{
     private String postcode;
     private String noOfFlats;
     private String notes;
+    private String propertyKey;
 //    private Flat flat;
 
     public Property(){}
@@ -48,12 +49,20 @@ public class Property implements Parcelable{
         this.notes = notes;
     }
 
+    public String getPropertyKey() {
+        return propertyKey;
+    }
+
+    public void setPropertyKey(String propertyKey) {
+        this.propertyKey = propertyKey;
+    }
 
     protected Property(Parcel in) {
         addrline1 = in.readString();
         postcode = in.readString();
         noOfFlats = in.readString();
         notes = in.readString();
+        propertyKey = in.readString();
     }
 
     public static Creator<Property> getCREATOR() {
@@ -83,6 +92,7 @@ public class Property implements Parcelable{
         dest.writeString(postcode);
         dest.writeString(noOfFlats);
         dest.writeString(notes);
+        dest.writeString(propertyKey);
     }
 
 }

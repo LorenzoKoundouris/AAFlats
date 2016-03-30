@@ -1,5 +1,6 @@
 package com.example.lorenzo.aaflats;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -7,6 +8,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Editable;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -16,6 +18,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
+import android.widget.EditText;
 import android.widget.ProgressBar;
 
 import com.firebase.client.ChildEventListener;
@@ -32,17 +37,17 @@ import java.util.Comparator;
 public class Homepage extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
-    private Firebase taskRef = new Firebase(getResources().getString(R.string.tasks_location));
     private ArrayList<Task> highPT = new ArrayList<>();
     private ArrayList<Task> mediumPT = new ArrayList<>();
     private ArrayList<Task> lowPT = new ArrayList<>();
+    private ArrayList<Task> addressFT = new ArrayList<>();
+    private ArrayList<Task> pendingFT = new ArrayList<>();
     private ArrayList<Task> prioritisedTasks= new ArrayList<>();
     final ArrayList<Task> mTaskList = new ArrayList<>();
     final ArrayList<String> taskKeys = new ArrayList<>();
     private RecyclerView taskRecyclerView;
     private SwipeRefreshLayout refreshLayout;
     private boolean notFirstLoad = false;
-    private boolean filterTasks = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,7 +88,7 @@ public class Homepage extends AppCompatActivity
         refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                setRecyclerAdapterContents(taskKeys, mTaskList);
+                setRecyclerAdapterContents(mTaskList);
             }
         });
 //        refreshLayout.post(new Runnable() {
@@ -105,16 +110,21 @@ public class Homepage extends AppCompatActivity
 
     private void setupFirebase() {
         Firebase.setAndroidContext(this);
-
+        Firebase taskRef = new Firebase(getResources().getString(R.string.tasks_location));
         taskRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 mTaskList.clear();
                 taskKeys.clear();
+                highPT.clear();
+                mediumPT.clear();
+                lowPT.clear();
+                pendingFT.clear();
 
                 for (DataSnapshot tskSnapshot : dataSnapshot.getChildren()) {
                     Task tsk = tskSnapshot.getValue(Task.class);
                     mTaskList.add(tsk);
+                    tsk.setTaskKey(tskSnapshot.getKey());
                     taskKeys.add(tskSnapshot.getKey());
                     if(tsk.getPriority().matches("high")){
                         highPT.add(tsk);
@@ -123,9 +133,13 @@ public class Homepage extends AppCompatActivity
                     } else if(tsk.getPriority().matches("low")){
                         lowPT.add(tsk);
                     }
+                    if(!tsk.getStatus()){
+                        pendingFT.add(tsk);
+                    }
                 }
-
-                setRecyclerAdapterContents(taskKeys, mTaskList);
+//                if(!sortTasks){
+                    setRecyclerAdapterContents(mTaskList);
+//                }
             }
 
             @Override
@@ -162,8 +176,8 @@ public class Homepage extends AppCompatActivity
         });
     }
 
-    public void setRecyclerAdapterContents(ArrayList<String> taskKeys, ArrayList<Task> mTaskList) {
-        taskRecyclerView.setAdapter(new TaskAdapter(taskKeys, mTaskList)); //, Task.class
+    public void setRecyclerAdapterContents(ArrayList<Task> mTaskList) {
+        taskRecyclerView.setAdapter(new TaskAdapter(mTaskList)); //, Task.class
         if(!notFirstLoad){
             taskRecyclerView.setVisibility(View.VISIBLE);
             ProgressBar mProgressBar = (ProgressBar) findViewById(R.id.progressBar_homepage);
@@ -198,10 +212,160 @@ public class Homepage extends AppCompatActivity
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        } else if (id == R.id.filter_tasks){
-            filterTasks = true;
+        if (id == R.id.filter_tasks){
+
+            final String[] arrayFilters = new String[]{"Address", "Pending only"};
+
+            final android.support.v7.app.AlertDialog.Builder alertBuilder = new android.support.v7.app.AlertDialog.Builder(this);
+            alertBuilder.setTitle("Filter by..").setItems(arrayFilters, new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int item) {
+                    System.out.println("You filtered by: " + arrayFilters[item]);
+                    if(arrayFilters[item].matches("Pending only")){
+
+                        Collections.sort(pendingFT, new Comparator<Task>() {
+                            @Override
+                            public int compare(Task lhs, Task rhs) {
+                                return lhs.getPriority().compareTo(rhs.getPriority());
+                            }
+                        });
+                        setRecyclerAdapterContents(pendingFT);
+
+                    } else if(arrayFilters[item].matches("Address")){
+
+                        final AutoCompleteTextView actvProperty = new AutoCompleteTextView(alertBuilder.getContext());
+                        alertBuilder.setMessage("*i.e. 12 trematon terrace - flat 1");
+                        alertBuilder.setTitle("Enter an address");
+
+                        alertBuilder.setView(actvProperty);
+
+                        final ArrayList<Flat> flatList = new ArrayList<Flat>();
+                        final ArrayList<String> propertyAddrLine1s = new ArrayList<>();
+                        final ArrayList<Property> foundProperties = new ArrayList<>();
+
+                        final Firebase flatRef = new Firebase(getResources().getString(R.string.flats_location));
+                        flatRef.addValueEventListener(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                for (DataSnapshot fltSnapshot : dataSnapshot.getChildren()) {
+                                    Flat flt = fltSnapshot.getValue(Flat.class);
+                                    flt.setFlatKey(fltSnapshot.getKey());
+                                    flatList.add(flt);
+                                    propertyAddrLine1s.add(flt.getAddressLine1().toLowerCase().trim() +
+                                            " - " + flt.getFlatNum().toLowerCase().trim());
+                                }
+
+                                Collections.sort(propertyAddrLine1s, new Comparator<String>() {
+                                    @Override
+                                    public int compare(String lhs, String rhs) {
+                                        return lhs.compareTo(rhs);
+                                    }
+                                });
+
+                            }
+
+                            @Override
+                            public void onCancelled(FirebaseError firebaseError) {
+                                System.out.println("Property: " + "The read failed: " + firebaseError.getMessage());
+                            }
+                        });
+
+
+                        ArrayAdapter<String> propertyAdapter = new ArrayAdapter<>
+                                (alertBuilder.getContext(), android.R.layout.simple_dropdown_item_1line, propertyAddrLine1s);
+                        actvProperty.setAdapter(propertyAdapter);
+
+// SO FAR ALL ABOVE WORKS ----^
+                        Firebase propertyRef = new Firebase(getResources().getString(R.string.properties_location));
+
+//                        Query getPropertyObject = propertyRef.orderByChild("addrline1").
+//                                equalTo(propertyEntered[0].toLowerCase().trim());
+
+                        final ArrayList<Flat> tempFlat = new ArrayList<>();
+                        propertyRef.addValueEventListener(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                for (DataSnapshot childSnap : dataSnapshot.getChildren()) {
+                                    Property prt = childSnap.getValue(Property.class);
+                                    prt.setPropertyKey(childSnap.getKey());
+                                    foundProperties.add(prt);
+                                }
+                            }
+
+                            @Override
+                            public void onCancelled(FirebaseError firebaseError) {
+
+                            }
+                        });
+
+                        alertBuilder.setPositiveButton("Search", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int whichButton) {
+
+                                final String[] propertyEntered = actvProperty.getText().toString().split(" - ");
+
+                                for(Property pt : foundProperties){
+                                    if(pt.getAddrline1().matches(propertyEntered[0])){
+                                        foundProperties.clear();
+                                        foundProperties.add(pt);
+                                        break;
+                                    }
+                                }
+
+
+                                for(Flat ft : flatList){
+                                    if(ft.getAddressLine1().matches(propertyEntered[0]) &&
+                                            ft.getFlatNum().matches(propertyEntered[1].substring(0,1)
+                                                    .toUpperCase() + propertyEntered[1].substring(1))){
+                                        tempFlat.add(ft);
+                                        break;
+                                    }
+                                }
+
+//                                Query getFlatObject = flatRef.orderByChild("addressLine1").equalTo(propertyEntered[0].toLowerCase().trim());
+//                                getFlatObject.addListenerForSingleValueEvent(new ValueEventListener() {
+//                                    @Override
+//                                    public void onDataChange(DataSnapshot dataSnapshot) {
+//                                        for (DataSnapshot childSnap : dataSnapshot.getChildren()) {
+//                                            Flat flt = childSnap.getValue(Flat.class);
+//                                            if (flt.getFlatNum().matches(propertyEntered[1].trim().substring(0,1).toUpperCase())) {
+//                                                tempFlat.add(flt);
+//                                                flt.setFlatKey(childSnap.getKey());
+//                                            }
+//                                        }
+//                                    }
+//
+//                                    @Override
+//                                    public void onCancelled(FirebaseError firebaseError) {
+//
+//                                    }
+//                                });
+
+                                String YouEditTextValue = actvProperty.getText().toString();
+                                System.out.println(YouEditTextValue);
+
+                                Intent intent = new Intent(Homepage.this, FlatDetails.class);
+                                intent.putExtra("parceable_flat", tempFlat.get(0));
+                                intent.putExtra("parceable_property", foundProperties.get(0));
+                                intent.putExtra("parceable_property_key", foundProperties.get(0).getPropertyKey());
+                                startActivity(intent);
+
+                            }
+                        });
+
+                        alertBuilder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int whichButton) {
+                                // what ever you want to do with No option.
+                            }
+                        });
+
+                        alertBuilder.show();
+                    }
+
+                }
+            });
+
+            final android.support.v7.app.AlertDialog alertDialog = alertBuilder.create();
+            alertDialog.show();
+
         } else if (id == R.id.sort_tasks){
             prioritiseTaskss();
         }
@@ -232,7 +396,7 @@ public class Homepage extends AppCompatActivity
         prioritisedTasks.addAll(highPT);
         prioritisedTasks.addAll(mediumPT);
         prioritisedTasks.addAll(lowPT);
-//        setRecyclerAdapterContents(prioritisedTasks);
+        setRecyclerAdapterContents(prioritisedTasks);
     }
 
     @Override

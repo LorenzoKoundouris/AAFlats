@@ -143,18 +143,19 @@
                         android:layout_gravity="center_vertical"
                         android:layout_marginLeft="6dp"
                         android:layout_marginStart="6dp"
-                        android:text="Notes:" />
+                        android:text="Desc.:" />
 
                     <EditText
-                        android:id="@+id/td_notes"
+                        android:id="@+id/td_description"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center_vertical"
-                        android:layout_marginLeft="22dp"
-                        android:layout_marginStart="22dp"
+                        android:layout_marginLeft="24dp"
+                        android:layout_marginStart="24dp"
                         android:layout_marginTop="2dp"
+                        android:inputType="textCapSentences|textMultiLine"
                         android:enabled="false"
-                        android:text="note"
+                        android:text="description"
                         android:textColor="@drawable/disabled_text" />
                 </LinearLayout>
 
@@ -216,6 +217,33 @@
                         android:textColor="@drawable/disabled_text"
                         android:textStyle="italic" />
                 </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginLeft="6dp"
+                        android:layout_marginStart="6dp"
+                        android:text="Notes:" />
+
+                    <EditText
+                        android:id="@+id/td_notes"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginLeft="22dp"
+                        android:layout_marginStart="22dp"
+                        android:layout_marginTop="2dp"
+                        android:enabled="false"
+                        android:inputType="textCapSentences|textMultiLine"
+                        android:text="notes"
+                        android:textColor="@drawable/disabled_text" />
+                </LinearLayout>
+
             </LinearLayout>
         </android.support.v7.widget.CardView>
 

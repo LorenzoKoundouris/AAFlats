@@ -14,11 +14,9 @@ import java.util.Objects;
 public class TaskAdapter extends RecyclerView.Adapter<TaskViewHolder> {
     public static Task mTask = new Task();
     private ArrayList<Task> mTaskList;
-    private ArrayList<String> taskKeys;
 
-    public TaskAdapter(ArrayList<String> taskKeys, ArrayList<Task> mTaskList) {
+    public TaskAdapter(ArrayList<Task> mTaskList) {
         this.mTaskList = mTaskList;
-        this.taskKeys = taskKeys;
     }
 
 //    @Override
@@ -31,7 +29,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskViewHolder> {
     @Override
     public TaskViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.task_item, parent, false);
-        return new TaskViewHolder(itemView, mTaskList, taskKeys);
+        return new TaskViewHolder(itemView, mTaskList);
     }
 
     @Override
@@ -49,10 +47,10 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskViewHolder> {
 
         taskViewHolder.taskProperty.setText(mTask.getProperty());
 
-        if(Objects.equals(mTask.getPriority().toLowerCase(), "high")){
+        if(mTask.getPriority().toLowerCase().matches("high")){
             //high priority
             taskViewHolder.taskPhoto.setImageResource(R.drawable.ic_flag_high_48dp);//mTask.getPriority()
-        } else if(Objects.equals(mTask.getPriority().toLowerCase(), "medium")){
+        } else if(mTask.getPriority().toLowerCase().matches("medium")){
             //medium priority
             taskViewHolder.taskPhoto.setImageResource(R.drawable.ic_flag_medium_48dp);
         } else {

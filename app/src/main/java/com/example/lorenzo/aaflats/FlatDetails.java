@@ -139,7 +139,7 @@ public class FlatDetails extends AppCompatActivity {
         intent.putExtra("parceable_property_key", parceablePropertyKey);
         System.out.println(parceableProperty.getAddrline1() + "  -  " + parceablePropertyKey);
         this.startActivity(intent);
-        finish();
+//        finish();
     }
 
     @Override
