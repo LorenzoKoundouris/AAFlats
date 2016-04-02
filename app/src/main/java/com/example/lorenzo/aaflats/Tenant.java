@@ -15,6 +15,7 @@ public class Tenant implements Parcelable{
     private String email;
     private String forename;
     private String middlename;
+    private String notes;
     private String property;
     private String surname;
     private String telephone;
@@ -103,7 +104,13 @@ public class Tenant implements Parcelable{
         this.currentTenant = currentTenant;
     }
 
+    public String getNotes() {
+        return notes;
+    }
 
+    public void setNotes(String notes) {
+        this.notes = notes;
+    }
 
     protected Tenant(Parcel in){
         contractEnd = in.readString();
@@ -116,6 +123,7 @@ public class Tenant implements Parcelable{
         property = in.readString();
         surname = in.readString();
         telephone = in.readString();
+        notes = in.readString();
     }
 
     public static Creator<Tenant> getCREATOR() {
@@ -151,5 +159,6 @@ public class Tenant implements Parcelable{
         dest.writeString(property);
         dest.writeString(surname);
         dest.writeString(telephone);
+        dest.writeString(notes);
     }
 }

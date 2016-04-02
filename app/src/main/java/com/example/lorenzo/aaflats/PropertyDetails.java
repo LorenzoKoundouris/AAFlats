@@ -1,13 +1,11 @@
 package com.example.lorenzo.aaflats;
 
-import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
@@ -16,16 +14,11 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.Gravity;
 import android.view.View;
-import android.support.design.widget.NavigationView;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -38,7 +31,6 @@ import com.firebase.client.ValueEventListener;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Objects;
 
 public class PropertyDetails extends AppCompatActivity {
 
@@ -51,10 +43,10 @@ public class PropertyDetails extends AppCompatActivity {
     Property parceableProperty;
     String parceablePropertyKey;
 
-    EditText propertyPostcode;
-    EditText propertyAddrline1;
-    TextView propertyFlats;
-    EditText propertyNotes;
+    EditText etPropertyPostcode;
+    EditText etPropertyAddressLine1;
+    TextView etPropertyFlats;
+    EditText etPropertyNotes;
 
     SharedPreferences pref;
     SharedPreferences.Editor prefEditor;
@@ -108,19 +100,19 @@ public class PropertyDetails extends AppCompatActivity {
         final ArrayList<String> flatKeys = new ArrayList<>();
         final ArrayList<String> flatNums = new ArrayList<>();
         
-        propertyPostcode = (EditText) findViewById(R.id.property_details_postcode);
-        propertyAddrline1 = (EditText) findViewById(R.id.property_details_addrline1);
-        propertyFlats = (TextView) findViewById(R.id.property_details_flats);
-        propertyNotes = (EditText) findViewById(R.id.property_details_notes);
+        etPropertyPostcode = (EditText) findViewById(R.id.property_details_postcode);
+        etPropertyAddressLine1 = (EditText) findViewById(R.id.property_details_addrline1);
+        etPropertyFlats = (TextView) findViewById(R.id.property_details_flats);
+        etPropertyNotes = (EditText) findViewById(R.id.property_details_notes);
         flatListCardView = (CardView) findViewById(R.id.flatrecycler_card_view);
 
-        propertyPostcode.setText(parceableProperty.getPostcode().toUpperCase());
-        prefEditor.putString("pPostcode", parceableProperty.getPostcode().toUpperCase());
-        propertyAddrline1.setText(parceableProperty.getAddrline1());
-        prefEditor.putString("pAddress", parceableProperty.getAddrline1());
-//        propertyFlats.setText("(" + parceableProperty.getNoOfFlats() + ")");
-        propertyNotes.setText(parceableProperty.getNotes());
-        prefEditor.putString("pNotes", parceableProperty.getNotes());
+        etPropertyPostcode.setText(parceableProperty.getPostcode().toUpperCase());
+        prefEditor.putString("propertyPostcode", parceableProperty.getPostcode().toUpperCase());
+        etPropertyAddressLine1.setText(parceableProperty.getAddrline1());
+        prefEditor.putString("propertyAddress", parceableProperty.getAddrline1());
+//        etPropertyFlats.setText("(" + parceableProperty.getNoOfFlats() + ")");
+        etPropertyNotes.setText(parceableProperty.getNotes());
+        prefEditor.putString("propertyNotes", parceableProperty.getNotes());
         prefEditor.commit();
         setTitle(parceableProperty.getAddrline1());
 
@@ -152,10 +144,10 @@ public class PropertyDetails extends AppCompatActivity {
                 });
 
                 String numFlatsCast = Integer.toString(flatList.size());
-                if(!Objects.equals(parceableProperty.getNoOfFlats(), numFlatsCast)){
+                if(!parceableProperty.getNoOfFlats().matches(numFlatsCast)){
                     parceableProperty.setNoOfFlats(numFlatsCast);
                 }
-                propertyFlats.setText("(" + parceableProperty.getNoOfFlats() + ")");
+                etPropertyFlats.setText("(" + parceableProperty.getNoOfFlats() + ")");
                 flatRecyclerView.setAdapter(new FlatAdapter(flatList, flatKeys, flatNums, parceableProperty, parceablePropertyKey));
             }
 
@@ -169,10 +161,10 @@ public class PropertyDetails extends AppCompatActivity {
     private void saveAllChanges() {
         if (!editsCancelled) {
             try {
-                setTitle(propertyAddrline1.getText().toString());
-                parceableProperty.setPostcode(propertyPostcode.getText().toString());
-                parceableProperty.setAddrline1(propertyAddrline1.getText().toString());
-                parceableProperty.setNotes(propertyNotes.getText().toString());
+                setTitle(etPropertyAddressLine1.getText().toString());
+                parceableProperty.setPostcode(etPropertyPostcode.getText().toString());
+                parceableProperty.setAddrline1(etPropertyAddressLine1.getText().toString());
+                parceableProperty.setNotes(etPropertyNotes.getText().toString());
 
                 propertyRef.child(parceablePropertyKey).setValue(parceableProperty);
                 Toast toast = Toast.makeText(PropertyDetails.this, "Property edited! SUCCESS!", Toast.LENGTH_SHORT);
@@ -184,14 +176,15 @@ public class PropertyDetails extends AppCompatActivity {
                 toast.show();
             }
         } else {
-            setTitle(pref.getString("pKey", "crashAddrline1"));
-            propertyPostcode.setText(pref.getString("pPostcode", "crashPostcode"));
-            propertyAddrline1.setText(pref.getString("pKey", "crashAddrline1"));
-            propertyNotes.setText(pref.getString("pNotes", "crashNotes"));
+//            setTitle(pref.getString("propertyKey", "crashAddrline1"));
+            setTitle(pref.getString("propertyAddress", "crashAddrline1"));
+            etPropertyPostcode.setText(pref.getString("propertyPostcode", "crashPostcode"));
+            etPropertyAddressLine1.setText(pref.getString("propertyAddress", "crashAddrline1"));
+            etPropertyNotes.setText(pref.getString("propertyNotes", "crashNotes"));
         }
-        propertyPostcode.setEnabled(false);
-        propertyAddrline1.setEnabled(false);
-        propertyNotes.setEnabled(false);
+        etPropertyPostcode.setEnabled(false);
+        etPropertyAddressLine1.setEnabled(false);
+        etPropertyNotes.setEnabled(false);
         flatListCardView.setVisibility(View.VISIBLE);
 
         attemptEdit = false;
@@ -202,12 +195,12 @@ public class PropertyDetails extends AppCompatActivity {
         editsCancelled = false;
 
         try {
-            propertyPostcode.setEnabled(true);
-            propertyAddrline1.setEnabled(true);
-            propertyNotes.setEnabled(true);
+            etPropertyPostcode.setEnabled(true);
+            etPropertyAddressLine1.setEnabled(true);
+            etPropertyNotes.setEnabled(true);
             flatListCardView.setVisibility(View.INVISIBLE);
 
-            propertyPostcode.addTextChangedListener(new TextWatcher() {
+            etPropertyPostcode.addTextChangedListener(new TextWatcher() {
                 @Override
                 public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
@@ -220,15 +213,15 @@ public class PropertyDetails extends AppCompatActivity {
 
                 @Override
                 public void afterTextChanged(Editable s) {
-                    if (Objects.equals(propertyPostcode.getText().toString(), pref.getString("pPostcode", "crashPostcode"))) {
-                        propertyPostcode.setTextColor(getResources().getColor(R.color.black_color));
+                    if (etPropertyPostcode.getText().toString().matches(pref.getString("propertyPostcode", "crashPostcode"))) {
+                        etPropertyPostcode.setTextColor(getResources().getColor(R.color.black_color));
                     } else {
-                        propertyPostcode.setTextColor(Color.parseColor("#FF5722"));
+                        etPropertyPostcode.setTextColor(Color.parseColor("#FF5722"));
                     }
                 }
             });
 
-            propertyAddrline1.addTextChangedListener(new TextWatcher() {
+            etPropertyAddressLine1.addTextChangedListener(new TextWatcher() {
                 @Override
                 public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
@@ -241,15 +234,19 @@ public class PropertyDetails extends AppCompatActivity {
 
                 @Override
                 public void afterTextChanged(Editable s) {
-                    if (Objects.equals(propertyAddrline1.getText().toString(), pref.getString("pKey", "crashAddrline1"))) {
-                        propertyAddrline1.setTextColor(getResources().getColor(R.color.black_color));
+
+                    String te = etPropertyAddressLine1.getText().toString();
+                    te+=pref.getString("propertyAddress", "crashAddrline1");
+
+                    if (etPropertyAddressLine1.getText().toString().matches(pref.getString("propertyAddress", "crashAddrline1"))) {
+                        etPropertyAddressLine1.setTextColor(getResources().getColor(R.color.black_color));
                     } else {
-                        propertyAddrline1.setTextColor(Color.parseColor("#FF5722"));
+                        etPropertyAddressLine1.setTextColor(Color.parseColor("#FF5722"));
                     }
                 }
             });
 
-            propertyNotes.addTextChangedListener(new TextWatcher() {
+            etPropertyNotes.addTextChangedListener(new TextWatcher() {
                 @Override
                 public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
@@ -262,26 +259,25 @@ public class PropertyDetails extends AppCompatActivity {
 
                 @Override
                 public void afterTextChanged(Editable s) {
-                    if (Objects.equals(propertyNotes.getText().toString(), pref.getString("pNotes", "crashNotes"))) {
-                        propertyNotes.setTextColor(getResources().getColor(R.color.black_color));
+                    if (etPropertyNotes.getText().toString().matches(pref.getString("propertyNotes", "crashNotes"))) {
+                        etPropertyNotes.setTextColor(getResources().getColor(R.color.black_color));
                     } else {
-                        propertyNotes.setTextColor(Color.parseColor("#FF5722"));
+                        etPropertyNotes.setTextColor(Color.parseColor("#FF5722"));
                     }
                 }
             });
 
-            propertyPostcode.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            etPropertyPostcode.setOnFocusChangeListener(new View.OnFocusChangeListener() {
                 @Override
                 public void onFocusChange(View v, boolean hasFocus) {
-                    if (Objects.equals(propertyPostcode.getText().toString(), "")) {
+                    if (etPropertyPostcode.getText().toString().matches("")) {
                         new AlertDialog.Builder(v.getContext())
                                 .setTitle("Null postcode")
                                 .setMessage("Whoops! Looks like you forgot to set a Postcode!")
                                 .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog, int which) {
-                                        propertyPostcode.setText(pref.getString("pPostcode", "crashPostcode"));
-                                        propertyPostcode.setSelectAllOnFocus(true);
-                                        propertyPostcode.setSelection(propertyPostcode.length());
+                                        etPropertyPostcode.setText(pref.getString("propertyPostcode", "crashPostcode"));
+                                        etPropertyPostcode.requestFocus();
                                     }
                                 })
                                 .setIcon(android.R.drawable.ic_dialog_alert)
@@ -289,23 +285,22 @@ public class PropertyDetails extends AppCompatActivity {
 
                         validPostcode = false;
                     } else {
-                        isValidPostcodeFormat(propertyPostcode.getText().toString());
+                        isValidPostcodeFormat(etPropertyPostcode.getText().toString());
                     }
                 }
             });
 
-            propertyAddrline1.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            etPropertyAddressLine1.setOnFocusChangeListener(new View.OnFocusChangeListener() {
                 @Override
                 public void onFocusChange(View v, boolean hasFocus) {
-                    if (Objects.equals(propertyAddrline1.getText().toString(), "")) {
+                    if (etPropertyAddressLine1.getText().toString().matches("")) {
                         new AlertDialog.Builder(v.getContext())
                                 .setTitle("Null Address")
                                 .setMessage("Whoops! Looks like you forgot to set a Address!")
                                 .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog, int which) {
-                                        propertyAddrline1.setText(pref.getString("pKey", "crashAddrline1"));
-                                        propertyAddrline1.setSelectAllOnFocus(true);
-                                        propertyAddrline1.setSelection(propertyAddrline1.length());
+                                        etPropertyAddressLine1.setText(pref.getString("propertyAddress", "crashAddrline1"));
+                                        etPropertyAddressLine1.requestFocus();
                                     }
                                 })
                                 .setIcon(android.R.drawable.ic_dialog_alert)
@@ -318,18 +313,17 @@ public class PropertyDetails extends AppCompatActivity {
                 }
             });
 
-            propertyNotes.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            etPropertyNotes.setOnFocusChangeListener(new View.OnFocusChangeListener() {
                 @Override
                 public void onFocusChange(View v, boolean hasFocus) {
-                    if (Objects.equals(propertyNotes.getText().toString(), "")) {
+                    if (etPropertyNotes.getText().toString().matches("")) {
                         new AlertDialog.Builder(v.getContext())
                                 .setTitle("Null Notes")
                                 .setMessage("Whoops! Looks like you forgot to set a Notes!")
                                 .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog, int which) {
-                                        propertyNotes.setText(pref.getString("pNotes", "crashNotes"));
-                                        propertyNotes.setSelectAllOnFocus(true);
-                                        propertyNotes.setSelection(propertyNotes.length());
+                                        etPropertyNotes.setText(pref.getString("propertyNotes", "crashNotes"));
+                                        etPropertyNotes.requestFocus();
                                     }
                                 })
                                 .setIcon(android.R.drawable.ic_dialog_alert)
@@ -362,9 +356,8 @@ public class PropertyDetails extends AppCompatActivity {
                     .setMessage("This is not a correct UK postcode format.")
                     .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
-                            propertyPostcode.setText(pref.getString("pPostcode", "crashPostcode"));
-                            propertyPostcode.setSelectAllOnFocus(true);
-                            propertyPostcode.setSelection(propertyPostcode.length());
+                            etPropertyPostcode.setText(pref.getString("propertyPostcode", "crashPostcode"));
+                            etPropertyPostcode.requestFocus();
                         }
                     })
                     .setIcon(android.R.drawable.ic_dialog_alert)
@@ -406,6 +399,8 @@ public class PropertyDetails extends AppCompatActivity {
             getMenuInflater().inflate(R.menu.task_details_save, menu);
             saveEdit = menu.findItem(R.id.save_edited_task);
         }
+        MenuItem backToAll = menu.findItem(R.id.action_settings);
+        backToAll.setTitle("Back to All Properties");
         return true;
     }
 

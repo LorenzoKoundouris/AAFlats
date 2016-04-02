@@ -239,6 +239,7 @@
                         android:layout_marginStart="22dp"
                         android:layout_marginTop="2dp"
                         android:enabled="false"
+                        android:textStyle="italic"
                         android:inputType="textCapSentences|textMultiLine"
                         android:text="notes"
                         android:textColor="@drawable/disabled_text" />

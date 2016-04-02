@@ -36,11 +36,11 @@
             android:id="@+id/np_address_editview"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="3"
+            android:layout_weight="2.5"
             android:layout_marginStart="6dp"
             android:layout_marginLeft="6dp"
-            android:hint="street address"
-            android:textStyle="italic" />
+            android:inputType="textCapWords"
+            android:hint="House number" />
     </LinearLayout>
 
 
@@ -65,12 +65,11 @@
             android:id="@+id/np_postcode_editview"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="3"
+            android:layout_weight="2.5"
             android:layout_marginStart="6dp"
             android:layout_marginLeft="6dp"
-            android:inputType="textEmailAddress"
-            android:hint="XXX XXX"
-            android:textStyle="italic" />
+            android:inputType="textCapCharacters"
+            android:hint="XXX XXX" />
     </LinearLayout>
 
     <LinearLayout
@@ -94,11 +93,14 @@
             android:id="@+id/np_notes_editview"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="3"
+            android:layout_weight="2.5"
             android:layout_marginStart="6dp"
             android:layout_marginLeft="6dp"
             android:inputType="textCapSentences|textMultiLine"
-            android:hint="n..o..t..e..s"
+            android:lines="3"
+            android:maxLines="5"
+            android:maxLength="250"
+            android:hint="Compose any notes here.."
             android:textStyle="italic" />
     </LinearLayout>
 </LinearLayout>

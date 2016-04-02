@@ -9,8 +9,6 @@ import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -32,7 +30,7 @@ public class CreateProperty extends AppCompatActivity {
     private ArrayList<String> propertyAddrLine1s = new ArrayList<>();
     private ArrayList<String> propertyPostcodes = new ArrayList<>();
     private boolean validPostcode, validAddress, validNotes = false;
-    private EditText npPostcode, npAddress, npNotes = null;
+    private EditText etNewPropertyPostcode, etNewPropertyAddressLine1, etNewPropertyNotes = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,21 +39,13 @@ public class CreateProperty extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         Firebase propertyRef = new Firebase(getString(R.string.properties_location));
 
-        npPostcode = (EditText) findViewById(R.id.np_postcode_editview);
-        npAddress = (EditText) findViewById(R.id.np_address_editview);
-        npNotes = (EditText) findViewById(R.id.np_notes_editview);
+        etNewPropertyPostcode = (EditText) findViewById(R.id.np_postcode_editview);
+        etNewPropertyAddressLine1 = (EditText) findViewById(R.id.np_address_editview);
+        etNewPropertyNotes = (EditText) findViewById(R.id.np_notes_editview);
 
         propertyRef.addValueEventListener(new ValueEventListener() {
             @Override
@@ -77,13 +67,13 @@ public class CreateProperty extends AppCompatActivity {
             }
         });
 
-        npPostcode.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+        etNewPropertyPostcode.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if (hasFocus) {
-                    npPostcode.setBackgroundColor(Color.parseColor("#eeeeee"));
+                    etNewPropertyPostcode.setBackgroundColor(Color.parseColor("#eeeeee"));
                 }
-                if (!hasFocus && npPostcode.getText().toString() == "") {
+                if (!hasFocus && etNewPropertyPostcode.getText().toString().matches("")) {
                     Toast toast = Toast.makeText(CreateProperty.this, "No postcode ?", Toast.LENGTH_SHORT);
                     toast.setGravity(Gravity.CENTER, 0, 0);
                     toast.show();
@@ -92,13 +82,13 @@ public class CreateProperty extends AppCompatActivity {
         });
 
 
-        npAddress.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+        etNewPropertyAddressLine1.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if (hasFocus) {
-                    npAddress.setBackgroundColor(Color.parseColor("#eeeeee"));
+                    etNewPropertyAddressLine1.setBackgroundColor(Color.parseColor("#eeeeee"));
                 }
-                if (!hasFocus && npAddress.getText().toString() == "") {
+                if (!hasFocus && etNewPropertyAddressLine1.getText().toString().matches("")) {
                     Toast toast = Toast.makeText(CreateProperty.this, "No address ?", Toast.LENGTH_SHORT);
                     toast.setGravity(Gravity.CENTER, 0, 0);
                     toast.show();
@@ -106,10 +96,10 @@ public class CreateProperty extends AppCompatActivity {
             }
         });
 
-        npNotes.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+        etNewPropertyNotes.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
-                if (!hasFocus && npNotes.getText().toString()== "") {
+                if (!hasFocus && etNewPropertyNotes.getText().toString().matches("")) {
                     Toast toast = Toast.makeText(CreateProperty.this, "No notes ?", Toast.LENGTH_SHORT);
                     toast.setGravity(Gravity.CENTER, 0, 0);
                     toast.show();
@@ -128,7 +118,7 @@ public class CreateProperty extends AppCompatActivity {
                     .setMessage("This is not a correct UK postcode format.")
                     .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
-                            npPostcode.setText("");
+                            etNewPropertyPostcode.setText("");
                         }
                     })
                     .setIcon(android.R.drawable.ic_dialog_alert)
@@ -140,7 +130,7 @@ public class CreateProperty extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.createtask, menu);
+        getMenuInflater().inflate(R.menu.create_task, menu);
         return true;
     }
 
@@ -173,7 +163,7 @@ public class CreateProperty extends AppCompatActivity {
                 saveNewProperty();
                 break;
             case R.id.action_settings:
-                onBackPressed();
+                startActivity(new Intent(CreateProperty.this, Homepage.class));
                 break;
         }
         return true;
@@ -184,9 +174,9 @@ public class CreateProperty extends AppCompatActivity {
 
         if (validPostcode && validAddress && validNotes) {
             final Property newProperty = new Property();
-            newProperty.setAddrline1(npAddress.getText().toString().trim().toLowerCase());
-            newProperty.setPostcode(npPostcode.getText().toString().trim().toUpperCase());
-            newProperty.setNotes(npNotes.getText().toString().trim());
+            newProperty.setAddrline1(etNewPropertyAddressLine1.getText().toString().trim());
+            newProperty.setPostcode(etNewPropertyPostcode.getText().toString().trim().toUpperCase());
+            newProperty.setNotes(etNewPropertyNotes.getText().toString().trim());
             newProperty.setNoOfFlats("No flats yet");
 
             Firebase newPropertyRef = new Firebase(getString(R.string.properties_location));
@@ -198,7 +188,7 @@ public class CreateProperty extends AppCompatActivity {
             new AlertDialog.Builder(this)
                     .setIcon(android.R.drawable.ic_dialog_alert)
                     .setTitle("Success")
-                    .setMessage("Property saved! Would you like to add flats to " + npAddress.getText().toString() + "?")
+                    .setMessage("Property saved! Would you like to add flats to " + etNewPropertyAddressLine1.getText().toString() + "?")
                     .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
@@ -213,8 +203,7 @@ public class CreateProperty extends AppCompatActivity {
                     .setNegativeButton("No", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-
-                            startActivity(new Intent(CreateProperty.this, AllProperties.class));
+                            startActivity(new Intent(CreateProperty.this, PropertyDetails.class).putExtra("parceable_property", newProperty));
                         }
                     })
                     .show();
@@ -232,16 +221,16 @@ public class CreateProperty extends AppCompatActivity {
 
     private void validateData() {
 
-        if (npPostcode.getText().toString() == "") {
-            npPostcode.setBackgroundColor(Color.parseColor("#EF9A9A"));
+        if (etNewPropertyPostcode.getText().toString().matches("")) {
+            etNewPropertyPostcode.setBackgroundColor(Color.parseColor("#EF9A9A"));
             validPostcode = false;
         } else {
             boolean postcodeExists = false;
             validPostcode = false;
-            isValidPostcodeFormat(npPostcode.getText().toString().trim());
+            isValidPostcodeFormat(etNewPropertyPostcode.getText().toString().trim());
             if (validPostcode) {
                 for (int i = 0; i < propertyPostcodes.size(); i++) {
-                    if (propertyPostcodes.get(i) == npPostcode.getText().toString().toUpperCase().trim()) {
+                    if (propertyPostcodes.get(i).matches(etNewPropertyPostcode.getText().toString().toUpperCase().trim())) {
                         postcodeExists = true;
                         break;
                     }
@@ -252,7 +241,7 @@ public class CreateProperty extends AppCompatActivity {
                             .setMessage("This postcode belongs to an existing property record.")
                             .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int which) {
-                                    npPostcode.setText("");
+                                    etNewPropertyPostcode.setText("");
                                 }
                             })
                             .setIcon(android.R.drawable.ic_dialog_alert)
@@ -260,19 +249,19 @@ public class CreateProperty extends AppCompatActivity {
                     validPostcode = false;
                 } else {
                     validPostcode = true;
-                    npPostcode.setBackgroundColor(Color.parseColor("#eeeeee"));
+                    etNewPropertyPostcode.setBackgroundColor(Color.parseColor("#eeeeee"));
                 }
             }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-            if (npAddress.getText().toString() == "") {
-                npAddress.setBackgroundColor(Color.parseColor("#EF9A9A"));
+            if (etNewPropertyAddressLine1.getText().toString().matches("")) {
+                etNewPropertyAddressLine1.setBackgroundColor(Color.parseColor("#EF9A9A"));
                 validAddress = false;
             } else {
                 boolean addressExists = false;
                 for (int i = 0; i < propertyAddrLine1s.size(); i++) {
-                    if (propertyAddrLine1s.get(i) == npAddress.getText().toString().toLowerCase().trim()) {
+                    if (propertyAddrLine1s.get(i).matches(etNewPropertyAddressLine1.getText().toString().trim())) {
                         addressExists = true;
                         break;
                     }
@@ -283,7 +272,7 @@ public class CreateProperty extends AppCompatActivity {
                             .setMessage("This address belongs to an existing property record.")
                             .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int which) {
-                                    npAddress.setText("");
+                                    etNewPropertyAddressLine1.setText("");
                                 }
                             })
                             .setIcon(android.R.drawable.ic_dialog_alert)
@@ -295,8 +284,8 @@ public class CreateProperty extends AppCompatActivity {
             }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
-            if (Objects.equals(npNotes.getText().toString(), "")) {
-                npNotes.setText("No notes yet :( \nThat's okay, you can add some later..");
+            if (etNewPropertyNotes.getText().toString().matches("")) {
+                etNewPropertyNotes.setText("No notes yet :( \nThat's okay, you can add some later..");
                 validNotes = false;
             } else {
                 validNotes = true;
@@ -313,7 +302,7 @@ public class CreateProperty extends AppCompatActivity {
                 nullVals += "\n- Notes";
             }
 
-            if (!Objects.equals(nullVals, "")) {
+            if (!nullVals.matches("")) {
                 new AlertDialog.Builder(this)
                         .setTitle("Invalid data")
                         .setMessage("Whoops! Looks like these fields contain wrong information or none at all:" +

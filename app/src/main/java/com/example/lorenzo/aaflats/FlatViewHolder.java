@@ -14,7 +14,7 @@ import java.util.ArrayList;
 public class FlatViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
     //    protected TextView flatAddrline1;
     protected TextView flatTenant;
-    //    protected TextView flatNotes;
+    //    protected TextView etFlatNotes;
 //    protected TextView flatPostcode;
 //    protected TextView flatPendingTask;
     protected ArrayList<Flat> flatList;

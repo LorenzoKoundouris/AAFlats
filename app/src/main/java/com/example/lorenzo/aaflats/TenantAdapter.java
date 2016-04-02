@@ -15,6 +15,7 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.jar.Manifest;
 
 /**
  * Created by Lorenzo on 27/03/2016.
@@ -161,7 +162,7 @@ public class TenantAdapter extends RecyclerView.Adapter<TenantViewHolder> {
 
     private void call(int position) {
 //        Intent in=new Intent(Intent.ACTION_CALL, Uri.parse(mTenant.getTelephone()));
-        Intent in = new Intent(Intent.ACTION_CALL);
+        Intent in = new Intent(Intent.ACTION_DIAL);
         in.setData(Uri.parse("tel:" + tenantList.get(position).getTelephone()));
         try{
             context.startActivity(in);

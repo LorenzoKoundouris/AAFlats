@@ -4,8 +4,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
@@ -19,7 +17,6 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
@@ -36,21 +33,21 @@ import java.util.Objects;
 public class CreateFlat extends AppCompatActivity {
     ArrayAdapter<String> propertyAdapter;
     ArrayList<Property> propertyList = new ArrayList<>();
-    ArrayList<String> propertyAddrLine1s = new ArrayList<>();
-    ArrayList<String> nullFields = new ArrayList<>();
     ArrayList<Flat> flatList = new ArrayList<>();
-    ArrayList<String> flatNums = new ArrayList<>();
     ArrayList<Tenant> tenantList = new ArrayList<>();
+    ArrayList<String> propertyAddrLine1s = new ArrayList<>();
+    ArrayList<String> flatNums = new ArrayList<>();
+    ArrayList<String> nullFields = new ArrayList<>();
     ArrayList<String> tenantFullNames = new ArrayList<>();
-    AutoCompleteTextView recipientProperty;
+    AutoCompleteTextView actvProperty;
     Property createdProperty;
-    EditText flatNum;
-    EditText flatNotes;
+    EditText etFlatNum;
+    EditText etFlatNotes;
     ImageView cancelTenantBtn;
     CardView addTenantBtn;
     boolean addTenant = false;
     AutoCompleteTextView flatTenant;
-    boolean isValidPostcode, isValidAddress, isValidNotes, isValidFlatNum, isValidTenant = false;
+    boolean isValidAddress, isValidNotes, isValidFlatNum, isValidTenant = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,40 +56,32 @@ public class CreateFlat extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
 
         Bundle myIntent = getIntent().getExtras();
-        flatNum = (EditText) findViewById(R.id.nf_number_edittext);
-        flatNotes = (EditText) findViewById(R.id.nf_notes_editext);
+        etFlatNum = (EditText) findViewById(R.id.nf_number_edittext);
+        etFlatNotes = (EditText) findViewById(R.id.nf_notes_editext);
         flatTenant = (AutoCompleteTextView) findViewById(R.id.actv_nf_tenant);
 
 //        getProperties();
-        recipientProperty = (AutoCompleteTextView) findViewById(R.id.actv_recipient_property);
+        actvProperty = (AutoCompleteTextView) findViewById(R.id.actv_recipient_property);
         propertyAdapter = new ArrayAdapter<>
                 (this, android.R.layout.simple_dropdown_item_1line, propertyAddrLine1s);
-        recipientProperty.setAdapter(propertyAdapter);
+        actvProperty.setAdapter(propertyAdapter);
 
-        if (createdProperty != null) {
+        if (myIntent != null) {
             createdProperty = myIntent.getParcelable("created_property");
             propertyList = myIntent.getParcelableArrayList("propertyList");
             propertyAddrLine1s = myIntent.getStringArrayList("propertyAddrLine1s");
-            recipientProperty.setText(createdProperty.getAddrline1());
+            actvProperty.setText(createdProperty.getAddrline1());
             loadCorrespondingFlats(createdProperty.getAddrline1());
         }
 
-        recipientProperty.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        actvProperty.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                loadCorrespondingFlats(recipientProperty.getText().toString());
+                loadCorrespondingFlats(actvProperty.getText().toString());
                 getTenants();
             }
         });
@@ -102,13 +91,13 @@ public class CreateFlat extends AppCompatActivity {
                 (this, android.R.layout.simple_dropdown_item_1line, tenantFullNames);
         flatTenant.setAdapter(tenantAdapter);
 
-        recipientProperty.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+        actvProperty.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 boolean isProperty = false;
-                if (!Objects.equals(recipientProperty.getText().toString(), "")) {
+                if (!actvProperty.getText().toString().matches("")) {
                     for (int i = 0; i < propertyAddrLine1s.size(); i++) {
-                        if (Objects.equals(propertyAddrLine1s.get(i), recipientProperty.getText().toString().toLowerCase())) {
+                        if (propertyAddrLine1s.get(i).matches(actvProperty.getText().toString().trim())) {
                             isProperty = true;
                             createdProperty = propertyList.get(i);
                             break;
@@ -120,8 +109,8 @@ public class CreateFlat extends AppCompatActivity {
                                 .setMessage("You must enter an existing property")
                                 .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog, int which) {
-                                        recipientProperty.setText("");
-                                        recipientProperty.requestFocus();
+                                        actvProperty.setText("");
+                                        actvProperty.requestFocus();
                                     }
                                 })
                                 .setIcon(android.R.drawable.ic_dialog_alert)
@@ -156,12 +145,7 @@ public class CreateFlat extends AppCompatActivity {
             }
         });
 
-
-
-
-
-
-        recipientProperty.addTextChangedListener(new TextWatcher() {
+        actvProperty.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
@@ -174,16 +158,16 @@ public class CreateFlat extends AppCompatActivity {
 
             @Override
             public void afterTextChanged(Editable s) {
-                if (Objects.equals(recipientProperty.getText().toString(), "")) {
-                    flatNum.setEnabled(false);
+                if (actvProperty.getText().toString().matches("")) {
+                    etFlatNum.setEnabled(false);
                     flatTenant.setEnabled(false);
                     addTenantBtn.setEnabled(false);
-                    flatNotes.setEnabled(false);
+                    etFlatNotes.setEnabled(false);
                 } else {
-                    flatNum.setEnabled(true);
+                    etFlatNum.setEnabled(true);
                     flatTenant.setEnabled(true);
                     addTenantBtn.setEnabled(true);
-                    flatNotes.setEnabled(true);
+                    etFlatNotes.setEnabled(true);
                 }
             }
         });
@@ -245,10 +229,10 @@ public class CreateFlat extends AppCompatActivity {
 //        });
 
 
-        flatNum.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+        etFlatNum.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
-                if (!hasFocus && Objects.equals(flatNum.getText().toString(), "")) {
+                if (!hasFocus && etFlatNum.getText().toString().matches("")) {
                     Toast toast = Toast.makeText(CreateFlat.this, "No flat number ?", Toast.LENGTH_SHORT);
                     toast.setGravity(Gravity.CENTER, 0, 0);
                     toast.show();
@@ -256,14 +240,14 @@ public class CreateFlat extends AppCompatActivity {
             }
         });
 
-        flatNotes.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+        etFlatNotes.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
-                if (!hasFocus && Objects.equals(flatNotes.getText().toString(), "")) {
+                if (!hasFocus && etFlatNotes.getText().toString().matches("")) {
                     Toast toast = Toast.makeText(CreateFlat.this, "No notes ?", Toast.LENGTH_SHORT);
                     toast.setGravity(Gravity.CENTER, 0, 0);
                     toast.show();
-                    flatNotes.setText("No notes yet. You can add some later.");
+                    etFlatNotes.setText("No notes yet. You can add some later.");
                     isValidNotes = true;
                 }
             }
@@ -272,12 +256,12 @@ public class CreateFlat extends AppCompatActivity {
         flatTenant.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
-                if (!hasFocus && Objects.equals(flatTenant.getText().toString(), "")) {
+                if (!hasFocus && flatTenant.getText().toString().matches("")) {
                     Toast toast = Toast.makeText(CreateFlat.this, "No tenant ?", Toast.LENGTH_SHORT);
                     toast.setGravity(Gravity.CENTER, 0, 0);
                     toast.show();
                 }
-                if (hasFocus && !Objects.equals(recipientProperty.getText().toString(), "")) {
+                if (hasFocus && !actvProperty.getText().toString().matches("")) {
                     getTenants();
                 }
             }
@@ -309,8 +293,8 @@ public class CreateFlat extends AppCompatActivity {
 
     private void loadCorrespondingFlats(String prop) {
         Firebase flatRef = new Firebase(getResources().getString(R.string.flats_location));
-        Query flatQuery = flatRef.orderByChild("addressLine1").equalTo(prop);
-        flatQuery.addListenerForSingleValueEvent(new ValueEventListener() {
+        Query flatsOfPropertyQuery = flatRef.orderByChild("addressLine1").equalTo(prop);
+        flatsOfPropertyQuery.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 flatList.clear();
@@ -332,7 +316,7 @@ public class CreateFlat extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.createtask, menu);
+        getMenuInflater().inflate(R.menu.create_task, menu);
         return true;
     }
 
@@ -358,14 +342,16 @@ public class CreateFlat extends AppCompatActivity {
         switch (item.getItemId()) {
             case android.R.id.home:
                 //Toast.makeText(getApplicationContext(), "Back button clicked", Toast.LENGTH_SHORT).show();
-                onBackPressed();
+//                onBackPressed();
+                startActivity(new Intent(CreateFlat.this, Homepage.class));
+                finish();
                 break;
             case R.id.save_new_task:
                 //Toast.makeText(getApplicationContext(), "Save button clicked", Toast.LENGTH_SHORT).show();
                 saveNewFlat();
                 break;
             case R.id.action_settings:
-                startActivity(new Intent(CreateFlat.this, PropertyDetails.class));
+                startActivity(new Intent(CreateFlat.this, Homepage.class));
                 break;
         }
         return true;
@@ -381,9 +367,9 @@ public class CreateFlat extends AppCompatActivity {
 
                 newFlat.setPostcode(createdProperty.getPostcode());
 
-                newFlat.setNotes(flatNotes.getText().toString());
+                newFlat.setNotes(etFlatNotes.getText().toString());
 
-                newFlat.setFlatNum("Flat " + flatNum.getText().toString());
+                newFlat.setFlatNum("Flat " + etFlatNum.getText().toString());
 
                 newFlat.setTenant(flatTenant.getText().toString());
 
@@ -420,12 +406,11 @@ public class CreateFlat extends AppCompatActivity {
                     Tenant tnt = childSnapShot.getValue(Tenant.class);
                     tenantList.add(tnt);
                     String fullName;
-                    if(tnt.getMiddlename() != null || !Objects.equals(tnt.getMiddlename(), "")){
+                    if(!tnt.getMiddlename().matches("")){
                         fullName = tnt.getForename() + " " + tnt.getMiddlename() + " " + tnt.getSurname();
                     } else {
                         fullName = tnt.getForename() + " " + tnt.getSurname();
                     }
-
                     tenantFullNames.add(fullName.trim());
                 }
             }
@@ -440,13 +425,13 @@ public class CreateFlat extends AppCompatActivity {
     private void validateData() {
         String nullVals = "";
 
-        if (flatNum.getText().toString() == "") {
-            flatNum.setBackgroundColor(Color.parseColor("#EF9A9A"));
+        if (etFlatNum.getText().toString().matches("")) {
+            etFlatNum.setBackgroundColor(Color.parseColor("#EF9A9A"));
             isValidFlatNum = false;
         } else {
             boolean flatExists = false;
             for (int i = 0; i < flatNums.size(); i++) {
-                if (flatNums.get(i) == "Flat " + flatNum.getText().toString().trim()) {
+                if (flatNums.get(i).matches("Flat " + etFlatNum.getText().toString().trim())) {
                     flatExists = true;
                     break;
                 }
@@ -454,10 +439,10 @@ public class CreateFlat extends AppCompatActivity {
             if (flatExists) {
                 new AlertDialog.Builder(this)
                         .setTitle("Flat exists")
-                        .setMessage(createdProperty.getAddrline1().toLowerCase() + " already has a " + " 'Flat " + flatNum.getText().toString().trim() + "'")
+                        .setMessage(createdProperty.getAddrline1().toLowerCase() + " already has a " + " 'Flat " + etFlatNum.getText().toString().trim() + "'")
                         .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
-                                flatNum.setText("");
+                                etFlatNum.setText("");
                             }
                         })
                         .setIcon(android.R.drawable.ic_dialog_alert)
@@ -470,7 +455,7 @@ public class CreateFlat extends AppCompatActivity {
 
 ////////////////////////////////////////// Validate flat number ^
 
-        if (flatTenant.getText().toString() == "") {
+        if (flatTenant.getText().toString().matches("")) {
             if(addTenant){
                 flatTenant.setBackgroundColor(Color.parseColor("#EF9A9A"));
                 isValidTenant = false;
@@ -484,7 +469,7 @@ public class CreateFlat extends AppCompatActivity {
 //            int j = 0;
             int i;
             for (i = 0; i < tenantFullNames.size(); i++) {
-                if (tenantFullNames.get(i) == flatTenant.getText().toString().trim()) {
+                if (tenantFullNames.get(i).matches(flatTenant.getText().toString().trim())) {
                     isTenant = true;
                     break;
                 }
@@ -530,12 +515,12 @@ public class CreateFlat extends AppCompatActivity {
             if (!isValidFlatNum) {
                 nullVals += "\n- Flat number";
             }
-            if(Objects.equals(flatNotes.getText().toString(), "") || !isValidNotes){
-                flatNotes.setText("No notes yet. You can add some later.");
+            if(etFlatNotes.getText().toString().matches("") || !isValidNotes){
+                etFlatNotes.setText("No notes yet. You can add some later.");
                 isValidNotes = true;
             }
 
-            if (!Objects.equals(nullVals, "")) {
+            if (!nullVals.matches("")) {
                 new AlertDialog.Builder(this)
                         .setTitle("Invalid data")
                         .setMessage("Whoops! Looks like these fields contain wrong information or none at all:" +

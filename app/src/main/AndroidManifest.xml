@@ -2,6 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.lorenzo.aaflats">
 
+    <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.INTERNET" />
 
     <!--
@@ -11,6 +12,7 @@
     -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.CALL_PHONE" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
 
     <application
         android:allowBackup="true"
@@ -21,6 +23,7 @@
         <activity
             android:name=".Homepage"
             android:label="@string/app_name"
+            android:launchMode="singleTask"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -49,6 +52,7 @@
         <activity
             android:name=".PropertyDetails"
             android:label="@string/title_activity_property_details"
+            android:launchMode="singleTask"
             android:parentActivityName=".AllProperties"
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
@@ -86,6 +90,7 @@
         <activity
             android:name=".FlatDetails"
             android:label="@string/title_activity_flat_details"
+            android:launchMode="singleTask"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".CreateProperty"
@@ -144,6 +149,24 @@
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.lorenzo.aaflats.AllTenants" />
+        </activity>
+        <activity
+            android:name=".ScanQR"
+            android:label="@string/title_activity_scan_qr"
+            android:parentActivityName=".Homepage"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.lorenzo.aaflats.Homepage" />
+        </activity>
+        <activity
+            android:name=".AllReports"
+            android:label="@string/title_activity_all_reports"
+            android:parentActivityName=".Homepage"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.lorenzo.aaflats.Homepage" />
         </activity>
     </application>
 

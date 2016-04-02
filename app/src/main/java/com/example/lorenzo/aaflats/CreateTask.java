@@ -45,7 +45,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.Locale;
-import java.util.Objects;
 
 public class CreateTask extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
     private Report attachedReport;
@@ -80,13 +79,13 @@ public class CreateTask extends AppCompatActivity implements AdapterView.OnItemS
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        final ArrayList<Task> mTaskList = new ArrayList<>();
-        final ArrayList<String> taskTitles = new ArrayList<>();
+        final ArrayList<Task> taskList = new ArrayList<>();
         final ArrayList<Property> propertyList = new ArrayList<>();
-        final ArrayList<String> propertyAddrLine1s = new ArrayList<>();
         final ArrayList<Flat> flatList = new ArrayList<>();
-        final ArrayList<String> flatNums = new ArrayList<>();
         final ArrayList<Report> reportList = new ArrayList<>();
+        final ArrayList<String> taskTitles = new ArrayList<>();
+        final ArrayList<String> propertyAddrLine1s = new ArrayList<>();
+        final ArrayList<String> flatNums = new ArrayList<>();
         final ArrayList<String> reportTitles = new ArrayList<>();
         final AlertDialog.Builder builder = new AlertDialog.Builder(this);
         final CardView ntCard = (CardView) findViewById(R.id.nt_card);
@@ -102,11 +101,11 @@ public class CreateTask extends AppCompatActivity implements AdapterView.OnItemS
         taskRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                mTaskList.clear();
+                taskList.clear();
                 taskTitles.clear();
                 for (DataSnapshot tskSnapshot : dataSnapshot.getChildren()) {
                     Task tsk = tskSnapshot.getValue(Task.class);
-                    mTaskList.add(tsk);
+                    taskList.add(tsk);
                     taskTitles.add(tsk.getTitle());
                 }
             }
@@ -185,7 +184,7 @@ public class CreateTask extends AppCompatActivity implements AdapterView.OnItemS
         actvProperty.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                loadCorrespondingFlats(actvProperty.getText().toString().toLowerCase(), flatRef, flatList, flatNums);
+                loadCorrespondingFlats(actvProperty.getText().toString().trim(), flatRef, flatList, flatNums);
             }
         });
 
@@ -396,7 +395,7 @@ public class CreateTask extends AppCompatActivity implements AdapterView.OnItemS
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.createtask, menu);
+        getMenuInflater().inflate(R.menu.create_task, menu);
         return true;
     }
 

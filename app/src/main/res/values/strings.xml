@@ -41,4 +41,6 @@
     <string name="title_activity_create_tenant">CreateTenant</string>
     <string name="title_activity_all_tenants">AllTenants</string>
     <string name="title_activity_tenant_details">TenantDetails</string>
+    <string name="title_activity_scan_qr">ScanQR</string>
+    <string name="title_activity_all_reports">AllReports</string>
 </resources>

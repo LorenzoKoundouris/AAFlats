@@ -43,6 +43,9 @@ public class FlatDetails extends AppCompatActivity {
             public void onClick(View view) {
                 Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
+
+                editFlatDetails();
+
             }
         });
 
@@ -51,31 +54,6 @@ public class FlatDetails extends AppCompatActivity {
 //        parceableFlatKey = intent.getString("parceable_flat_key");
         parceableProperty = intent.getParcelable("parceable_property");
         parceablePropertyKey = intent.getString("parceable_property_key");
-
-//        Firebase flatsRef = new Firebase(getResources().getString(R.string.flats_location));
-//        Query flatQuery = flatsRef.orderByChild("addressLine1").equalTo(parceableProperty.getAddrline1());
-//        final ArrayList<Flat> flatList = new ArrayList<>();
-//        flatQuery.addListenerForSingleValueEvent(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(DataSnapshot dataSnapshot) {
-//                //flatList.clear();
-//                for (DataSnapshot childSnapShot : dataSnapshot.getChildren()) {
-//                    Flat flt = childSnapShot.getValue(Flat.class);
-//                    flatList.add(flt);
-//                    assert parceableFlat != null;
-//                    if (flt.getFlatNum().matches(parceableFlat.getFlatNum())) {
-//                        parceableFlatKey = childSnapShot.getKey();
-//                        break;
-//                    }
-//                }
-//                ttestt = flatList.get(0).getFlatNum();
-//            }
-//
-//            @Override
-//            public void onCancelled(FirebaseError firebaseError) {
-//
-//            }
-//        });
 
         assert parceableFlat != null;
         setTitle(parceableFlat.getAddressLine1() + " - " + parceableFlat.getFlatNum());
@@ -98,14 +76,14 @@ public class FlatDetails extends AppCompatActivity {
         final ArrayList<String> flatCompletedTasksKeys = new ArrayList<>();
         Firebase taskRef = new Firebase(getString(R.string.tasks_location));
         //Query tasksOfThisFlatQ = taskRef.orderByChild("property").equalTo(parceableFlatKey);// .orderByChild("status").equalTo("false");
-        Query tasksOfThisFlatQ = taskRef.orderByChild("property").equalTo(parceableProperty.getAddrline1() + " - " + parceableFlat.getFlatNum().toLowerCase());
+        Query tasksOfThisFlatQ = taskRef.orderByChild("property").equalTo(parceableProperty.getAddrline1() + " - " + parceableFlat.getFlatNum());
         tasksOfThisFlatQ.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-//                flatPendingTasks.clear();
-//                flatCompletedTasks.clear();
-//                flatPendingTasksKeys.clear();
-//                flatCompletedTasksKeys.clear();
+                flatPendingTasks.clear();
+                flatCompletedTasks.clear();
+                flatPendingTasksKeys.clear();
+                flatCompletedTasksKeys.clear();
                 for (DataSnapshot childSnapShot : dataSnapshot.getChildren()) {
                     Task tsk = childSnapShot.getValue(Task.class);
                     if (!tsk.getStatus()) {
@@ -132,6 +110,12 @@ public class FlatDetails extends AppCompatActivity {
         fltDtCompTskRecyclerView.setAdapter(new FlatCompletedTasksAdapter(flatCompletedTasks, flatCompletedTasksKeys));
     }
 
+    private void editFlatDetails() {
+
+
+
+    }
+
     @Override
     public void onBackPressed() {
         Intent intent = new Intent(this, PropertyDetails.class);
@@ -139,7 +123,7 @@ public class FlatDetails extends AppCompatActivity {
         intent.putExtra("parceable_property_key", parceablePropertyKey);
         System.out.println(parceableProperty.getAddrline1() + "  -  " + parceablePropertyKey);
         this.startActivity(intent);
-//        finish();
+        finish();
     }
 
     @Override

@@ -43,7 +43,7 @@
                 android:layout_marginStart="6dp"
                 android:layout_marginTop="5dp"
                 android:layout_weight="3"
-                android:hint="first name"
+                android:hint="First name"
                 android:inputType="textPersonName"
                 android:textStyle="italic" />
         </LinearLayout>
@@ -73,7 +73,7 @@
                 android:layout_marginStart="6dp"
                 android:layout_marginTop="5dp"
                 android:layout_weight="3"
-                android:hint="middle name"
+                android:hint="Middle name"
                 android:inputType="textPersonName"
                 android:textStyle="italic" />
         </LinearLayout>
@@ -103,7 +103,7 @@
                 android:layout_marginStart="6dp"
                 android:layout_marginTop="5dp"
                 android:layout_weight="3"
-                android:hint="last name"
+                android:hint="Last name"
                 android:inputType="textPersonName"
                 android:textStyle="italic" />
         </LinearLayout>
@@ -133,7 +133,7 @@
                 android:layout_marginStart="6dp"
                 android:layout_marginTop="5dp"
                 android:layout_weight="2.5"
-                android:hint="date of birth"
+                android:hint="Date of birth"
                 android:inputType="date"
                 android:textStyle="italic" />
 
@@ -170,7 +170,7 @@
                 android:layout_marginTop="5dp"
                 android:layout_gravity="center_vertical"
                 android:layout_weight="3"
-                android:hint="email address"
+                android:hint="Email address"
                 android:inputType="textEmailAddress"
                 android:textStyle="italic" />
         </LinearLayout>
@@ -199,7 +199,7 @@
                 android:layout_marginStart="6dp"
                 android:layout_marginTop="5dp"
                 android:layout_weight="3"
-                android:hint="telephone number"
+                android:hint="Telephone number"
                 android:inputType="phone"
                 android:textStyle="italic" />
         </LinearLayout>

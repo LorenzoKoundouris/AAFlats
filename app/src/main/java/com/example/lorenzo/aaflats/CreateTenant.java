@@ -5,10 +5,7 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
-import android.media.Image;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -17,22 +14,28 @@ import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
+import com.firebase.client.FirebaseError;
+import com.firebase.client.ValueEventListener;
 
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.Locale;
-import java.util.Objects;
 
 public class CreateTenant extends AppCompatActivity {
 
@@ -42,6 +45,12 @@ public class CreateTenant extends AppCompatActivity {
     static final int DIALOG_ID = 0;
     private int year_x, month_x, day_x;
 
+    Firebase propertyRef;
+    Firebase flatRef;
+    ArrayList<Flat> flatList = new ArrayList<>();
+    ArrayList<String> flatKeys = new ArrayList<>();
+    ArrayList<String> propertyFlatsAddrline1 = new ArrayList<>();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -50,6 +59,9 @@ public class CreateTenant extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        propertyRef = new Firebase(getResources().getString(R.string.properties_location));
+        flatRef = new Firebase(getResources().getString(R.string.flats_location));
 
         etForename = (EditText) findViewById(R.id.nt_forename_editview);
         etMiddlename = (EditText) findViewById(R.id.nt_middlename_editview);
@@ -66,7 +78,7 @@ public class CreateTenant extends AppCompatActivity {
 //                if(hasFocus){
 //                    etForename.setBackgroundColor(Color.parseColor("#ffffff"));
 //                }
-                if (!hasFocus && etForename.getText().toString() == "") {
+                if (!hasFocus && etForename.getText().toString().matches("")) {
                     Toast toast = Toast.makeText(CreateTenant.this, "No forename ?", Toast.LENGTH_SHORT);
                     toast.setGravity(Gravity.CENTER, 0, 0);
                     toast.show();
@@ -80,7 +92,7 @@ public class CreateTenant extends AppCompatActivity {
 //                if(hasFocus){
 //                    etMiddlename.setBackgroundColor(Color.parseColor("#eeeeee"));
 //                }
-                if (!hasFocus && etMiddlename.getText().toString() == "") {
+                if (!hasFocus && etMiddlename.getText().toString().matches("")) {
                     Toast toast = Toast.makeText(CreateTenant.this, "No middle name ?", Toast.LENGTH_SHORT);
                     toast.setGravity(Gravity.CENTER, 0, 0);
                     toast.show();
@@ -109,7 +121,7 @@ public class CreateTenant extends AppCompatActivity {
                     //etDob.setBackgroundColor(Color.parseColor("#eeeeee"));
                     showDialog(DIALOG_ID);
                 }
-                if (!hasFocus && etDob.getText().toString() == "") {
+                if (!hasFocus && etDob.getText().toString().matches("")) {
                     Toast toast = Toast.makeText(CreateTenant.this, "No date of birth ?", Toast.LENGTH_SHORT);
                     toast.setGravity(Gravity.CENTER, 0, 0);
                     toast.show();
@@ -123,7 +135,7 @@ public class CreateTenant extends AppCompatActivity {
 //                if(hasFocus){
 //                    etEmail.setBackgroundColor(Color.parseColor("#eeeeee"));
 //                }
-                if (!hasFocus && etEmail.getText().toString() == "") {
+                if (!hasFocus && etEmail.getText().toString().matches("")) {
                     Toast toast = Toast.makeText(CreateTenant.this, "No email address ?", Toast.LENGTH_SHORT);
                     toast.setGravity(Gravity.CENTER, 0, 0);
                     toast.show();
@@ -137,7 +149,7 @@ public class CreateTenant extends AppCompatActivity {
 //                if (hasFocus) {
 //                    etTel.setBackgroundColor(Color.parseColor("#eeeeee"));
 //                }
-                if (!hasFocus && etTel.getText().toString() == "") {
+                if (!hasFocus && etTel.getText().toString().matches("")) {
                     Toast toast = Toast.makeText(CreateTenant.this, "No telephone number ?", Toast.LENGTH_SHORT);
                     toast.setGravity(Gravity.CENTER, 0, 0);
                     toast.show();
@@ -220,7 +232,7 @@ public class CreateTenant extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.createtask, menu);
+        getMenuInflater().inflate(R.menu.create_task, menu);
         return true;
     }
 
@@ -229,7 +241,7 @@ public class CreateTenant extends AppCompatActivity {
         new AlertDialog.Builder(this)
                 .setIcon(android.R.drawable.ic_dialog_alert)
                 .setTitle("Leaving page")
-                .setMessage("You have not saved this new flat. Press Yes to discard or No to remain on page.")
+                .setMessage("You have not saved this new Tenant. Press Yes to discard or No to remain on page.")
                 .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
@@ -254,7 +266,7 @@ public class CreateTenant extends AppCompatActivity {
                 validateData();
                 break;
             case R.id.action_settings:
-                //startActivity(new Intent(CreateTenant.this, TenantDetails.class));
+                startActivity(new Intent(CreateTenant.this, AllTenants.class));
                 break;
         }
         return true;
@@ -263,50 +275,106 @@ public class CreateTenant extends AppCompatActivity {
     private void saveNewTenant() {
 //        validateData();
 
-            if (isValidForename && isValidSurname && isValidDob) {
-                try {
-                    Tenant newTenant = new Tenant();
-                    newTenant.setForename(etForename.getText().toString().trim());
-                    newTenant.setMiddlename(etMiddlename.getText().toString().trim());
-                    newTenant.setSurname(etSurname.getText().toString().trim());
-                    newTenant.setDob(etDob.getText().toString().trim());
-                    newTenant.setEmail(etEmail.getText().toString().toLowerCase().trim());
-                    newTenant.setTelephone(etTel.getText().toString().trim());
-                    newTenant.setCurrentTenant(false);
+        if (isValidForename && isValidSurname && isValidDob) {
+            try {
+                final Tenant newTenant = new Tenant();
+                newTenant.setForename(etForename.getText().toString().trim());
+                newTenant.setMiddlename(etMiddlename.getText().toString().trim());
+                newTenant.setSurname(etSurname.getText().toString().trim());
+                newTenant.setDob(etDob.getText().toString().trim());
+                newTenant.setEmail(etEmail.getText().toString().toLowerCase().trim());
+                newTenant.setTelephone(etTel.getText().toString().trim());
+                newTenant.setCurrentTenant(false);
 
-                    Firebase tenantRef = new Firebase(getResources().getString(R.string.tenants_location));
-                    tenantRef.push().setValue(newTenant);
+                Firebase tenantRef = new Firebase(getResources().getString(R.string.tenants_location));
+//                tenantRef.push().setValue(newTenant);
 
-                    String initi = newTenant.getForename().substring(0, 1) + ". " + newTenant.getSurname()
-                            + " has been stored as a new tenant in the system. Would you like to assign them a property?";
-                    new AlertDialog.Builder(this)
-                            .setTitle("Success")
-                            .setMessage(initi)
-                            .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-//                                Intent intent = new Intent(CreateTenant.this, CreateFlat.class);
-//                                intent.putExtra("created_property", newProperty);
-//                                intent.putExtra("propertyList", propertyList);
-//                                intent.putExtra("propertyAddrLine1s", propertyAddrLine1s);
-//                                startActivity(intent);
-                                }
-
-                            })
-                            .setNegativeButton("Later", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
+                String initi = newTenant.getForename().substring(0, 1) + ". " + newTenant.getSurname()
+                        + " has been stored as a new tenant in the system. Would you like to assign them a property?";
+                final android.support.v7.app.AlertDialog.Builder alertBuilder =
+                        new android.support.v7.app.AlertDialog.Builder(this);
+                alertBuilder.setTitle("Success")
+                        .setMessage(initi)
+                        .setNegativeButton("Later", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
 //                                startActivity(new Intent(CreateTenant.this, AllTenants.class));
-                                }
-                            })
-                            .show();
+                            }
+                        })
+                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                android.support.v7.app.AlertDialog.Builder alertBuilder2 =
+                                        new android.support.v7.app.AlertDialog.Builder(alertBuilder.getContext());
+                                final AutoCompleteTextView actvProperty = new AutoCompleteTextView(alertBuilder.getContext());
+                                alertBuilder2.setMessage("*i.e. 12 trematon terrace - flat 1");
+                                alertBuilder2.setTitle("Enter an address");
+                                alertBuilder2.setView(actvProperty);
+                                alertBuilder2.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+//                                startActivity(new Intent(CreateTenant.this, AllTenants.class));
+                                    }
+                                });
 
-                } catch (Exception e) {
-                    Toast toast = Toast.makeText(CreateTenant.this, "Something went wrong. Tenant NOT created.", Toast.LENGTH_SHORT);
-                    toast.setGravity(Gravity.CENTER, 0, 0);
-                    toast.show();
-                }
+                                final ArrayList<Flat> flatList = new ArrayList<>();
+                                final ArrayList<String> propertyAddrLine1s = new ArrayList<>();
+
+                                final Firebase flatRef = new Firebase(getResources().getString(R.string.flats_location));
+                                flatRef.addValueEventListener(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(DataSnapshot dataSnapshot) {
+                                        for (DataSnapshot fltSnapshot : dataSnapshot.getChildren()) {
+                                            Flat flt = fltSnapshot.getValue(Flat.class);
+                                            flt.setFlatKey(fltSnapshot.getKey());
+                                            flatList.add(flt);
+                                            propertyAddrLine1s.add(flt.getAddressLine1().toLowerCase().trim() +
+                                                    " - " + flt.getFlatNum().toLowerCase().trim());
+                                        }
+                                        Collections.sort(propertyAddrLine1s, new Comparator<String>() {
+                                            @Override
+                                            public int compare(String lhs, String rhs) {
+                                                return lhs.compareTo(rhs);
+                                            }
+                                        });
+                                    }
+
+                                    @Override
+                                    public void onCancelled(FirebaseError firebaseError) {
+                                        System.out.println("Property: " + "The read failed: " + firebaseError.getMessage());
+                                    }
+                                });
+
+                                alertBuilder2.show();
+
+                                ArrayAdapter<String> propertyAdapter = new ArrayAdapter<>
+                                        (alertBuilder.getContext(), android.R.layout.simple_dropdown_item_1line, propertyAddrLine1s);
+                                actvProperty.setAdapter(propertyAdapter);
+
+                                actvProperty.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                                    @Override
+                                    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                                        newTenant.setProperty(propertyAddrLine1s.get(position));
+
+                                        Intent intent = new Intent(CreateTenant.this, TenantDetails.class);
+                                        intent.putExtra("parceable_tenant", newTenant);
+
+                                        startActivity(intent);
+                                    }
+                                });
+
+                            }
+                        }); //End of setPositiveButton
+
+                final android.support.v7.app.AlertDialog alertDialog = alertBuilder.create();
+                alertDialog.show();
+
+            } catch (Exception e) {
+                Toast toast = Toast.makeText(CreateTenant.this, "Something went wrong. Tenant NOT created.", Toast.LENGTH_SHORT);
+                toast.setGravity(Gravity.CENTER, 0, 0);
+                toast.show();
             }
+        }
 
     }
 
@@ -316,6 +384,7 @@ public class CreateTenant extends AppCompatActivity {
             isValidForename = false;
         } else {
             isValidForename = true;
+            etForename.setBackgroundColor(Color.parseColor("#eeeeee"));
         }
 
         ///////////////////////////////////////////////////////////////////////////////
@@ -324,6 +393,7 @@ public class CreateTenant extends AppCompatActivity {
             isValidMiddlename = false;
         } else {
             isValidMiddlename = true;
+            etMiddlename.setBackgroundColor(Color.parseColor("#eeeeee"));
         }
 
         //////////////////////////////////////////////////////////////////////////////
@@ -333,6 +403,7 @@ public class CreateTenant extends AppCompatActivity {
             isValidSurname = false;
         } else {
             isValidSurname = true;
+            etSurname.setBackgroundColor(Color.parseColor("#eeeeee"));
         }
         //////////////////////////////////////////////////////////////////////////////
 
@@ -341,6 +412,7 @@ public class CreateTenant extends AppCompatActivity {
             isValidDob = false;
         } else {
             isValidDob = true;
+            etDob.setBackgroundColor(Color.parseColor("#eeeeee"));
         }
 
         //////////////////////////////////////////////////////////////////////////////
@@ -350,6 +422,7 @@ public class CreateTenant extends AppCompatActivity {
         } else {
             if (validateEmail(etEmail.getText().toString())) {
                 isValidEmail = true;
+                etEmail.setBackgroundColor(Color.parseColor("#eeeeee"));
             } else {
                 isValidEmail = false;
                 etEmail.setBackgroundColor(Color.parseColor("#EF9A9A"));
@@ -363,6 +436,7 @@ public class CreateTenant extends AppCompatActivity {
             isValidTel = false;
         } else {
             isValidTel = true;
+            etTel.setBackgroundColor(Color.parseColor("#eeeeee"));
         }
 
         //////////////////////////////////////////////////////////////////////////////
@@ -410,7 +484,7 @@ public class CreateTenant extends AppCompatActivity {
                     .setNegativeButton("No", null)
                     .setIcon(android.R.drawable.ic_dialog_alert)
                     .show();
-        } else{
+        } else {
             saveNewTenant();
         }
 

@@ -37,48 +37,48 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 public class TaskDetails extends AppCompatActivity {
 
     boolean attemptEdit = false;
-    boolean editscancelled;
+    boolean editsCancelled;
     boolean validTitle = true;
     boolean validProperty = true;
     boolean validDescription = true;
-    EditText tdTitle;// = (EditText) findViewById(R.id.td_title);
-    AutoCompleteTextView actvProperty;// = (EditText) findViewById(R.id.et_property_actv);
-    EditText tdDescription;// = (EditText) findViewById(R.id.td_description);
+
+    EditText etTaskTitle;// = (EditText) findViewById(R.id.td_title);
+    AutoCompleteTextView actvTaskProperty;// = (EditText) findViewById(R.id.et_property_actv);
+    EditText etDescription;// = (EditText) findViewById(R.id.td_description);
     Button btReport;// = (Button) findViewById(R.id.bt_report);
-    MenuItem saveEdit;// = (MenuItem) findViewById(R.id.edit_task);
-    CheckBox taskCompletionCheckBox;// = (CheckBox) findViewById(R.id.completion_check_box);
-    EditText tdNotes;
-    final ArrayList<String> propertyAddrLine1s = new ArrayList<>();
-    final ArrayList<Report> reportList = new ArrayList<>();
-    final ArrayList<Report> foundReportList = new ArrayList<>();
-    final ArrayList<String> reportTitles = new ArrayList<>();
-    final ArrayList<String> reportKeys = new ArrayList<>();
-    final ArrayList<Flat> flatList = new ArrayList<>();
-    final ArrayList<String> flatNums = new ArrayList<>();
-    TextView tvSender;// = (TextView) findViewById(R.id.tv_sender);
-    TextView tvTimestamp;// = (TextView) findViewById(R.id.tv_timestamp);
-    TextView tvReportContent;// = (TextView) findViewById(R.id.tv_report_content);
-    private Spinner prioritySpinner, flatSpinner;
-    private Report attachedReport;
-    final Context context = this;
+    MenuItem miSaveEdit;// = (MenuItem) findViewById(R.id.edit_task);
+    CheckBox cbTaskStatus;// = (CheckBox) findViewById(R.id.completion_check_box);
+    EditText etTaskNotes;
+    TextView tvTaskReportSender;// = (TextView) findViewById(R.id.tv_sender);
+    TextView tvTaskReportTimestamp;// = (TextView) findViewById(R.id.tv_timestamp);
+    TextView tvTaskReportContent;// = (TextView) findViewById(R.id.tv_report_content);
+
+    ArrayList<Flat> flatList = new ArrayList<>();
+    ArrayList<Report> reportList = new ArrayList<>();
+    ArrayList<String> propertyAddrLine1s = new ArrayList<>();
+    ArrayList<String> reportTitles = new ArrayList<>();
+    ArrayList<String> reportKeys = new ArrayList<>();
+    ArrayList<String> flatNums = new ArrayList<>();
+    Report associatedTaskReport;
+    Report attachedReport;
     Task parceableTask = new Task();
+    Spinner prioritySpinner, flatSpinner;
+    Context context = this;
     String parceableTaskKey;
     String attachedReportKey;
+    String[] splitAddress;
 
     Firebase taskRef;
     Firebase propertyRef;
     Firebase reportRef;
     Firebase flatRef;
     Firebase deleteTask;
-
     Query findReportQuery;
 
-    String[] splitProp;
 
     SharedPreferences pref;
     SharedPreferences.Editor prefEditor;
@@ -111,40 +111,40 @@ public class TaskDetails extends AppCompatActivity {
         findReportQuery = reportRef.orderByKey().equalTo(parceableTask.getReport());
 
         //Page components
-        tdTitle = (EditText) findViewById(R.id.td_title);
-        actvProperty = (AutoCompleteTextView) findViewById(R.id.et_property_actv);
+        cbTaskStatus = (CheckBox) findViewById(R.id.completion_check_box);
+        etTaskTitle = (EditText) findViewById(R.id.td_title);
+        actvTaskProperty = (AutoCompleteTextView) findViewById(R.id.et_property_actv);
         flatSpinner = (Spinner) findViewById(R.id.et_flat_spinner);
         flatSpinner.setEnabled(false);
-        tdDescription = (EditText) findViewById(R.id.td_description);
+        etDescription = (EditText) findViewById(R.id.td_description);
         prioritySpinner = (Spinner) findViewById(R.id.et_priority_spinner);
         prioritySpinner.setEnabled(false);
         btReport = (Button) findViewById(R.id.bt_report);
-        tdNotes = (EditText) findViewById(R.id.td_notes);
-        taskCompletionCheckBox = (CheckBox) findViewById(R.id.completion_check_box);
-        tvSender = (TextView) findViewById(R.id.tv_sender);
-        tvTimestamp = (TextView) findViewById(R.id.tv_timestamp);
-        tvReportContent = (TextView) findViewById(R.id.tv_report_content);
+        etTaskNotes = (EditText) findViewById(R.id.td_notes);
+        tvTaskReportSender = (TextView) findViewById(R.id.tv_sender);
+        tvTaskReportTimestamp = (TextView) findViewById(R.id.tv_timestamp);
+        tvTaskReportContent = (TextView) findViewById(R.id.tv_report_content);
 
         //Display Task details on page
         setTitle(parceableTask.getTitle());
         if (parceableTask.getStatus()) {
-            taskCompletionCheckBox.setChecked(true);
-            prefEditor.putBoolean("tStatus", true);
+            cbTaskStatus.setChecked(true);
+            prefEditor.putBoolean("taskStatus", true);
         } else {
-            taskCompletionCheckBox.setChecked(false);
-            prefEditor.putBoolean("tStatus", false);
+            cbTaskStatus.setChecked(false);
+            prefEditor.putBoolean("taskStatus", false);
         }
-        tdTitle.setText(parceableTask.getTitle());
-        prefEditor.putString("tTitle", parceableTask.getTitle());
-        splitProp = parceableTask.getProperty().split(" - ");
-        actvProperty.setText(splitProp[0].trim());
-        prefEditor.putString("tPropertyA1", actvProperty.getText().toString());
-        prefEditor.putString("tFlat", splitProp[1].trim());
+        etTaskTitle.setText(parceableTask.getTitle());
+        splitAddress = parceableTask.getProperty().split(" - ");
+        actvTaskProperty.setText(splitAddress[0].trim());
         //flat done in onDataChange
-        tdDescription.setText(parceableTask.getDescription());
-        prefEditor.putString("tDescription", parceableTask.getDescription());
-        tdNotes.setText(parceableTask.getNotes());
-        prefEditor.putString("tNotes", parceableTask.getNotes());
+        etDescription.setText(parceableTask.getDescription());
+        etTaskNotes.setText(parceableTask.getNotes());
+        prefEditor.putString("taskTitle", parceableTask.getTitle());
+        prefEditor.putString("taskProperty", splitAddress[0].trim());
+        prefEditor.putString("taskFlat", splitAddress[1].trim());
+        prefEditor.putString("taskDescription", parceableTask.getDescription());
+        prefEditor.putString("taskNotes", parceableTask.getNotes());
 
 
         // Create an ArrayAdapter using the string array
@@ -155,24 +155,24 @@ public class TaskDetails extends AppCompatActivity {
         // Apply the adapter to the prioritySpinner
         prioritySpinner.setAdapter(priorityAdapter);
 
-        if (parceableTask.getPriority().toLowerCase().matches("high")) {
+        if (parceableTask.getPriority().matches("High")) {
             //high priority
             prioritySpinner.setSelection(0);
-            prefEditor.putInt("tPriority", 0);
-        } else if (parceableTask.getPriority().toLowerCase().matches("medium")) {
+            prefEditor.putInt("taskPriority", 0);
+        } else if (parceableTask.getPriority().toLowerCase().matches("Medium")) {
             //medium priority
             prioritySpinner.setSelection(1);
-            prefEditor.putInt("tPriority", 1);
+            prefEditor.putInt("taskPriority", 1);
         } else {
+            //low priority
             prioritySpinner.setSelection(2);
-            prefEditor.putInt("tPriority", 2);
+            prefEditor.putInt("taskPriority", 2);
         }
         prefEditor.commit();
 
-
         ArrayAdapter<String> propertyAdapter = new ArrayAdapter<>
                 (this, android.R.layout.simple_dropdown_item_1line, propertyAddrLine1s);
-        actvProperty.setAdapter(propertyAdapter);
+        actvTaskProperty.setAdapter(propertyAdapter);
 
         propertyRef.addValueEventListener(new ValueEventListener() {
             @Override
@@ -198,31 +198,32 @@ public class TaskDetails extends AppCompatActivity {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for (DataSnapshot childSnap : dataSnapshot.getChildren()) {
-                    Report associatedReport = childSnap.getValue(Report.class);
-                    foundReportList.add(associatedReport);
-                    prefEditor.putString("rKey", childSnap.getKey());
+                    Report foundReport = childSnap.getValue(Report.class);
+                    associatedTaskReport = foundReport;
+                    prefEditor.putString("reportKey", childSnap.getKey());
                     prefEditor.commit();
                 }
 
                 try {
-                    String lc = foundReportList.get(0).getContent().toLowerCase().
-                            substring(0, 1).toUpperCase() + foundReportList.get(0).getContent().
-                            toLowerCase().substring(1);
-                    if (foundReportList.get(0).getContent().length() > 23) {
+                    String lc = associatedTaskReport.getContent().toLowerCase().substring(0, 1).toUpperCase()
+                            + associatedTaskReport.getContent().toLowerCase().substring(1);
+                    if (associatedTaskReport.getContent().length() > 23) {
                         btReport.setText("\"" + lc.substring(0, 20) + "..." + "\"");
                     } else {
                         btReport.setText("\"" + lc + "\"");
                     }
-                    tvTimestamp.setText(foundReportList.get(0).getTimestamp());
-                    tvSender.setText(foundReportList.get(0).getSender());
-                    tvReportContent.setText(foundReportList.get(0).getContent());
+
+                    tvTaskReportTimestamp.setText(associatedTaskReport.getTimestamp());
+                    tvTaskReportSender.setText(associatedTaskReport.getSender());
+                    tvTaskReportContent.setText(associatedTaskReport.getContent());
+
                     prefEditor.putString("btReportText", btReport.getText().toString());
-                    prefEditor.putString("trTimestamp", tvTimestamp.getText().toString());
-                    prefEditor.putString("trSender", tvSender.getText().toString());
-                    prefEditor.putString("trContent", tvReportContent.getText().toString());
+                    prefEditor.putString("taskReportTimestamp", associatedTaskReport.getTimestamp());
+                    prefEditor.putString("taskReportSender", associatedTaskReport.getSender());
+                    prefEditor.putString("taskReportContent", associatedTaskReport.getContent());
                     prefEditor.commit();
                 } catch (Exception ex) {
-                    Toast toast = Toast.makeText(TaskDetails.this, "Associated report not found", Toast.LENGTH_SHORT);
+                    Toast toast = Toast.makeText(TaskDetails.this, "Associated task report not found", Toast.LENGTH_SHORT);
                     toast.setGravity(Gravity.CENTER, 0, 0);
                     toast.show();
                 }
@@ -236,6 +237,7 @@ public class TaskDetails extends AppCompatActivity {
             }
         });
 
+        //Get all reports from Firebase to display in popup window and attach to task
         reportRef.addValueEventListener(new ValueEventListener() {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 reportList.clear();
@@ -251,10 +253,10 @@ public class TaskDetails extends AppCompatActivity {
                         reportTitles.add(firebaseReport.getContent());
                     }
                 }
-                String[] arrayRepTs = new String[reportTitles.size()];
-                arrayRepTs = reportTitles.toArray(arrayRepTs);
+                String[] arrayReportTitles = new String[reportTitles.size()];
+                arrayReportTitles = reportTitles.toArray(arrayReportTitles);
                 AlertDialog.Builder alertBuilder = new AlertDialog.Builder(context);
-                alertBuilder.setTitle("Attach report").setItems(arrayRepTs, new DialogInterface.OnClickListener() {
+                alertBuilder.setTitle("Attach report").setItems(arrayReportTitles, new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int item) {
                         System.out.println("You attached: " + reportTitles.get(item));
                         //dialog.dismiss();
@@ -263,15 +265,15 @@ public class TaskDetails extends AppCompatActivity {
                         btReport.setTypeface(null, Typeface.ITALIC);
                         attachReport(reportList.get(item));
                         attachedReportKey = reportKeys.get(item);
-                        tvReportContent.setText(attachedReport.getContent());
-                        tvSender.setText(attachedReport.getSender());
+                        tvTaskReportContent.setText(attachedReport.getContent());
+                        tvTaskReportSender.setText(attachedReport.getSender());
 //                        StringBuilder ts = new StringBuilder(attachedReport.getTimestamp());
 //                        ts.insert(2, "/");
 //                        ts.insert(5, "/");
 //                        ts.insert(10, " ");
 //                        ts.insert(13, ":");
 //                        ts.insert(16, ":");
-                        tvTimestamp.setText(attachedReport.getTimestamp());
+                        tvTaskReportTimestamp.setText(attachedReport.getTimestamp());
                     }
                 });
                 final AlertDialog alertDialog = alertBuilder.create();
@@ -289,7 +291,7 @@ public class TaskDetails extends AppCompatActivity {
             }
         });
 
-        taskCompletionCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        cbTaskStatus.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 Firebase changeTaskStatusRef = taskRef.child(parceableTaskKey);
@@ -312,13 +314,12 @@ public class TaskDetails extends AppCompatActivity {
                     Toast toast = Toast.makeText(TaskDetails.this, ts, Toast.LENGTH_SHORT);
                     toast.setGravity(Gravity.CENTER, 0, 0);
                     toast.show();
-                    //taskCompletionCheckBox.setChecked(true);
-                } else if (!isChecked) {
+                } else {
                     parceableTask.setStatus(false);
                     parceableTask.setCompletionTimestamp("pending");
                     timestampChangeMap.put("completionTimestamp", "pending");
                     statusChangeMap.put("status", false);
-                    //taskCompletionCheckBox.setChecked(false);
+                    //cbTaskStatus.setChecked(false);
                 }
                 changeTaskStatusRef.updateChildren(statusChangeMap);
                 changeTaskStatusRef.updateChildren(timestampChangeMap);
@@ -330,7 +331,7 @@ public class TaskDetails extends AppCompatActivity {
     }//END OF onCreate()
 
     private void loadCorrespondingFlats() {
-        Query flatQuery = flatRef.orderByChild("addressLine1").equalTo(actvProperty.getText().toString());
+        Query flatQuery = flatRef.orderByChild("addressLine1").equalTo(actvTaskProperty.getText().toString().trim());
         flatQuery.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -351,8 +352,8 @@ public class TaskDetails extends AppCompatActivity {
                 flatSpinner.setAdapter(flatAdapter);
                 flatAdapter.notifyDataSetChanged();
                 for (int i = 0; i < flatNums.size(); i++) {
-                    if ((splitProp[1].trim().substring(0, 1).toUpperCase()
-                            + splitProp[1].substring(1).trim()).matches(flatSpinner.getItemAtPosition(i).toString())) {
+                    if ((splitAddress[1].trim().substring(0, 1).toUpperCase()
+                            + splitAddress[1].substring(1).trim()).matches(flatSpinner.getItemAtPosition(i).toString())) {
                         flatSpinner.setSelection(i);
                         prefEditor.putInt("tFlatSpinner", i);
                         prefEditor.commit();
@@ -361,8 +362,8 @@ public class TaskDetails extends AppCompatActivity {
                 }
             }
 
-//            if (Objects.equals(splitProp[1].trim().substring(0, 1).toUpperCase()
-//            + splitProp[1].substring(1).trim(), flatSpinner.getItemAtPosition(i).toString()))
+//            if (Objects.equals(splitAddress[1].trim().substring(0, 1).toUpperCase()
+//            + splitAddress[1].substring(1).trim(), flatSpinner.getItemAtPosition(i).toString()))
 
             @Override
             public void onCancelled(FirebaseError firebaseError) {
@@ -383,17 +384,17 @@ public class TaskDetails extends AppCompatActivity {
         // Inflate the menu; this adds items to the action bar if it is present.
         if (!attemptEdit) {
             getMenuInflater().inflate(R.menu.task_details, menu);
-            saveEdit = menu.findItem(R.id.edit_task);
+            miSaveEdit = menu.findItem(R.id.edit_task);
         } else {
             getMenuInflater().inflate(R.menu.task_details_save, menu);
-            saveEdit = menu.findItem(R.id.save_edited_task);
+            miSaveEdit = menu.findItem(R.id.save_edited_task);
         }
         return true;
     }
 
     @Override
     public void onBackPressed() {
-        if (attemptEdit && !editscancelled || attemptEdit) {
+        if (attemptEdit && !editsCancelled || attemptEdit) {
             new AlertDialog.Builder(this)
                     .setIcon(android.R.drawable.ic_dialog_alert)
                     .setTitle("Leaving page")
@@ -401,7 +402,6 @@ public class TaskDetails extends AppCompatActivity {
                     .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-
 
                             finish();
                         }
@@ -468,7 +468,7 @@ public class TaskDetails extends AppCompatActivity {
                 saveAllChanges();
                 break;
             case R.id.cancel_edit_task:
-                editscancelled = true;
+                editsCancelled = true;
                 saveAllChanges();
                 break;
         }
@@ -476,23 +476,23 @@ public class TaskDetails extends AppCompatActivity {
     }
 
     private void saveAllChanges() {
-        if (!editscancelled) {
+        if (!editsCancelled) {
             try {
-                parceableTask.setTitle(tdTitle.getText().toString());
-                parceableTask.setProperty(actvProperty.getText().toString().toLowerCase() + " - " +
+                parceableTask.setTitle(etTaskTitle.getText().toString());
+                parceableTask.setProperty(actvTaskProperty.getText().toString().toLowerCase() + " - " +
                         flatSpinner.getSelectedItem().toString().toLowerCase());
-                parceableTask.setDescription(tdDescription.getText().toString());
-                parceableTask.setNotes(tdNotes.getText().toString());
+                parceableTask.setDescription(etDescription.getText().toString());
+                parceableTask.setNotes(etTaskNotes.getText().toString());
                 parceableTask.setPriority(prioritySpinner.getSelectedItem().toString().toLowerCase());
 
                 if (btReport.getText().toString().matches(pref.getString("btReportText", "crashReport"))) {
-                    parceableTask.setReport(pref.getString("rKey", "crashReport"));
+                    parceableTask.setReport(pref.getString("reportKey", "crashReport"));
                 } else {
                     parceableTask.setReport(attachedReportKey);
                 }
 
 //                if(Objects.equals(attachedReportKey, "")){
-//                   parceableTask.setReport(pref.getString("rKey", "crashReportKey"));
+//                   parceableTask.setReport(pref.getString("reportKey", "crashReportKey"));
 //                } else {
 //                    parceableTask.setReport(attachedReportKey);
 //                }
@@ -508,30 +508,30 @@ public class TaskDetails extends AppCompatActivity {
                 toast.show();
             }
         } else {
-            tdTitle.setText(pref.getString("tTitle", "crashTitle"));
+            etTaskTitle.setText(pref.getString("taskTitle", "crashTitle"));
             //String[] split = parceableTask.getProperty().split("-");
-            actvProperty.setText(pref.getString("tPropertyA1", "crashProperty"));
+            actvTaskProperty.setText(pref.getString("taskProperty", "crashProperty"));
 //            for (int i=0; i < flatNums.size(); i++){
 //                if(Objects.equals(flatSpinner.getSelectedItem().toString(), flatNums.get(i))){
 //                    flatSpinner.setSelection(i);
 //                }
 //            }
             flatSpinner.setSelection(pref.getInt("tFlatSpinner", 0));
-            tdDescription.setText(pref.getString("tDescription", "crashDescription"));
-            tdNotes.setText(pref.getString("tNotes", "crashNotes"));
-            prioritySpinner.setSelection(pref.getInt("tPriority", 0));
-            taskCompletionCheckBox.setChecked(pref.getBoolean("tStatus", false));
+            etDescription.setText(pref.getString("taskDescription", "crashDescription"));
+            etTaskNotes.setText(pref.getString("taskNotes", "crashNotes"));
+            prioritySpinner.setSelection(pref.getInt("taskPriority", 0));
+            cbTaskStatus.setChecked(pref.getBoolean("taskStatus", false));
             btReport.setText(pref.getString("btReportText", "crashReport"));
-            tvSender.setText(pref.getString("trSender", "crashSender"));
-            tvTimestamp.setText(pref.getString("trTimestamp", "crashTimestamp"));
-            tvReportContent.setText(pref.getString("trContent", "crashReportContent"));
+            tvTaskReportSender.setText(pref.getString("taskReportSender", "crashSender"));
+            tvTaskReportTimestamp.setText(pref.getString("taskReportTimestamp", "crashTimestamp"));
+            tvTaskReportContent.setText(pref.getString("taskReportContent", "crashReportContent"));
         }
 
-        tdTitle.setEnabled(false);
-        actvProperty.setEnabled(false);
+        etTaskTitle.setEnabled(false);
+        actvTaskProperty.setEnabled(false);
         flatSpinner.setEnabled(false);
-        tdDescription.setEnabled(false);
-        tdNotes.setEnabled(false);
+        etDescription.setEnabled(false);
+        etTaskNotes.setEnabled(false);
         prioritySpinner.setEnabled(false);
         btReport.setEnabled(false);
 
@@ -540,17 +540,17 @@ public class TaskDetails extends AppCompatActivity {
     }
 
     private void editTaskDetails() {
-        editscancelled = false;
+        editsCancelled = false;
         try {
-            tdTitle.setEnabled(true);
-            actvProperty.setEnabled(true);
+            etTaskTitle.setEnabled(true);
+            actvTaskProperty.setEnabled(true);
             flatSpinner.setEnabled(true);
-            tdDescription.setEnabled(true);
-            tdNotes.setEnabled(true);
+            etDescription.setEnabled(true);
+            etTaskNotes.setEnabled(true);
             prioritySpinner.setEnabled(true);
             btReport.setEnabled(true);
 
-            tdTitle.addTextChangedListener(new TextWatcher() {
+            etTaskTitle.addTextChangedListener(new TextWatcher() {
                 @Override
                 public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
@@ -563,14 +563,14 @@ public class TaskDetails extends AppCompatActivity {
 
                 @Override
                 public void afterTextChanged(Editable s) {
-                    if (tdTitle.getText().toString().matches(pref.getString("tTitle", "crashTitle"))) {
-                        tdTitle.setTextColor(getResources().getColor(R.color.black_color));
+                    if (etTaskTitle.getText().toString().matches(pref.getString("taskTitle", "crashTitle"))) {
+                        etTaskTitle.setTextColor(getResources().getColor(R.color.black_color));
                     } else {
-                        tdTitle.setTextColor(Color.parseColor("#FF5722"));
+                        etTaskTitle.setTextColor(Color.parseColor("#FF5722"));
                     }
                 }
             });
-            actvProperty.addTextChangedListener(new TextWatcher() {
+            actvTaskProperty.addTextChangedListener(new TextWatcher() {
                 @Override
                 public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
@@ -583,16 +583,16 @@ public class TaskDetails extends AppCompatActivity {
 
                 @Override
                 public void afterTextChanged(Editable s) {
-                    if (actvProperty.getText().toString().matches(pref.getString("tPropertyA1", "crashProperty"))) {
-                        actvProperty.setTextColor(getResources().getColor(R.color.black_color));
+                    if (actvTaskProperty.getText().toString().matches(pref.getString("taskProperty", "crashProperty"))) {
+                        actvTaskProperty.setTextColor(getResources().getColor(R.color.black_color));
                     } else {
-                        actvProperty.setTextColor(Color.parseColor("#FF5722"));
+                        actvTaskProperty.setTextColor(Color.parseColor("#FF5722"));
                     }
                     loadCorrespondingFlats();
                 }
             });
 
-            tdDescription.addTextChangedListener(new TextWatcher() {
+            etDescription.addTextChangedListener(new TextWatcher() {
                 @Override
                 public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
@@ -605,16 +605,16 @@ public class TaskDetails extends AppCompatActivity {
 
                 @Override
                 public void afterTextChanged(Editable s) {
-                    if (tdDescription.getText().toString().matches(pref.getString("tDescription", "crashDescription"))) {
-                        tdDescription.setTextColor(getResources().getColor(R.color.black_color));
+                    if (etDescription.getText().toString().matches(pref.getString("taskDescription", "crashDescription"))) {
+                        etDescription.setTextColor(getResources().getColor(R.color.black_color));
                     } else {
-                        tdDescription.setTextColor(Color.parseColor("#FF5722"));
+                        etDescription.setTextColor(Color.parseColor("#FF5722"));
                     }
 
                 }
             });
 
-            tdNotes.addTextChangedListener(new TextWatcher() {
+            etTaskNotes.addTextChangedListener(new TextWatcher() {
                 @Override
                 public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
@@ -627,10 +627,10 @@ public class TaskDetails extends AppCompatActivity {
 
                 @Override
                 public void afterTextChanged(Editable s) {
-                    if (tdNotes.getText().toString().matches(pref.getString("tNotes", "crashNotes"))) {
-                        tdNotes.setTextColor(getResources().getColor(R.color.black_color));
+                    if (etTaskNotes.getText().toString().matches(pref.getString("taskNotes", "crashNotes"))) {
+                        etTaskNotes.setTextColor(getResources().getColor(R.color.black_color));
                     } else {
-                        tdNotes.setTextColor(Color.parseColor("#FF5722"));
+                        etTaskNotes.setTextColor(Color.parseColor("#FF5722"));
                     }
 
                 }
@@ -659,18 +659,18 @@ public class TaskDetails extends AppCompatActivity {
                 }
             });
 
-            tdTitle.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            etTaskTitle.setOnFocusChangeListener(new View.OnFocusChangeListener() {
                 @Override
                 public void onFocusChange(View v, boolean hasFocus) {
-                    if (tdTitle.getText().toString().matches("")) {
+                    if (etTaskTitle.getText().toString().matches("")) {
                         new AlertDialog.Builder(v.getContext())
                                 .setTitle("Null title")
                                 .setMessage("Whoops! Looks like you forgot to set a Title!")
                                 .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog, int which) {
-                                        tdTitle.setText(pref.getString("tTitle", "crashTitle")); // parceableTask.getTitle()
-                                        tdTitle.setSelectAllOnFocus(true);
-                                        tdTitle.setSelection(tdTitle.length());
+                                        etTaskTitle.setText(pref.getString("taskTitle", "crashTitle")); // parceableTask.getTitle()
+                                        etTaskTitle.setSelectAllOnFocus(true);
+                                        etTaskTitle.setSelection(etTaskTitle.length());
                                     }
                                 })
                                 .setIcon(android.R.drawable.ic_dialog_alert)
@@ -683,22 +683,22 @@ public class TaskDetails extends AppCompatActivity {
             });
 //
 //            final Firebase flatRef = new Firebase(getString(R.string.flats_location));
-//            final AutoCompleteTextView actvProperty = (AutoCompleteTextView) findViewById(R.id.et_property_actv);
-//            actvProperty.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+//            final AutoCompleteTextView actvTaskProperty = (AutoCompleteTextView) findViewById(R.id.et_property_actv);
+//            actvTaskProperty.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 //                @Override
 //                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-//                    loadCorrespondingFlats(actvProperty.getText().toString().toLowerCase(), flatRef, flatList, flatNums);
+//                    loadCorrespondingFlats(actvTaskProperty.getText().toString().toLowerCase(), flatRef, flatList, flatNums);
 //                }
 //            });
 
-            actvProperty.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            actvTaskProperty.setOnFocusChangeListener(new View.OnFocusChangeListener() {
                 @Override
                 public void onFocusChange(View v, boolean hasFocus) {
-                    Boolean isProperty = false;
-                    if (!hasFocus && actvProperty.getText().toString().matches("")) {
+                    boolean isProperty = false;
+                    if (!hasFocus && !actvTaskProperty.getText().toString().matches("")) {
                         for (int i = 0; i < propertyAddrLine1s.size(); i++) {
-                            if (propertyAddrLine1s.get(i).matches(actvProperty.getText().
-                                    toString().toLowerCase())) {
+                            if (propertyAddrLine1s.get(i).matches(actvTaskProperty.getText().
+                                    toString().trim())) {
                                 isProperty = true;
                                 break;
                             }
@@ -710,25 +710,23 @@ public class TaskDetails extends AppCompatActivity {
                                     .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                                         public void onClick(DialogInterface dialog, int which) {
                                             //String[] split = parceableTask.getProperty().split("-");
-                                            actvProperty.setText(pref.getString("tPropertyA1", "crashProperty"));//split[0].trim().substring(0, 1).toUpperCase()
-                                            actvProperty.setSelectAllOnFocus(true);
-                                            actvProperty.setSelection(actvProperty.length());
+                                            actvTaskProperty.setText(pref.getString("taskProperty", "crashProperty"));//split[0].trim().substring(0, 1).toUpperCase()
+                                            actvTaskProperty.requestFocus();
                                         }
                                     })
                                     .setIcon(android.R.drawable.ic_dialog_alert)
                                     .show();
                         }
                         validProperty = false;
-                    } else if (!hasFocus && actvProperty.getText().toString().matches("")) {
+                    } else if (!hasFocus && actvTaskProperty.getText().toString().matches("")) {
                         new AlertDialog.Builder(v.getContext())
                                 .setTitle("Null address")
                                 .setMessage("Whoops! Looks like you forgot to set a Property!")
                                 .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog, int which) {
                                         //String[] split = parceableTask.getProperty().split("-");
-                                        actvProperty.setText(pref.getString("tPropertyA1", "crashProperty")); //split[0].trim().substring(0, 1).toUpperCase()
-                                        actvProperty.setSelectAllOnFocus(true);
-                                        actvProperty.setSelection(actvProperty.length());
+                                        actvTaskProperty.setText(pref.getString("taskProperty", "crashProperty")); //split[0].trim().substring(0, 1).toUpperCase()
+                                        actvTaskProperty.requestFocus();
                                     }
                                 })
                                 .setIcon(android.R.drawable.ic_dialog_alert)
@@ -740,18 +738,18 @@ public class TaskDetails extends AppCompatActivity {
                 }
             });
 
-            tdDescription.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            etDescription.setOnFocusChangeListener(new View.OnFocusChangeListener() {
                 @Override
                 public void onFocusChange(View v, boolean hasFocus) {
-                    if (!hasFocus && tdDescription.getText().toString().matches("")) {
+                    if (!hasFocus && etDescription.getText().toString().matches("")) {
                         new AlertDialog.Builder(v.getContext())
                                 .setTitle("Null task description")
                                 .setMessage("Whoops! Looks like you forgot to set Task Description!")
                                 .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog, int which) {
-                                        tdDescription.setText(pref.getString("tDescription", "crashDescription")); //parceableTask.getDescription()
-                                        tdDescription.setSelectAllOnFocus(true);
-                                        tdDescription.setSelection(tdDescription.length());
+                                        etDescription.setText(pref.getString("taskDescription", "crashDescription")); //parceableTask.getDescription()
+                                        etDescription.setSelectAllOnFocus(true);
+                                        etDescription.setSelection(etDescription.length());
                                     }
                                 })
                                 .setIcon(android.R.drawable.ic_dialog_alert)
@@ -763,13 +761,12 @@ public class TaskDetails extends AppCompatActivity {
                 }
             });
 
-            tdNotes.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            etTaskNotes.setOnFocusChangeListener(new View.OnFocusChangeListener() {
                 @Override
                 public void onFocusChange(View v, boolean hasFocus) {
-                    if (!hasFocus && tdNotes.getText().toString().matches("")) {
-                        tdNotes.setText(pref.getString("tNotes", "crashNotes"));
-                        tdNotes.setSelectAllOnFocus(true);
-                        tdNotes.setSelection(tdNotes.length());
+                    if (!hasFocus && etTaskNotes.getText().toString().matches("")) {
+                        etTaskNotes.setText(pref.getString("taskNotes", "crashNotes"));
+                        etTaskNotes.requestFocus();
                     }
                 }
             });

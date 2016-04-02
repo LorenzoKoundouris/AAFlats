@@ -6,6 +6,10 @@ import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.view.View;
 
+import com.firebase.client.DataSnapshot;
+import com.firebase.client.Firebase;
+import com.firebase.client.FirebaseError;
+import com.firebase.client.ValueEventListener;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -16,6 +20,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class MapProperty extends FragmentActivity implements OnMapReadyCallback {
@@ -45,28 +50,51 @@ public class MapProperty extends FragmentActivity implements OnMapReadyCallback 
     @Override
     public void onMapReady(GoogleMap googleMap) {
         Bundle intent = getIntent().getExtras();
-        String locaddr = intent.getString("findProperty");
-        String locaddrPlym = locaddr  + ", plymouth";
+        final ArrayList<String> locaddr = new ArrayList<>();
+        if(intent!=null){
+            locaddr.add(intent.getString("findProperty") + ", plymouth uk");
+        } else{
+            Firebase propertyRef = new Firebase(getResources().getString(R.string.properties_location));
+            propertyRef.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    for(DataSnapshot childSnap : dataSnapshot.getChildren()){
+                        Property prt = childSnap.getValue(Property.class);
+                        locaddr.add(prt.getAddrline1() + ", plymouth uk");
+                    }
+                }
 
-        mMap = googleMap;
-        List<Address> addressList= null;
-        Geocoder geocoder = new Geocoder(this);
+                @Override
+                public void onCancelled(FirebaseError firebaseError) {
 
-        try{
-            addressList = geocoder.getFromLocationName(locaddrPlym, 1);
-        } catch(IOException e){
-            e.printStackTrace();
+                }
+            });
+            System.out.println();
         }
 
-        Address resultAddr = addressList.get(0);
-        LatLng latLang = new LatLng(resultAddr.getLatitude(), resultAddr.getLongitude());
-        MarkerOptions myMarker = new MarkerOptions().position(latLang).title(locaddr);
-        myMarker.icon(BitmapDescriptorFactory.fromResource(R.drawable.custom_house_icon));
-        mMap.addMarker(myMarker);
 
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(latLang));
-        float zoomLevel = (float) 16.0; //This goes up to 21
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLang, zoomLevel));
+        for(int i=0; i<locaddr.size(); i++){
+            mMap = googleMap;
+            List<Address> addressList= null;
+            Geocoder geocoder = new Geocoder(this);
+
+            try{
+                addressList = geocoder.getFromLocationName(locaddr.get(i), 1);
+            } catch(IOException e){
+                e.printStackTrace();
+            }
+
+            Address resultAddr = addressList.get(0);
+            LatLng latLang = new LatLng(resultAddr.getLatitude(), resultAddr.getLongitude());
+            MarkerOptions myMarker = new MarkerOptions().position(latLang).title(locaddr.get(i));
+            myMarker.icon(BitmapDescriptorFactory.fromResource(R.drawable.custom_house_icon));
+            mMap.addMarker(myMarker);
+
+            mMap.moveCamera(CameraUpdateFactory.newLatLng(latLang));
+            float zoomLevel = (float) 16.0; //This goes up to 21
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLang, zoomLevel));
+        }
+
 //        // Add a marker in Sydney and move the camera
 //        //LatLng trematonMarker = new LatLng(50.382281, -4.135601);
 //        mMap.addMarker(new MarkerOptions().position(trematonMarker).title("Marker in Mutley"));

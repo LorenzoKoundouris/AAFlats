@@ -14,4 +14,11 @@
         android:title="Prioritise"
         app:showAsAction="never" />
 
+    <item
+        android:id="@+id/scan_qr"
+        android:orderInCategory="400"
+        android:title="Scan"
+        app:showAsAction="ifRoom"
+        android:icon="@drawable/qrcode_scan"/>
+
 </menu>
