@@ -58,6 +58,8 @@ public class CreateTenant extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        setTitle("Create new Tenant");
+
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         propertyRef = new Firebase(getResources().getString(R.string.properties_location));

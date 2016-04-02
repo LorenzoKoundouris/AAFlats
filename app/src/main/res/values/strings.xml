@@ -43,4 +43,6 @@
     <string name="title_activity_tenant_details">TenantDetails</string>
     <string name="title_activity_scan_qr">ScanQR</string>
     <string name="title_activity_all_reports">AllReports</string>
+    <string name="title_activity_splash">SplashActivity</string>
+    <string name="title_activity_report_details">ReportDetails</string>
 </resources>

@@ -56,6 +56,7 @@ public class CreateFlat extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        setTitle("Create new Flat");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
 

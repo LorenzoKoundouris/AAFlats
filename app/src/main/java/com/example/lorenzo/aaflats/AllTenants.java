@@ -2,6 +2,7 @@ package com.example.lorenzo.aaflats;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -32,6 +33,8 @@ public class AllTenants extends AppCompatActivity {
         setContentView(R.layout.activity_all_tenants);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        setTitle("All tenants");
 
         setupRecyclerview();
 
@@ -80,8 +83,6 @@ public class AllTenants extends AppCompatActivity {
                 });
 
                 setRecyclerAdapterContents(tenantList);
-
-                tenantRecyclerView.setVisibility(View.VISIBLE);
             }
 
             @Override
@@ -99,9 +100,16 @@ public class AllTenants extends AppCompatActivity {
     private void setRecyclerAdapterContents(ArrayList<Tenant> tenantList) {
         tenantRecyclerView.setAdapter(new TenantAdapter(tenantList, this));
         if (!notFirstLoad) {
-            tenantRecyclerView.setVisibility(View.VISIBLE);
-            ProgressBar mProgressBar = (ProgressBar) findViewById(R.id.progressBar_alltenants);
-            mProgressBar.setVisibility(View.INVISIBLE);
+            final Handler handler = new Handler();
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    // Do something after 2s = 2000ms
+                    tenantRecyclerView.setVisibility(View.VISIBLE);
+                    ProgressBar mProgressBar = (ProgressBar) findViewById(R.id.progressBar_alltenants);
+                    mProgressBar.setVisibility(View.INVISIBLE);
+                }
+            }, 1500);
         }
         notFirstLoad = true;
         refreshLayout.setRefreshing(false);

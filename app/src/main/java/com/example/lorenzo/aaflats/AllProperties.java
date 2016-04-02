@@ -2,6 +2,7 @@ package com.example.lorenzo.aaflats;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -34,7 +35,6 @@ public class AllProperties extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        setupRecyclerview();
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -59,8 +59,8 @@ public class AllProperties extends AppCompatActivity {
             }
         });
 
-        propertyRecyclerView = (RecyclerView) findViewById(R.id.properties_recycler_view);
-        propertyRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+//        propertyRecyclerView = (RecyclerView) findViewById(R.id.properties_recycler_view);
+//        propertyRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         Firebase propertiesRef = new Firebase(getResources().getString(R.string.properties_location));
 
@@ -94,7 +94,8 @@ public class AllProperties extends AppCompatActivity {
 
             }
         });
-    }
+        setupRecyclerview();
+    }//End of onCreate
 
     private void setupRecyclerview() {
         propertyRecyclerView = (RecyclerView) findViewById(R.id.properties_recycler_view);
@@ -104,9 +105,16 @@ public class AllProperties extends AppCompatActivity {
     private void setRecyclerAdapterContents(ArrayList<Property> propertyList) {
         propertyRecyclerView.setAdapter(new PropertyAdapter(propertyList));
         if (!notFirstLoad) {
-            propertyRecyclerView.setVisibility(View.VISIBLE);
-            ProgressBar mProgressBar = (ProgressBar) findViewById(R.id.progressBar_allproperties);
-            mProgressBar.setVisibility(View.INVISIBLE);
+            final Handler handler = new Handler();
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    // Do something after 2s = 2000ms
+                    propertyRecyclerView.setVisibility(View.VISIBLE);
+                    ProgressBar mProgressBar = (ProgressBar) findViewById(R.id.progressBar_allproperties);
+                    mProgressBar.setVisibility(View.INVISIBLE);
+                }
+            }, 1500);
         }
         notFirstLoad = true;
         refreshLayout.setRefreshing(false);

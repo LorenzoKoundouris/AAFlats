@@ -159,7 +159,7 @@ public class TaskDetails extends AppCompatActivity {
             //high priority
             prioritySpinner.setSelection(0);
             prefEditor.putInt("taskPriority", 0);
-        } else if (parceableTask.getPriority().toLowerCase().matches("Medium")) {
+        } else if (parceableTask.getPriority().matches("Medium")) {
             //medium priority
             prioritySpinner.setSelection(1);
             prefEditor.putInt("taskPriority", 1);
@@ -479,11 +479,11 @@ public class TaskDetails extends AppCompatActivity {
         if (!editsCancelled) {
             try {
                 parceableTask.setTitle(etTaskTitle.getText().toString());
-                parceableTask.setProperty(actvTaskProperty.getText().toString().toLowerCase() + " - " +
-                        flatSpinner.getSelectedItem().toString().toLowerCase());
+                parceableTask.setProperty(actvTaskProperty.getText().toString() + " - " +
+                        flatSpinner.getSelectedItem().toString());
                 parceableTask.setDescription(etDescription.getText().toString());
                 parceableTask.setNotes(etTaskNotes.getText().toString());
-                parceableTask.setPriority(prioritySpinner.getSelectedItem().toString().toLowerCase());
+                parceableTask.setPriority(prioritySpinner.getSelectedItem().toString());
 
                 if (btReport.getText().toString().matches(pref.getString("btReportText", "crashReport"))) {
                     parceableTask.setReport(pref.getString("reportKey", "crashReport"));

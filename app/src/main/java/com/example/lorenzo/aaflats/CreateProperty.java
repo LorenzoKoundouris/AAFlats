@@ -39,6 +39,7 @@ public class CreateProperty extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        setTitle("Create new Property");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         Firebase propertyRef = new Firebase(getString(R.string.properties_location));
@@ -71,7 +72,7 @@ public class CreateProperty extends AppCompatActivity {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if (hasFocus) {
-                    etNewPropertyPostcode.setBackgroundColor(Color.parseColor("#eeeeee"));
+                    etNewPropertyPostcode.setBackgroundColor(Color.parseColor("#ffffff"));
                 }
                 if (!hasFocus && etNewPropertyPostcode.getText().toString().matches("")) {
                     Toast toast = Toast.makeText(CreateProperty.this, "No postcode ?", Toast.LENGTH_SHORT);
@@ -86,7 +87,7 @@ public class CreateProperty extends AppCompatActivity {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if (hasFocus) {
-                    etNewPropertyAddressLine1.setBackgroundColor(Color.parseColor("#eeeeee"));
+                    etNewPropertyAddressLine1.setBackgroundColor(Color.parseColor("#ffffff"));
                 }
                 if (!hasFocus && etNewPropertyAddressLine1.getText().toString().matches("")) {
                     Toast toast = Toast.makeText(CreateProperty.this, "No address ?", Toast.LENGTH_SHORT);
@@ -249,7 +250,7 @@ public class CreateProperty extends AppCompatActivity {
                     validPostcode = false;
                 } else {
                     validPostcode = true;
-                    etNewPropertyPostcode.setBackgroundColor(Color.parseColor("#eeeeee"));
+                    etNewPropertyPostcode.setBackgroundColor(Color.parseColor("#ffffff"));
                 }
             }
 

@@ -1,11 +1,18 @@
 package com.example.lorenzo.aaflats;
 
+import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.graphics.Camera;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
@@ -23,6 +30,7 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import com.firebase.client.ChildEventListener;
 import com.firebase.client.DataSnapshot;
@@ -40,6 +48,7 @@ import java.util.Comparator;
 public class Homepage extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
+    static int REQUEST_CAMERA = 0;
 
     private ArrayList<Task> highPT = new ArrayList<>();
     private ArrayList<Task> mediumPT = new ArrayList<>();
@@ -220,20 +229,35 @@ public class Homepage extends AppCompatActivity
 
             final String[] arrayFilters = new String[]{"Address", "Pending only"};
 
-            final android.support.v7.app.AlertDialog.Builder alertBuilder = new android.support.v7.app.AlertDialog.Builder(this);
+            final AlertDialog.Builder alertBuilder = new AlertDialog.Builder(this);
             alertBuilder.setTitle("Filter by..")
                     .setItems(arrayFilters, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int item) {
                             System.out.println("You filtered by: " + arrayFilters[item]);
                             if (arrayFilters[item].matches("Pending only")) {
-
+                                ArrayList<Task> tempPrioritise = new ArrayList<Task>();
+                                for(int i =0; i<pendingFT.size(); i++){
+                                    if(pendingFT.get(i).getPriority().matches("High")){
+                                        tempPrioritise.add(pendingFT.get(i));
+                                    }
+                                }
+                                for(int i =0; i<pendingFT.size(); i++){
+                                    if(pendingFT.get(i).getPriority().matches("Medium")){
+                                        tempPrioritise.add(pendingFT.get(i));
+                                    }
+                                }
+                                for(int i =0; i<pendingFT.size(); i++){
+                                    if(pendingFT.get(i).getPriority().matches("Low")){
+                                        tempPrioritise.add(pendingFT.get(i));
+                                    }
+                                }
                                 Collections.sort(pendingFT, new Comparator<Task>() {
                                     @Override
                                     public int compare(Task lhs, Task rhs) {
                                         return lhs.getPriority().compareTo(rhs.getPriority());
                                     }
                                 });
-                                setRecyclerAdapterContents(pendingFT);
+                                setRecyclerAdapterContents(tempPrioritise);
 
                             } else if (arrayFilters[item].matches("Address")) {
 
@@ -368,11 +392,31 @@ public class Homepage extends AppCompatActivity
                         }
                     });
 
-            final android.support.v7.app.AlertDialog alertDialog = alertBuilder.create();
+            final AlertDialog alertDialog = alertBuilder.create();
             alertDialog.show();
 
         } else if (id == R.id.sort_tasks){
             prioritiseTaskss();
+        } else if(id == R.id.scan_qr){
+            //Check if device is running Android Marshmallow. Permissions changed after Lollipop
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                //Check if camera permission is granted
+                if(checkSelfPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED){
+                    startActivity(new Intent(Homepage.this, ScanQR.class));
+                }else{
+                    //Camera permission not granted
+
+                    //Provide context to the user to justify permission
+                    if(shouldShowRequestPermissionRationale(Manifest.permission.CAMERA)){
+                        Toast.makeText(Homepage.this, "Camera permission needed", Toast.LENGTH_SHORT).show();
+                    }
+                    //Request permission
+                    requestPermissions(new String[]{Manifest.permission.CAMERA}, REQUEST_CAMERA);
+                    startActivity(new Intent(Homepage.this, ScanQR.class));
+                }
+            } else {
+                startActivity(new Intent(Homepage.this, ScanQR.class));
+            }
         }
 
         return super.onOptionsItemSelected(item);
@@ -428,7 +472,7 @@ public class Homepage extends AppCompatActivity
         } else if (id == R.id.nav_tenants) {
             startActivity(new Intent(Homepage.this, AllTenants.class));
         } else if (id == R.id.nav_reports) {
-
+            startActivity(new Intent(Homepage.this, AllReports.class));
         } else if (id == R.id.nav_map) {
             startActivity(new Intent(Homepage.this, MapProperty.class));
         } else if (id == R.id.nav_chat) {

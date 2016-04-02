@@ -26,9 +26,10 @@ import java.util.Collections;
 import java.util.Objects;
 
 public class FlatDetails extends AppCompatActivity {
-    private Property parceableProperty;
-    private String parceablePropertyKey;
-    private String parceableFlatKey;
+    //    private Property parceableProperty;
+//    private String parceablePropertyKey;
+//    private String parceableFlatKey;
+    ArrayList<Property> propertyList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,8 +53,8 @@ public class FlatDetails extends AppCompatActivity {
         Bundle intent = getIntent().getExtras();
         final Flat parceableFlat = intent.getParcelable("parceable_flat");
 //        parceableFlatKey = intent.getString("parceable_flat_key");
-        parceableProperty = intent.getParcelable("parceable_property");
-        parceablePropertyKey = intent.getString("parceable_property_key");
+//        parceableProperty = intent.getParcelable("parceable_property");
+//        parceablePropertyKey = intent.getString("parceable_property_key");
 
         assert parceableFlat != null;
         setTitle(parceableFlat.getAddressLine1() + " - " + parceableFlat.getFlatNum());
@@ -75,8 +76,9 @@ public class FlatDetails extends AppCompatActivity {
         final ArrayList<String> flatPendingTasksKeys = new ArrayList<>();
         final ArrayList<String> flatCompletedTasksKeys = new ArrayList<>();
         Firebase taskRef = new Firebase(getString(R.string.tasks_location));
+        Firebase propertyRef = new Firebase(getResources().getString(R.string.properties_location));
         //Query tasksOfThisFlatQ = taskRef.orderByChild("property").equalTo(parceableFlatKey);// .orderByChild("status").equalTo("false");
-        Query tasksOfThisFlatQ = taskRef.orderByChild("property").equalTo(parceableProperty.getAddrline1() + " - " + parceableFlat.getFlatNum());
+        Query tasksOfThisFlatQ = taskRef.orderByChild("property").equalTo(parceableFlat.getAddressLine1() + " - " + parceableFlat.getFlatNum());
         tasksOfThisFlatQ.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -102,6 +104,22 @@ public class FlatDetails extends AppCompatActivity {
             }
         });
 
+        Query getParceableProperty = propertyRef.orderByChild("addrline1").equalTo(parceableFlat.getAddressLine1());
+        getParceableProperty.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for (DataSnapshot childSnapShot : dataSnapshot.getChildren()) {
+                    Property prt = childSnapShot.getValue(Property.class);
+                    propertyList.add(prt);
+                }
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+
+            }
+        });
+
         RecyclerView fltDtPdgTskRecyclerView = (RecyclerView) findViewById(R.id.flt_det_pdg_tsk_recyclerview);
         RecyclerView fltDtCompTskRecyclerView = (RecyclerView) findViewById(R.id.flt_det_comp_tsk_recyclerview);
         fltDtPdgTskRecyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -113,15 +131,14 @@ public class FlatDetails extends AppCompatActivity {
     private void editFlatDetails() {
 
 
-
     }
 
     @Override
     public void onBackPressed() {
         Intent intent = new Intent(this, PropertyDetails.class);
-        intent.putExtra("parceable_property", parceableProperty);
-        intent.putExtra("parceable_property_key", parceablePropertyKey);
-        System.out.println(parceableProperty.getAddrline1() + "  -  " + parceablePropertyKey);
+        intent.putExtra("parceable_property", propertyList.get(0));
+//        intent.putExtra("parceable_property_key", parceablePropertyKey);
+//        System.out.println(parceableProperty.getAddrline1() + "  -  " + parceablePropertyKey);
         this.startActivity(intent);
         finish();
     }

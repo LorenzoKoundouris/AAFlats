@@ -1,26 +1,29 @@
 package com.example.lorenzo.aaflats;
 
+import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.ListView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.util.jar.Manifest;
 
 /**
  * Created by Lorenzo on 27/03/2016.
  */
 public class TenantAdapter extends RecyclerView.Adapter<TenantViewHolder> {
+
+    static int REQUEST_CALL = 0;
 
     private Context context;
     public static Tenant mTenant = new Tenant();
@@ -161,15 +164,35 @@ public class TenantAdapter extends RecyclerView.Adapter<TenantViewHolder> {
     }
 
     private void call(int position) {
+
 //        Intent in=new Intent(Intent.ACTION_CALL, Uri.parse(mTenant.getTelephone()));
-        Intent in = new Intent(Intent.ACTION_DIAL);
+        Intent in = new Intent(Intent.ACTION_CALL);
         in.setData(Uri.parse("tel:" + tenantList.get(position).getTelephone()));
-        try{
-            context.startActivity(in);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if(ActivityCompat.checkSelfPermission(context, Manifest.permission.CALL_PHONE) == PackageManager.PERMISSION_GRANTED){
+                try{
+                    context.startActivity(in);
+                }
+                catch (android.content.ActivityNotFoundException ex){
+                    Toast.makeText(context,"Activity not found",Toast.LENGTH_SHORT).show();
+                }
+            }else{
+                ActivityCompat.requestPermissions((Activity) context, new String[]{android.Manifest.permission.CALL_PHONE}, REQUEST_CALL);
+                call(position);
+            }
+        } else {
+            try{
+                context.startActivity(in);
+            }
+            catch (android.content.ActivityNotFoundException ex){
+                Toast.makeText(context,"Activity not found",Toast.LENGTH_SHORT).show();
+            }
         }
-        catch (android.content.ActivityNotFoundException ex){
-            Toast.makeText(context,"Activity not found",Toast.LENGTH_SHORT).show();
-        }
+////        Intent in=new Intent(Intent.ACTION_CALL, Uri.parse(mTenant.getTelephone()));
+//        Intent in = new Intent(Intent.ACTION_CALL);
+//        in.setData(Uri.parse("tel:" + tenantList.get(position).getTelephone()));
+
     }
 
     @Override

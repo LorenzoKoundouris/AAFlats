@@ -50,7 +50,7 @@ public class TaskAdapter extends RecyclerView.Adapter<TaskViewHolder> {
         if(mTask.getPriority().matches("High")){
             //high priority
             taskViewHolder.taskPhoto.setImageResource(R.drawable.ic_flag_high_48dp);//mTask.getPriority()
-        } else if(mTask.getPriority().toLowerCase().matches("Medium")){
+        } else if(mTask.getPriority().matches("Medium")){
             //medium priority
             taskViewHolder.taskPhoto.setImageResource(R.drawable.ic_flag_medium_48dp);
         } else {
