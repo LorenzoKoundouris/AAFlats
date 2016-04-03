@@ -23,7 +23,9 @@
                 android:id="@+id/tenant_name_lnrlayout"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:paddingEnd="12dp"
+                android:paddingRight="12dp">
                 <TextView
                     android:id="@+id/tenant_surname"
                     android:layout_width="wrap_content"
@@ -64,6 +66,8 @@
                 android:id="@+id/contact_button"
                 android:layout_width="42dp"
                 android:layout_height="42dp"
+                android:paddingLeft="12dp"
+                android:paddingStart="12dp"
                 android:layout_centerVertical="true"
                 android:layout_alignParentEnd="true"
                 android:layout_alignParentRight="true"

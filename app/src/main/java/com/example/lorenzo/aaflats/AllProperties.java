@@ -114,7 +114,7 @@ public class AllProperties extends AppCompatActivity {
                     ProgressBar mProgressBar = (ProgressBar) findViewById(R.id.progressBar_allproperties);
                     mProgressBar.setVisibility(View.INVISIBLE);
                 }
-            }, 1500);
+            }, 0000);
         }
         notFirstLoad = true;
         refreshLayout.setRefreshing(false);

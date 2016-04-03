@@ -109,7 +109,7 @@ public class AllTenants extends AppCompatActivity {
                     ProgressBar mProgressBar = (ProgressBar) findViewById(R.id.progressBar_alltenants);
                     mProgressBar.setVisibility(View.INVISIBLE);
                 }
-            }, 1500);
+            }, 0000);
         }
         notFirstLoad = true;
         refreshLayout.setRefreshing(false);

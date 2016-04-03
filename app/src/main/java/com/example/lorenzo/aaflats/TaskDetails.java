@@ -238,7 +238,8 @@ public class TaskDetails extends AppCompatActivity {
         });
 
         //Get all reports from Firebase to display in popup window and attach to task
-        reportRef.addValueEventListener(new ValueEventListener() {
+        Query onlyApprovedReports = reportRef.orderByChild("status").equalTo("Approved");
+        onlyApprovedReports.addValueEventListener(new ValueEventListener() {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 reportList.clear();
                 reportKeys.clear();

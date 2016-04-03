@@ -91,7 +91,7 @@ public class ComposeNew extends AppCompatActivity {
                         String format = s.format(new Date());
                         newReport.setTimestamp(format);
                         newReport.setContent(composition.getText().toString());
-                        newReport.setType(typeSpinner.getSelectedItem().toString().toLowerCase());
+                        newReport.setType(typeSpinner.getSelectedItem().toString());
                         newReport.setSender("sender"); //ToDo: After login is done
                         newReport.setStatus("pending");
 

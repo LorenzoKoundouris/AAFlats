@@ -73,6 +73,7 @@ public class AllReports extends AppCompatActivity {
                 reportList.clear();
                 for (DataSnapshot childSnap : dataSnapshot.getChildren()) {
                     Report rpt = childSnap.getValue(Report.class);
+                    rpt.setReportKey(childSnap.getKey());
                     reportList.add(rpt);
                 }
 
@@ -121,7 +122,7 @@ public class AllReports extends AppCompatActivity {
                     ProgressBar mProgressBar = (ProgressBar) findViewById(R.id.progressBar_allreports);
                     mProgressBar.setVisibility(View.INVISIBLE);
                 }
-            }, 1500);
+            }, 0000);
         }
         notFirstLoad = true;
         refreshLayout.setRefreshing(false);
