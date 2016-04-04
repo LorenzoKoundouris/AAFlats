@@ -1,5 +1,6 @@
 package com.example.lorenzo.aaflats;
 
+import android.app.ActivityOptions;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -16,10 +17,11 @@ public class SplashActivity extends AppCompatActivity {
             @Override
             public void run() {
                 // Do something after 2s = 2000ms
-                startActivity(new Intent(SplashActivity.this, Homepage.class));
+                startActivity(new Intent(SplashActivity.this, LoginActivity.class));
+                overridePendingTransition(R.anim.login_animation, R.anim.splash_animation);
                 finish();
             }
-        }, 0000);
+        }, 5000);
 
     }
 

@@ -8,6 +8,7 @@ import android.graphics.Camera;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
@@ -346,7 +347,14 @@ public class Homepage extends AppCompatActivity
         refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-              setRecyclerAdapterContents();
+                final Handler handler = new Handler();
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        // Do something after 2s = 2000ms
+                        setRecyclerAdapterContents();
+                    }
+                }, 2000);
             }
         });
 //        refreshLayout.post(new Runnable() {
@@ -902,7 +910,7 @@ public class Homepage extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_inbox) {
-            startActivity(new Intent(Homepage.this, TenantHomepage.class));
+            startActivity(new Intent(Homepage.this, Inbox.class));
         } else if (id == R.id.nav_today) {
             dateTasks.setText("Today");
             showToday = true;
@@ -930,7 +938,8 @@ public class Homepage extends AppCompatActivity
         } else if (id == R.id.nav_map) {
             startActivity(new Intent(Homepage.this, MapProperty.class));
         } else if (id == R.id.nav_chat) {
-
+//            startActivity(new Intent(Homepage.this, TenantHomepage.class));
+            startActivity(new Intent(Homepage.this, LoginActivity.class));
         } else if (id == R.id.nav_add_tenant) {
             startActivity(new Intent(Homepage.this, CreateTenant.class));
         } else if (id == R.id.nav_add_flat) {

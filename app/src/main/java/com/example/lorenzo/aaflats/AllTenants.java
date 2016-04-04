@@ -59,7 +59,15 @@ public class AllTenants extends AppCompatActivity {
         refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                setRecyclerAdapterContents(tenantList);
+                final Handler handler = new Handler();
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        // Do something after 2s = 2000ms
+                        setRecyclerAdapterContents(tenantList);
+                    }
+                }, 2000);
+
             }
         });
 

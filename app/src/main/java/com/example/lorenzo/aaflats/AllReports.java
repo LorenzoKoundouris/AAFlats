@@ -60,13 +60,20 @@ public class AllReports extends AppCompatActivity {
         refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                setRecyclerAdapterContents(reportList, shorterContents);
+                final Handler handler = new Handler();
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        // Do something after 2s = 2000ms
+                        setRecyclerAdapterContents(reportList, shorterContents);
+                    }
+                }, 2000);
             }
         });
 
 
         Firebase reportRef = new Firebase(getResources().getString(R.string.reports_location));
-        Query reportsOnly = reportRef.orderByChild("type").equalTo("report");
+        Query reportsOnly = reportRef.orderByChild("type").equalTo("Report");
         reportsOnly.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {

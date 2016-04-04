@@ -31,6 +31,7 @@ public class ReportDetails extends AppCompatActivity {
     TextView reportTimestamp;
 
     boolean taskApproved;
+    boolean replyNow;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +42,9 @@ public class ReportDetails extends AppCompatActivity {
 
         reportRef = new Firebase(getResources().getString(R.string.reports_location));
 
+        Bundle intent = getIntent().getExtras();
+        parceableReport = intent.getParcelable("parceable_report");
+
         final com.getbase.floatingactionbutton.FloatingActionButton actionA
                 = (com.getbase.floatingactionbutton.FloatingActionButton) findViewById(R.id.action_a);
         actionA.setOnClickListener(new View.OnClickListener() {
@@ -48,7 +52,12 @@ public class ReportDetails extends AppCompatActivity {
             public void onClick(View view) {
 //                actionA.setTitle("Action A clicked");
                 taskApproved = true;
-                changeReportStatus(taskApproved);
+                replyNow = true;
+                if (parceableReport.getType().matches("Report")){
+                    changeReportStatus(taskApproved);
+                } else {
+                    changeEnquiryStatus(replyNow);
+                }
 
             }
         });
@@ -68,8 +77,7 @@ public class ReportDetails extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
 
-        Bundle intent = getIntent().getExtras();
-        parceableReport = intent.getParcelable("parceable_report");
+
 
         setTitle(parceableReport.getContent());
         reportStatus = (TextView) findViewById(R.id.report_status);
@@ -86,6 +94,23 @@ public class ReportDetails extends AppCompatActivity {
         ts.insert(13, ":");
         ts.insert(16, ":");
         reportTimestamp.setText(ts);
+    }
+
+    private void changeEnquiryStatus(boolean replyNow) {
+        Firebase changeEnquiryStatusRef = reportRef.child(parceableReport.getReportKey());
+        Map<String, Object> statusChangeMap = new HashMap<>();
+
+        if (replyNow) {
+            parceableReport.setStatus("Replied");
+            statusChangeMap.put("status", "Replied");
+            reportStatus.setText("REPLIED");
+
+        } else {
+            parceableReport.setStatus("Pending reply");
+            statusChangeMap.put("status", "Pending reply");
+            reportStatus.setText("PENDING REPLY");
+        }
+        changeEnquiryStatusRef.updateChildren(statusChangeMap);
     }
 
     private void changeReportStatus(boolean taskApproved) {

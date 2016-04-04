@@ -55,7 +55,15 @@ public class AllProperties extends AppCompatActivity {
         refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                setRecyclerAdapterContents(propertyList);
+                final Handler handler = new Handler();
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        // Do something after 2s = 2000ms
+                        setRecyclerAdapterContents(propertyList);
+                    }
+                }, 2000);
+
             }
         });
 
