@@ -13,10 +13,25 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.firebase.client.DataSnapshot;
+import com.firebase.client.Firebase;
+import com.firebase.client.FirebaseError;
+import com.firebase.client.Query;
+import com.firebase.client.ValueEventListener;
+
+import java.util.ArrayList;
 
 public class TenantHomepage extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
+
+    ArrayList<Tenant> tenantList = new ArrayList<>();
+    AutoCompleteTextView actvLogout;
+    View myHeader;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,6 +49,33 @@ public class TenantHomepage extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
+        Bundle intent = getIntent().getExtras();
+        Flat parceableFlat = intent.getParcelable("parceable_flat");
+
+        Firebase tenantRef = new Firebase(getResources().getString(R.string.tenants_location));
+        final String tenantPropertyFlat = parceableFlat.getAddressLine1() + " - " + parceableFlat.getFlatNum();
+        Query getFirebaseTenant = tenantRef.orderByChild("property").equalTo(tenantPropertyFlat);
+        getFirebaseTenant.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for(DataSnapshot childSnap : dataSnapshot.getChildren()){
+                    Tenant tnt = childSnap.getValue(Tenant.class);
+                    tenantList.add(tnt);
+                }
+                displayTenantDetails();
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+
+            }
+        });
+
+        myHeader = navigationView.getHeaderView(0);
+        actvLogout = (AutoCompleteTextView) myHeader.findViewById(R.id.login_tenant_name);
+
+
+
         TextView composeReport = (TextView) findViewById(R.id.compose_report_textview);
         composeReport.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -50,6 +92,33 @@ public class TenantHomepage extends AppCompatActivity
             }
         });
 
+    }
+
+    private void displayTenantDetails() {
+
+        ArrayList<String> logoutName = new ArrayList<>();
+
+        try{
+            logoutName.add(tenantList.get(0).getForename());
+            logoutName.add("Logout");
+        }catch(Exception ex){
+            Toast.makeText(TenantHomepage.this, "Could not load tenant details", Toast.LENGTH_SHORT).show();
+        }
+
+        ArrayAdapter<String> logoutAdapter = new ArrayAdapter<>
+                (this, android.R.layout.simple_dropdown_item_1line, logoutName);
+        actvLogout.setAdapter(logoutAdapter);
+        actvLogout.setSelection(0);
+
+//        TextView tenantName = (TextView) myHeader.findViewById(R.id.login_tenant_name);
+        TextView tenantAddress = (TextView) myHeader.findViewById(R.id.login_tenant_address);
+        TextView greetingText = (TextView) myHeader.findViewById(R.id.greeting_text);
+        try{
+            tenantAddress.setText(tenantList.get(0).getProperty());
+            greetingText.setText("Welcome back, " + tenantList.get(0).getForename());
+        } catch(Exception ex){
+            Toast.makeText(TenantHomepage.this, "Could not load tenant details", Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override

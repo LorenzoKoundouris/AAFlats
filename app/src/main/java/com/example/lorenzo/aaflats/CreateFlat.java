@@ -360,7 +360,7 @@ public class CreateFlat extends AppCompatActivity {
 
     private void saveNewFlat() {
         validateData();
-        if(isValidAddress && isValidFlatNum && isValidNotes && isValidTenant){
+        if(isValidAddress && isValidFlatNum && isValidNotes){
             try {
                 Flat newFlat = new Flat();
 

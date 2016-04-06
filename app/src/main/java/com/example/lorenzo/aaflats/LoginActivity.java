@@ -1,11 +1,16 @@
 package com.example.lorenzo.aaflats;
 
+import android.Manifest;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
+import android.app.ActionBar;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -21,15 +26,33 @@ import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.text.TextUtils;
+import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
+import android.view.WindowManager;
+import android.view.animation.Animation;
+import android.view.animation.TranslateAnimation;
 import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.ActionMenuView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.firebase.client.DataSnapshot;
+import com.firebase.client.Firebase;
+import com.firebase.client.FirebaseError;
+import com.firebase.client.Query;
+import com.firebase.client.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -63,6 +86,17 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
     private EditText mPasswordView;
     private View mProgressView;
     private View mLoginFormView;
+    private ImageView qrCode;
+
+    private SharedPreferences mSharedPreferences;
+    public static final String MY_PREFERENCES = "MyPreferences";
+    public static final String EMAIL_KEY = "StaffEmail";
+    public static final String PASSWORD_KEY = "StaffPassword";
+    private ArrayList<Staff> staffSigningIn = new ArrayList<>();
+
+    InputMethodManager inputMethodManager;
+
+    private static final int REQUEST_CAMERA = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,7 +104,12 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
         setContentView(R.layout.activity_login);
         // Set up the login form.
         mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
-        populateAutoComplete();
+        Firebase.setAndroidContext(this);
+        mSharedPreferences = getSharedPreferences(MY_PREFERENCES, MODE_PRIVATE);
+        inputMethodManager = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+        qrCode = (ImageView) findViewById(R.id.qr_code_imageview);
+
+//        populateAutoComplete();
 
         mPasswordView = (EditText) findViewById(R.id.password);
         mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -94,12 +133,110 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
 
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
+
+        //mine
+        int height = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 100, getResources().getDisplayMetrics());
+        final FrameLayout.LayoutParams lp =
+                new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT,
+                        height);
+        mEmailView.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (hasFocus) {
+                    populateAutoComplete();
+//                    lp.gravity= Gravity.CENTER;
+//                    qrCode.setLayoutParams(lp);
+
+                }
+//                else {
+//                    lp.gravity= Gravity.BOTTOM;
+//                    qrCode.setLayoutParams(lp);
+//                }
+            }
+        });
+
+        qrCode.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    //Check if camera permission is granted
+                    if (checkSelfPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+                        scanQRNow();
+                    } else {
+                        //Camera permission not granted
+
+                        //Provide context to the user to justify permission
+                        if (shouldShowRequestPermissionRationale(Manifest.permission.CAMERA)) {
+                            Toast.makeText(LoginActivity.this, "Camera permission needed", Toast.LENGTH_SHORT).show();
+                        }
+                        //Request permission
+                        requestPermissions(new String[]{Manifest.permission.CAMERA}, REQUEST_CAMERA);
+//                        if (checkSelfPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+//                            scanQRNow();
+//                        }
+                    }
+                } else {
+                    scanQRNow();
+                }
+//                startActivity(new Intent(LoginActivity.this, ScanQR.class));
+//                overridePendingTransition(R.anim.login_animation, R.anim.splash_animation);
+            }
+        });
+
+
+        final Firebase staffRef = new Firebase(getResources().getString(R.string.staff_location));
+//        Query verifyCredentials = staffRef.orderByChild("username").equalTo(mEmail);
+        staffRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for (DataSnapshot childSnap : dataSnapshot.getChildren()) {
+                    Staff stf = childSnap.getValue(Staff.class);
+                    staffSigningIn.add(stf);
+                }
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+
+            }
+        });
+
+    }//end of oncreate
+
+    private void scanQRNow() {
+        Animation mAnimation = new TranslateAnimation(0, 0, 0, 2000);
+        mAnimation.setDuration(3000);
+        mAnimation.setFillAfter(true);
+//        mAnimation.setRepeatCount(-1);
+//      mAnimation.setRepeatMode(Animation.REVERSE);
+        qrCode.startAnimation(mAnimation);
+        final Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                // Do something after 2s = 2000ms
+                startActivity(new Intent(LoginActivity.this, ScanQR.class).putExtra("fromHome", false));
+                finish();
+                overridePendingTransition(R.anim.login_animation, R.anim.splash_animation);
+            }
+        }, 2000);
     }
 
     private void populateAutoComplete() {
         if (!mayRequestContacts()) {
             return;
         }
+
+        String staffEmail = mSharedPreferences.getString(EMAIL_KEY, "");
+        String staffPassword = mSharedPreferences.getString(PASSWORD_KEY, "");
+
+        mEmailView.setText(staffEmail);
+        mPasswordView.setText(staffPassword);
+
+        ArrayList<String> previouslyUsedUsernames = new ArrayList<>();
+        previouslyUsedUsernames.add(staffEmail);
+
+        addEmailsToAutoComplete(previouslyUsedUsernames);
 
         getLoaderManager().initLoader(0, null, this);
     }
@@ -137,6 +274,12 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
                 populateAutoComplete();
             }
         }
+
+        if (requestCode == REQUEST_CAMERA) {
+            if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                scanQRNow();
+            }
+        }
     }
 
 
@@ -157,6 +300,11 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
         // Store values at the time of the login attempt.
         String email = mEmailView.getText().toString();
         String password = mPasswordView.getText().toString();
+
+        SharedPreferences.Editor editor = mSharedPreferences.edit();//mine
+        editor.putString(EMAIL_KEY, email); //mine
+        editor.putString(PASSWORD_KEY, password);//mine
+        editor.commit();
 
         boolean cancel = false;
         View focusView = null;
@@ -186,7 +334,10 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
         } else {
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
-            startActivity(new Intent(LoginActivity.this, Homepage.class));
+
+            inputMethodManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);//mine
+
+
             showProgress(true);
             mAuthTask = new UserLoginTask(email, password);
             mAuthTask.execute((Void) null);
@@ -212,14 +363,14 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
         // for very easy animations. If available, use these APIs to fade-in
         // the progress spinner.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
-            int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
-
+            int shortAnimTime = getResources().getInteger(android.R.integer.config_longAnimTime);
             mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
             mLoginFormView.animate().setDuration(shortAnimTime).alpha(
                     show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
                 @Override
                 public void onAnimationEnd(Animator animation) {
                     mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
+
                 }
             });
 
@@ -265,7 +416,7 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
             cursor.moveToNext();
         }
 
-        addEmailsToAutoComplete(emails);
+//        addEmailsToAutoComplete(emails);
     }
 
     @Override
@@ -299,6 +450,7 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
      */
     public class UserLoginTask extends AsyncTask<Void, Void, Boolean> {
 
+
         private final String mEmail;
         private final String mPassword;
 
@@ -307,35 +459,51 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
             mPassword = password;
         }
 
+
         @Override
         protected Boolean doInBackground(Void... params) {
             // TODO: attempt authentication against a network service.
-
-            try {
-                // Simulate network access.
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
-                return false;
-            }
-
-            for (String credential : DUMMY_CREDENTIALS) {
-                String[] pieces = credential.split(":");
-                if (pieces[0].equals(mEmail)) {
-                    // Account exists, return true if the password matches.
-                    return pieces[1].equals(mPassword);
+            boolean isStaff = false;
+            for (int i = 0; i < staffSigningIn.size(); i++) {
+                if (staffSigningIn.get(0).getUsername().matches(mEmail)
+                        && staffSigningIn.get(0).getPassword().matches(mPassword)) {
+                    System.out.println();
+                    isStaff = true;
+                } else {
+                    isStaff = false;
                 }
             }
+            return isStaff;
+
+//            try {
+//                // Simulate network access.
+//                Thread.sleep(1000);
+//
+//            } catch (InterruptedException e) {
+//                return false;
+//            }
+
+//            for (String credential : DUMMY_CREDENTIALS) {
+//                String[] pieces = credential.split(":");
+//                if (pieces[0].equals(mEmail)) {
+//                    // Account exists, return true if the password matches.
+//                    return pieces[1].equals(mPassword);
+//                }
+//            }
 
             // TODO: register the new account here.
-            return true;
+//            return true;
         }
 
         @Override
         protected void onPostExecute(final Boolean success) {
+
             mAuthTask = null;
             showProgress(false);
 
             if (success) {
+                Staff loggedIn = staffSigningIn.get(0);
+                startActivity(new Intent(LoginActivity.this, Homepage.class).putExtra("parceable_staff", loggedIn)); //mine
                 finish();
             } else {
                 mPasswordView.setError(getString(R.string.error_incorrect_password));

@@ -129,7 +129,7 @@ public class AllReports extends AppCompatActivity {
                     ProgressBar mProgressBar = (ProgressBar) findViewById(R.id.progressBar_allreports);
                     mProgressBar.setVisibility(View.INVISIBLE);
                 }
-            }, 0000);
+            }, 2000);
         }
         notFirstLoad = true;
         refreshLayout.setRefreshing(false);

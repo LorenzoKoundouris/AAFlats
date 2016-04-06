@@ -9,6 +9,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
@@ -90,6 +91,8 @@ public class Homepage extends AppCompatActivity
         setContentView(R.layout.activity_homepage);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+
 
 
         Calendar c = Calendar.getInstance();
@@ -363,6 +366,22 @@ public class Homepage extends AppCompatActivity
 //                refreshLayout.setRefreshing(true);
 //            }
 //        });
+
+
+        Bundle intent = getIntent().getExtras();
+        Staff staffLoggedIn = intent.getParcelable("parceable_staff");
+        View myHeader = navigationView.getHeaderView(0);
+        TextView staffName = (TextView) myHeader.findViewById(R.id.staff_name);
+        TextView staffEmail = (TextView) myHeader.findViewById(R.id.staff_email);
+        try{
+            staffName.setText(staffLoggedIn.getForename() + " " + staffLoggedIn.getSurname());
+            staffEmail.setText(staffLoggedIn.getUsername());
+        } catch(Exception ex){
+            Toast.makeText(Homepage.this, "Could not load staff details", Toast.LENGTH_SHORT).show();
+        }
+
+
+
     }
 
 
@@ -601,8 +620,7 @@ public class Homepage extends AppCompatActivity
                 toast.show();
                 taskRecyclerView.setAdapter(new TaskAdapter(pendingAndPrioritised));
 
-            }
-            else if (showPendingOnly) {
+            } else if (showPendingOnly) {
                 for (Task tsk : onlyNext7Tasks) {
                     if (!tsk.getStatus()) {
                         pendingFT.add(tsk);
@@ -614,16 +632,14 @@ public class Homepage extends AppCompatActivity
                 toast.show();
                 taskRecyclerView.setAdapter(new TaskAdapter(pendingFT));
 
-            }
-            else if (prioritiseAll) {
+            } else if (prioritiseAll) {
                 //Show next 7 days prioritised tasks
                 toast = Toast.makeText(Homepage.this, "Showing next 7 days prioritised tasks", Toast.LENGTH_SHORT);
                 toast.setGravity(Gravity.CENTER, 0, 0);
                 toast.show();
                 taskRecyclerView.setAdapter(new TaskAdapter(justPrioritised));
 
-            }
-            else {
+            } else {
                 //Show next 7 days tasks
                 toast = Toast.makeText(Homepage.this, "Showing next 7 days tasks", Toast.LENGTH_SHORT);
                 toast.setGravity(Gravity.CENTER, 0, 0);
@@ -639,9 +655,17 @@ public class Homepage extends AppCompatActivity
 
 //        taskRecyclerView.setAdapter(new TaskAdapter(mTaskList)); //, Task.class
         if (!notFirstLoad) {
-            taskRecyclerView.setVisibility(View.VISIBLE);
-            ProgressBar mProgressBar = (ProgressBar) findViewById(R.id.progressBar_homepage);
-            mProgressBar.setVisibility(View.INVISIBLE);
+            final Handler handler = new Handler();
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    // Do something after 2s = 2000ms
+                    taskRecyclerView.setVisibility(View.VISIBLE);
+                    ProgressBar mProgressBar = (ProgressBar) findViewById(R.id.progressBar_homepage);
+                    mProgressBar.setVisibility(View.INVISIBLE);
+                }
+            }, 2000);
+
         }
         notFirstLoad = true;
         refreshLayout.setRefreshing(false);
@@ -851,7 +875,7 @@ public class Homepage extends AppCompatActivity
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 //Check if camera permission is granted
                 if (checkSelfPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
-                    startActivity(new Intent(Homepage.this, ScanQR.class));
+                    startActivity(new Intent(Homepage.this, ScanQR.class).putExtra("fromHome", true));
                 } else {
                     //Camera permission not granted
 
@@ -861,13 +885,11 @@ public class Homepage extends AppCompatActivity
                     }
                     //Request permission
                     requestPermissions(new String[]{Manifest.permission.CAMERA}, REQUEST_CAMERA);
-                    startActivity(new Intent(Homepage.this, ScanQR.class));
                 }
             } else {
-                startActivity(new Intent(Homepage.this, ScanQR.class));
+                startActivity(new Intent(Homepage.this, ScanQR.class).putExtra("fromHome", true));
             }
         }
-
         return super.onOptionsItemSelected(item);
     }
 
@@ -897,6 +919,19 @@ public class Homepage extends AppCompatActivity
 ////        setRecyclerAdapterContents(prioritisedTasks);
 //        taskRecyclerView.setAdapter(new TaskAdapter(prioritisedTasks));
 //    }
+
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+
+        if (requestCode == REQUEST_CAMERA) {
+            if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                startActivity(new Intent(Homepage.this, ScanQR.class).putExtra("fromHome", true));
+            }
+        }
+    }
+
 
     @Override
     protected void onDestroy() {
@@ -938,8 +973,8 @@ public class Homepage extends AppCompatActivity
         } else if (id == R.id.nav_map) {
             startActivity(new Intent(Homepage.this, MapProperty.class));
         } else if (id == R.id.nav_chat) {
-//            startActivity(new Intent(Homepage.this, TenantHomepage.class));
-            startActivity(new Intent(Homepage.this, LoginActivity.class));
+            startActivity(new Intent(Homepage.this, TenantHomepage.class));
+//            startActivity(new Intent(Homepage.this, LoginActivity.class));
         } else if (id == R.id.nav_add_tenant) {
             startActivity(new Intent(Homepage.this, CreateTenant.class));
         } else if (id == R.id.nav_add_flat) {

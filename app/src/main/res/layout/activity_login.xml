@@ -19,10 +19,11 @@
     <!--android:scaleType="centerCrop"-->
 
     <ImageView
+        android:id="@+id/my_background"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scaleType="centerCrop"
-        android:src="@drawable/splashscreen2"/>
+        android:src="@drawable/splashscreen2" />
 
 
     <ScrollView
@@ -30,12 +31,15 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginTop="16dp"
-        android:padding="16dp">
+        android:fillViewport="true"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:paddingTop="16dp">
 
         <LinearLayout
             android:id="@+id/email_login_form"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:orientation="vertical">
 
             <android.support.design.widget.TextInputLayout
@@ -80,13 +84,24 @@
                 android:text="@string/action_sign_in"
                 android:textStyle="bold" />
 
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="32dp">
+
+                <ImageView
+                    android:id="@+id/qr_code_imageview"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:layout_gravity="center"
+                    android:padding="16dp"
+                    android:src="@drawable/qr_login"
+                    android:layout_centerHorizontal="true"/>
+            </RelativeLayout>
+
+
         </LinearLayout>
     </ScrollView>
 
-    <ImageView
-        android:layout_width="100dp"
-        android:layout_height="100dp"
-        android:padding="16dp"
-        android:src="@drawable/qr_login"
-        android:layout_gravity="center_horizontal|bottom" />
+
 </FrameLayout>
