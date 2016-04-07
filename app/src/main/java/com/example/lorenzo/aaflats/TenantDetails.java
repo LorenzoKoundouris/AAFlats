@@ -3,6 +3,7 @@ package com.example.lorenzo.aaflats;
 import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -20,6 +21,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.DatePicker;
@@ -78,7 +80,7 @@ public class TenantDetails extends AppCompatActivity {
     EditText etCurrentTenant;
     CheckBox etCurrentTenantCB;
     AutoCompleteTextView actvAddress;
-    ImageView btCalen;
+    Button btCalen;
     EditText etDob;
     EditText etTelephone;
     EditText etEmail;
@@ -86,6 +88,7 @@ public class TenantDetails extends AppCompatActivity {
 
     boolean editsCancelled;
     boolean attemptEdit = false;
+    boolean staffAccess;
     MenuItem saveEdit;
 
     SharedPreferences pref;
@@ -101,7 +104,7 @@ public class TenantDetails extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
 
         tenantRef = new Firebase(getResources().getString(R.string.tenants_location));
         flatRef = new Firebase(getResources().getString(R.string.flats_location));
@@ -114,6 +117,11 @@ public class TenantDetails extends AppCompatActivity {
 
         Bundle intent = getIntent().getExtras();
         parceableTenant = intent.getParcelable("parceable_tenant");
+        staffAccess = intent.getBoolean("staff_access");
+
+        if(staffAccess){
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
 
         pref = getApplicationContext().getSharedPreferences("MyPrefs", MODE_PRIVATE);
         prefEditor = pref.edit();
@@ -123,7 +131,7 @@ public class TenantDetails extends AppCompatActivity {
         etCurrentTenantCB = (CheckBox) findViewById(R.id.current_tenant_checkbox);
         actvAddress = (AutoCompleteTextView) findViewById(R.id.et_address_actv);
         etDob = (EditText) findViewById(R.id.et_dob_edittext);
-        btCalen = (ImageView) findViewById(R.id.nt_calendar_button);
+        btCalen = (Button) findViewById(R.id.nt_calendar_button);
         etTelephone = (EditText) findViewById(R.id.et_telephone_edittext);
         etEmail = (EditText) findViewById(R.id.et_email_edittext);
         etNotes = (EditText) findViewById(R.id.et_notes_edittext);
@@ -385,38 +393,52 @@ public class TenantDetails extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        if (!attemptEdit) {
-            getMenuInflater().inflate(R.menu.property_details, menu);
-            saveEdit = menu.findItem(R.id.edit_task);
+        MenuItem backToAll;
+        if(staffAccess){
+            if (!attemptEdit) {
+                getMenuInflater().inflate(R.menu.property_details, menu);
+                saveEdit = menu.findItem(R.id.edit_task);
+            } else {
+                getMenuInflater().inflate(R.menu.task_details_save, menu);
+                saveEdit = menu.findItem(R.id.save_edited_task);
+            }
+            backToAll = menu.findItem(R.id.action_settings);
+            backToAll.setTitle("Back to All Tenants");
         } else {
-            getMenuInflater().inflate(R.menu.task_details_save, menu);
-            saveEdit = menu.findItem(R.id.save_edited_task);
+            getMenuInflater().inflate(R.menu.tenant_homepage, menu);
+            backToAll = menu.findItem(R.id.my_account);
+            backToAll.setTitle("Back to Tenant Homepage");
         }
-        MenuItem backToAll = menu.findItem(R.id.action_settings);
-        backToAll.setTitle("Back to All Tenants");
+
         return true;
     }
 
     @Override
     public void onBackPressed() {
-        if (attemptEdit && !editsCancelled || attemptEdit) {
-            new AlertDialog.Builder(this)
-                    .setIcon(android.R.drawable.ic_dialog_alert)
-                    .setTitle("Leaving page")
-                    .setMessage("You have not saved changes made to this Tenant. Press Yes to discard or No to remain on page.")
-                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
+        if(staffAccess){
+            if (attemptEdit && !editsCancelled || attemptEdit) {
+                new AlertDialog.Builder(this)
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .setTitle("Leaving page")
+                        .setMessage("You have not saved changes made to this Tenant. Press Yes to discard or No to remain on page.")
+                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
 
-                            finish();
-                        }
+                                finish();
+                            }
 
-                    })
-                    .setNegativeButton("No", null)
-                    .show();
-        } else {
+                        })
+                        .setNegativeButton("No", null)
+                        .show();
+            } else {
+                finish();
+            }
+        }
+        else {
             finish();
         }
+
     }
 
     @Override
@@ -445,6 +467,8 @@ public class TenantDetails extends AppCompatActivity {
             case R.id.action_settings:
                 onBackPressed();
                 break;
+            case R.id.my_account:
+                onBackPressed();
         }
         return true;
     }
@@ -589,6 +613,7 @@ public class TenantDetails extends AppCompatActivity {
         etCurrentTenantCB.setEnabled(false);
         actvAddress.setEnabled(false);
         etDob.setEnabled(false);
+        btCalen.setEnabled(true);
         etTelephone.setEnabled(false);
         etEmail.setEnabled(false);
         etNotes.setEnabled(false);

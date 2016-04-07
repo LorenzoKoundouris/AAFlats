@@ -1,8 +1,11 @@
 package com.example.lorenzo.aaflats;
 
 import android.Manifest;
+import android.annotation.TargetApi;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Camera;
 import android.graphics.drawable.Drawable;
@@ -22,6 +25,7 @@ import android.text.Editable;
 import android.view.ActionProvider;
 import android.view.ContextMenu;
 import android.view.Gravity;
+import android.view.MotionEvent;
 import android.view.SubMenu;
 import android.view.SurfaceView;
 import android.view.View;
@@ -37,6 +41,7 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
 import android.widget.ProgressBar;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -53,11 +58,14 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 
+import static android.Manifest.permission.ACCESS_NOTIFICATION_POLICY;
+
 
 public class Homepage extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
-    static int REQUEST_CAMERA = 0;
+    private static int REQUEST_CAMERA = 0;
+    private static final int REQUEST_NOTIFICATIONS = 0;
 
     private ArrayList<Task> highPT = new ArrayList<>();
     private ArrayList<Task> mediumPT = new ArrayList<>();
@@ -71,6 +79,7 @@ public class Homepage extends AppCompatActivity
     private ArrayList<String> taskKeys = new ArrayList<>();
     private RecyclerView taskRecyclerView;
     private SwipeRefreshLayout refreshLayout;
+    private boolean notifyFromNowOn = false;
     private boolean notFirstLoad = false;
     private boolean showToday = true;
     private boolean showTomorrow = false;
@@ -84,6 +93,8 @@ public class Homepage extends AppCompatActivity
     private NavigationView navigationView;
     private MenuItem filterByMenuItem;
     private TextView dateTasks;
+    TextView logoutText;
+    TextView staffEmail;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,9 +102,6 @@ public class Homepage extends AppCompatActivity
         setContentView(R.layout.activity_homepage);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-
-
 
         Calendar c = Calendar.getInstance();
         System.out.println("Current time => " + c.getTime());
@@ -368,22 +376,72 @@ public class Homepage extends AppCompatActivity
 //        });
 
 
+
         Bundle intent = getIntent().getExtras();
         Staff staffLoggedIn = intent.getParcelable("parceable_staff");
         View myHeader = navigationView.getHeaderView(0);
-        TextView staffName = (TextView) myHeader.findViewById(R.id.staff_name);
-        TextView staffEmail = (TextView) myHeader.findViewById(R.id.staff_email);
+        Spinner staffName = (Spinner) myHeader.findViewById(R.id.staff_name);
+        staffEmail = (TextView) myHeader.findViewById(R.id.staff_email);
+        logoutText = (TextView) myHeader.findViewById(R.id.logout_text);
+        ArrayList<String> logoutName = new ArrayList<>();
         try{
-            staffName.setText(staffLoggedIn.getForename() + " " + staffLoggedIn.getSurname());
+            logoutName.add(staffLoggedIn.getForename() + " " + staffLoggedIn.getSurname());
+            ArrayAdapter<String> logoutAdapter  = new ArrayAdapter<>
+                    (this, R.layout.custom_spinner_transparent, logoutName);
+            logoutAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item2);
+            staffName.setAdapter(logoutAdapter);
             staffEmail.setText(staffLoggedIn.getUsername());
         } catch(Exception ex){
             Toast.makeText(Homepage.this, "Could not load staff details", Toast.LENGTH_SHORT).show();
         }
 
+        staffName.setOnTouchListener(Spinner_OnTouch);
 
+        logoutText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(final View v) {
+                new AlertDialog.Builder(v.getContext())
+                        .setTitle("Sign out")
+                        .setMessage("Are you sure you wish to sign out?")
+                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                SharedPreferences settings =
+                                        v.getContext().getSharedPreferences("MyPreferences",
+                                                Context.MODE_PRIVATE);
+                                settings.edit().clear().commit();
+                                startActivity(new Intent(Homepage.this, LoginActivity.class));
+                                finish();
+                            }
+                        })
+                        .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+
+                            }
+                        })
+                        .setIcon(android.R.drawable.ic_dialog_info)
+                        .show();
+            }
+        });
 
     }
 
+    private View.OnTouchListener Spinner_OnTouch = new View.OnTouchListener() {
+        public boolean onTouch(View v, MotionEvent event) {
+            if (event.getAction() == MotionEvent.ACTION_UP) {
+
+                if(logoutText.getVisibility() == View.GONE){
+                    logoutText.setVisibility(View.VISIBLE);
+                    staffEmail.setVisibility(View.INVISIBLE);
+                } else {
+                    logoutText.setVisibility(View.GONE);
+                    staffEmail.setVisibility(View.VISIBLE);
+                }
+
+
+            }
+            return true;
+        }
+    };
 
     private void setupRecyclerview() {
         taskRecyclerView = (RecyclerView) findViewById(R.id.task_recycler_view);
@@ -430,7 +488,6 @@ public class Homepage extends AppCompatActivity
                     for (int i = 0; i < 8; i++) {
                         if (tsk.getTargetDate().matches(next7Dates.get(i))) {
                             onlyNext7Tasks.add(tsk);
-
                         }
                     }
                 }
@@ -470,6 +527,7 @@ public class Homepage extends AppCompatActivity
 
             }
         });
+        notifyFromNowOn = true;
     }
 
     public void setRecyclerAdapterContents() {

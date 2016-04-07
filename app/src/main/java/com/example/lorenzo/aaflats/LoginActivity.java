@@ -92,8 +92,9 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
     public static final String MY_PREFERENCES = "MyPreferences";
     public static final String EMAIL_KEY = "StaffEmail";
     public static final String PASSWORD_KEY = "StaffPassword";
+    public static final String FULL_NAME_KEY = "StaffFullName";
     private ArrayList<Staff> staffSigningIn = new ArrayList<>();
-
+    Staff loggedIn;
     InputMethodManager inputMethodManager;
 
     private static final int REQUEST_CAMERA = 0;
@@ -158,6 +159,7 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
         qrCode.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
+                inputMethodManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);//mine
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                     //Check if camera permission is granted
                     if (checkSelfPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
@@ -185,7 +187,7 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
 
 
         final Firebase staffRef = new Firebase(getResources().getString(R.string.staff_location));
-//        Query verifyCredentials = staffRef.orderByChild("username").equalTo(mEmail);
+//        Query verifyCredentials = staffRef.orderByChild("username").equalTo(mEmailView);
         staffRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -301,10 +303,7 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
         String email = mEmailView.getText().toString();
         String password = mPasswordView.getText().toString();
 
-        SharedPreferences.Editor editor = mSharedPreferences.edit();//mine
-        editor.putString(EMAIL_KEY, email); //mine
-        editor.putString(PASSWORD_KEY, password);//mine
-        editor.commit();
+
 
         boolean cancel = false;
         View focusView = null;
@@ -332,12 +331,17 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
             // form field with an error.
             focusView.requestFocus();
         } else {
+
+            SharedPreferences.Editor editor = mSharedPreferences.edit();//mine
+            editor.putString(EMAIL_KEY, email); //mine
+            editor.putString(PASSWORD_KEY, password);//mine
+            String tmp = staffSigningIn.get(0).getForename() + " " + staffSigningIn.get(0).getSurname();
+            editor.putString(FULL_NAME_KEY, tmp);
+            editor.commit();
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
 
             inputMethodManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);//mine
-
-
             showProgress(true);
             mAuthTask = new UserLoginTask(email, password);
             mAuthTask.execute((Void) null);
@@ -465,10 +469,11 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
             // TODO: attempt authentication against a network service.
             boolean isStaff = false;
             for (int i = 0; i < staffSigningIn.size(); i++) {
-                if (staffSigningIn.get(0).getUsername().matches(mEmail)
-                        && staffSigningIn.get(0).getPassword().matches(mPassword)) {
-                    System.out.println();
+                if (staffSigningIn.get(i).getUsername().matches(mEmail)
+                        && staffSigningIn.get(i).getPassword().matches(mPassword)) {
                     isStaff = true;
+                    loggedIn = staffSigningIn.get(i);
+                    break;
                 } else {
                     isStaff = false;
                 }
@@ -502,7 +507,6 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
             showProgress(false);
 
             if (success) {
-                Staff loggedIn = staffSigningIn.get(0);
                 startActivity(new Intent(LoginActivity.this, Homepage.class).putExtra("parceable_staff", loggedIn)); //mine
                 finish();
             } else {

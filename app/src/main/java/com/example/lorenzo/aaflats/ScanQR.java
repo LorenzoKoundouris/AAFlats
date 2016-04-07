@@ -1,8 +1,10 @@
 package com.example.lorenzo.aaflats;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.Toast;
@@ -82,29 +84,35 @@ public class ScanQR extends AppCompatActivity implements ZBarScannerView.ResultH
 //        Toast.makeText(ScanQR.this, "Res.getCon: " + result.getContents(), Toast.LENGTH_SHORT).show();
 //        Toast.makeText(ScanQR.this, "Res.getBarFor: " + result.getBarcodeFormat(), Toast.LENGTH_SHORT).show();
 
+        mScannerView.stopCamera();
 
         boolean foundFlat = false;
-
-        for (int i = 0; i < flatList.size(); i++) {
-            Flat tempF = flatList.get(i);
-            String tempS = tempF.getAddressLine1() + " - " + tempF.getFlatNum();
-            if (tempS.matches(result.getContents()) && fromHome) {
-                startActivity(new Intent(ScanQR.this, FlatDetails.class).putExtra("parceable_flat", tempF));
-                mScannerView.stopCamera();
-                foundFlat = true;
-                break;
-            } else if (!fromHome) {
-                for (int j = 0; j < occupiedFlatList.size(); j++) {
-                    tempF = occupiedFlatList.get(j);
-                    tempS = tempF.getAddressLine1() + " - " + tempF.getFlatNum();
-                    if (tempS.matches(result.getContents())) {
-                        startActivity(new Intent(ScanQR.this, TenantHomepage.class).putExtra("parceable_flat", tempF));
-                        mScannerView.stopCamera();
-                        finish();
-                    }
+        Flat tempF;
+        String tempS;
+        if(fromHome){
+            for (int i = 0; i < flatList.size(); i++) {
+                tempF = flatList.get(i);
+                tempS = tempF.getAddressLine1() + " - " + tempF.getFlatNum();
+                if (tempS.matches(result.getContents()) && fromHome) {
+                    mScannerView.stopCamera();
+                    startActivity(new Intent(ScanQR.this, FlatDetails.class).putExtra("parceable_flat", tempF));
+                    foundFlat = true;
+                    break;
+                }
+            }
+        } else {
+            for (int j = 0; j < occupiedFlatList.size(); j++) {
+                tempF = occupiedFlatList.get(j);
+                tempS = tempF.getAddressLine1() + " - " + tempF.getFlatNum();
+                if (tempS.matches(result.getContents())) {
+                    mScannerView.stopCamera();
+                    startActivity(new Intent(ScanQR.this, TenantHomepage.class).putExtra("parceable_flat", tempF));
+                    foundFlat = true;
+                    break;
                 }
             }
         }
+
 
         if (!foundFlat) {
             attempts++;
@@ -130,8 +138,6 @@ public class ScanQR extends AppCompatActivity implements ZBarScannerView.ResultH
                         .setIcon(android.R.drawable.ic_dialog_alert)
                         .show();
 
-            } else {
-                Toast.makeText(ScanQR.this, "Please try again", Toast.LENGTH_SHORT).show();
             }
         }
 

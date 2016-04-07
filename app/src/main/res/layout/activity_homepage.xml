@@ -20,7 +20,7 @@
         android:layout_gravity="start"
         android:fitsSystemWindows="true"
         app:headerLayout="@layout/nav_header_homepage"
-        app:menu="@menu/activity_homepage_drawer"
-        />
+        app:menu="@menu/activity_homepage_drawer">
 
+    </android.support.design.widget.NavigationView>
 </android.support.v4.widget.DrawerLayout>

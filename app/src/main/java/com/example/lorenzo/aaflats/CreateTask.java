@@ -2,6 +2,7 @@ package com.example.lorenzo.aaflats;
 
 import android.app.DatePickerDialog;
 import android.app.Dialog;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -11,6 +12,7 @@ import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.app.NotificationCompat;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
@@ -50,7 +52,9 @@ public class CreateTask extends AppCompatActivity implements AdapterView.OnItemS
     private Report attachedReport;
     private Spinner prioritySpinner, flatSpinner;
     private Boolean attached = false;
-
+    private SharedPreferences mSharedPreferences;
+    public static final String MY_PREFERENCES = "MyPreferences";
+    public static final String FULL_NAME_KEY = "StaffFullName";
     private int year_x, month_x, day_x;
     Button pickDateButton;
     static final int DIALOG_ID = 0;
@@ -58,6 +62,9 @@ public class CreateTask extends AppCompatActivity implements AdapterView.OnItemS
     EditText etTitle;
     SharedPreferences pref;
     SharedPreferences.Editor prefEditor;
+    Task newTask;
+    private static final int uniqueID = 23;
+    NotificationCompat.Builder notificationBuilder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -194,7 +201,7 @@ public class CreateTask extends AppCompatActivity implements AdapterView.OnItemS
                 Boolean isProperty = false;
                 if (!hasFocus && actvProperty.getText().toString() != "") {
                     for (int i = 0; i < propertyAddrLine1s.size(); i++) {
-                        if (propertyAddrLine1s.get(i).matches(actvProperty.getText().toString().toLowerCase())) {
+                        if (propertyAddrLine1s.get(i).matches(actvProperty.getText().toString().trim())) {
                             isProperty = true;
                             break;
                         }
@@ -517,7 +524,7 @@ public class CreateTask extends AppCompatActivity implements AdapterView.OnItemS
 
         if (validTitle && validProperty && validDescription && validReport && validNotes) {
             try {
-                Task newTask = new Task();
+                newTask = new Task();
 
                 newTask.setTargetDate(pref.getString("chosenDate", formatt.format(thisDate)));
 
@@ -538,14 +545,14 @@ public class CreateTask extends AppCompatActivity implements AdapterView.OnItemS
 
                 newTask.setStatus(false);
 
-                newTask.setReport(attachedReport.getContent().substring(0, 23));
+                newTask.setReport(attachedReport.getReportKey());
 
                 newTask.setNotes(etNotes.getText().toString().trim());
 
                 Firebase newTaskRef = new Firebase(getString(R.string.tasks_location));
                 //newTaskRef.child(newTask.getTitle()).setValue(newTask);
                 newTaskRef.push().setValue(newTask);
-
+                sendNotification();
 //                    System.out.println("Task created. SUCCESS!Title: " + newTask.getTitle() +
 //                            "\n Description: " + newTask.getDescription() +
 //                            "\n Property: " + newTask.getProperty() +
@@ -564,6 +571,22 @@ public class CreateTask extends AppCompatActivity implements AdapterView.OnItemS
             }
         }
 
+    }
+
+    private void sendNotification() {
+
+        notificationBuilder = new NotificationCompat.Builder(this);
+        notificationBuilder.setAutoCancel(true);
+
+        notificationBuilder.setSmallIcon(R.drawable.app_icon);
+        notificationBuilder.setTicker("New task added by " + mSharedPreferences.getString(FULL_NAME_KEY, ""));
+        notificationBuilder.setWhen(System.currentTimeMillis());
+        notificationBuilder.setContentTitle(mSharedPreferences.getString(FULL_NAME_KEY, "") + " added a new task.");
+        notificationBuilder.setContentText(newTask.getTitle());
+
+        Intent intent = new Intent(this, TaskDetails.class).putExtra("parceable_task", newTask);
+        PendingIntent pIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        notificationBuilder.setContentIntent(pIntent);
     }
 
     @Override
