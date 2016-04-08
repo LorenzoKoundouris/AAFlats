@@ -27,6 +27,7 @@
                 android:id="@+id/nt_target_date_lnr_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:enabled="false"
                 android:orientation="horizontal"
                 android:paddingBottom="8dp"
                 android:visibility="invisible">
@@ -72,13 +73,13 @@
                     android:textColor="@color/colorPrimary"
                     android:textSize="18sp" />
 
+
                 <EditText
-                    android:id="@+id/nt_date_value_edittext"
+                    android:id="@+id/nt_target_date_value_edittext"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="3"
                     android:hint="Target date - DD/MM/YYYY" />
-
 
             </LinearLayout>
 
@@ -102,14 +103,19 @@
                 android:textColor="@color/colorPrimary"
                 android:textSize="18sp" />
 
-            <EditText
-                android:id="@+id/nt_title_editview"
+            <android.support.design.widget.TextInputLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="3"
-                android:hint="Task title"
-                android:inputType="textCapSentences"
-                android:textStyle="italic" />
+                android:layout_weight="3">
+
+                <EditText
+                    android:id="@+id/nt_title_editview"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Task title"
+                    android:inputType="textCapSentences"
+                    android:textStyle="italic" />
+            </android.support.design.widget.TextInputLayout>
         </LinearLayout>
 
         <LinearLayout
@@ -129,12 +135,17 @@
                 android:textColor="@color/colorPrimary"
                 android:textSize="18sp" />
 
-            <AutoCompleteTextView
-                android:id="@+id/nt_property_actv"
+            <android.support.design.widget.TextInputLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_weight="3"
-                android:hint="Address line 1" />
+                android:layout_weight="3">
+
+                <AutoCompleteTextView
+                    android:id="@+id/nt_property_actv"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Address line 1" />
+            </android.support.design.widget.TextInputLayout>
 
         </LinearLayout>
 
@@ -142,7 +153,6 @@
             android:id="@+id/nt_flat_lnr_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="#F5F5F5"
             android:orientation="horizontal"
             android:paddingBottom="8dp">
 
@@ -160,6 +170,8 @@
                 android:id="@+id/nt_flat_spinner"
                 android:layout_width="0dp"
                 android:layout_height="60dp"
+                android:layout_marginLeft="12dp"
+                android:layout_marginStart="12dp"
                 android:layout_weight="3" />
             <!--<AutoCompleteTextView
                 android:id="@+id/nt_flat_actv"
@@ -186,21 +198,25 @@
                 android:textColor="@color/colorPrimary"
                 android:textSize="18sp" />
 
-            <EditText
-                android:id="@+id/nt_description_editview"
+            <android.support.design.widget.TextInputLayout
                 android:layout_width="0dp"
-                android:layout_height="100dp"
-                android:layout_weight="3"
-                android:hint="Compose description here.."
-                android:inputType="textCapSentences|textMultiLine"
-                android:lines="3" />
+                android:layout_height="wrap_content"
+                android:layout_weight="3">
+
+                <EditText
+                    android:id="@+id/nt_description_editview"
+                    android:layout_width="match_parent"
+                    android:layout_height="100dp"
+                    android:hint="Compose description here.."
+                    android:inputType="textCapSentences|textMultiLine"
+                    android:lines="3" />
+            </android.support.design.widget.TextInputLayout>
         </LinearLayout>
 
         <LinearLayout
             android:id="@+id/nt_priority_lnr_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="#F5F5F5"
             android:orientation="horizontal"
             android:paddingBottom="8dp">
 
@@ -225,6 +241,8 @@
                 android:id="@+id/nt_priority_spinner"
                 android:layout_width="0dp"
                 android:layout_height="60dp"
+                android:layout_marginLeft="12dp"
+                android:layout_marginStart="12dp"
                 android:layout_weight="3" />
 
         </LinearLayout>
@@ -246,14 +264,19 @@
                 android:textColor="@color/colorPrimary"
                 android:textSize="18sp" />
 
-            <EditText
-                android:id="@+id/nt_notes_editview"
+            <android.support.design.widget.TextInputLayout
                 android:layout_width="0dp"
-                android:layout_height="100dp"
-                android:layout_weight="3"
-                android:hint="Compose any notes here.."
-                android:inputType="textCapSentences|textMultiLine"
-                android:lines="3" />
+                android:layout_height="wrap_content"
+                android:layout_weight="3">
+
+                <EditText
+                    android:id="@+id/nt_notes_editview"
+                    android:layout_width="match_parent"
+                    android:layout_height="100dp"
+                    android:hint="Compose any notes here.."
+                    android:inputType="textCapSentences|textMultiLine"
+                    android:lines="3" />
+            </android.support.design.widget.TextInputLayout>
         </LinearLayout>
 
         <LinearLayout
@@ -275,11 +298,12 @@
 
             <android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
                 xmlns:card_view="http://schemas.android.com/apk/res-auto"
-                android:id="@+id/nt_card"
+                android:id="@+id/nt_card_btn_attach"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_margin="6dp"
                 android:layout_weight="3"
+                android:focusableInTouchMode="true"
                 app:cardUseCompatPadding="true"
                 card_view:cardBackgroundColor="#009688"
                 card_view:cardCornerRadius="3dp"
@@ -287,9 +311,11 @@
 
                 <TextView
                     android:id="@+id/nt_card_text_view"
-                    android:layout_width="200dp"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
+                    android:focusable="true"
+                    android:focusableInTouchMode="true"
                     android:fontFamily="sans-serif-medium"
                     android:paddingBottom="8.5dp"
                     android:paddingLeft="12dp"
@@ -319,8 +345,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
-                android:layout_marginStart="8dp"
                 android:layout_marginLeft="8dp"
+                android:layout_marginStart="8dp"
                 android:text="Please complete all fields with relevant task data"
                 android:textStyle="bold" />
         </LinearLayout>

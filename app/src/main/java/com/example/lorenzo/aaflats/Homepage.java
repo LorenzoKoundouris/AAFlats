@@ -2,6 +2,8 @@ package com.example.lorenzo.aaflats;
 
 import android.Manifest;
 import android.annotation.TargetApi;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -19,6 +21,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.app.NotificationCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
@@ -96,12 +99,17 @@ public class Homepage extends AppCompatActivity
     TextView logoutText;
     TextView staffEmail;
 
+    private static final int uniqueID = 25;
+    NotificationCompat.Builder notificationBuilder;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_homepage);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        notificationBuilder = new NotificationCompat.Builder(this);
 
         Calendar c = Calendar.getInstance();
         System.out.println("Current time => " + c.getTime());
@@ -423,6 +431,41 @@ public class Homepage extends AppCompatActivity
             }
         });
 
+        final ArrayList<Notification> ntfList = new ArrayList<>();
+        Firebase notifRef = new Firebase(getResources().getString(R.string.notifications_location));
+        notifRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for(DataSnapshot childSnap : dataSnapshot.getChildren()){
+                    Notification ntf = childSnap.getValue(Notification.class);
+                    ntfList.add(ntf);
+                }
+
+
+                receiveNtf(ntfList);
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+
+            }
+        });
+
+    }
+
+    private void receiveNtf(ArrayList<Notification> ntfList){
+        notificationBuilder.setAutoCancel(true);
+        notificationBuilder.setSmallIcon(R.drawable.notification_icon);
+        notificationBuilder.setTicker("New task added by " + ntfList.get(0).getSender());
+        notificationBuilder.setWhen(System.currentTimeMillis());
+        notificationBuilder.setContentTitle(ntfList.get(0).getSender() + " added a new task.");
+        notificationBuilder.setContentText(ntfList.get(0).getText()); //newTask.getTitle()
+
+        NotificationManager mgr = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        Intent intent = new Intent(this, Homepage.class);//.putExtra("parceable_task", newTask);
+        PendingIntent pIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        notificationBuilder.setContentIntent(pIntent);
+        mgr.notify(uniqueID, notificationBuilder.build());
     }
 
     private View.OnTouchListener Spinner_OnTouch = new View.OnTouchListener() {

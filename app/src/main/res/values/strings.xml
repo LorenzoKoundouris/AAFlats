@@ -15,6 +15,7 @@
     <string name="properties_location" translatable="false">https://aaflats.firebaseio.com/properties</string>
     <string name="flats_location" translatable="false">https://aaflats.firebaseio.com/flats</string>
     <string name="staff_location" translatable="false">https://aaflats.firebaseio.com/staff</string>
+    <string name="notifications_location" translatable="false">https://aaflats.firebaseio.com/notifications</string>
 
     <string name="title_activity_create_task">CreateTask</string>
 
@@ -52,7 +53,7 @@
 
     <!-- Strings related to login -->
     <string name="prompt_email">Email</string>
-    <string name="prompt_password">Password (optional)</string>
+    <string name="prompt_password">Password</string>
     <string name="action_sign_in">Sign in</string>
     <string name="action_sign_in_short">Sign in</string>
     <string name="error_invalid_email">This email address is invalid</string>

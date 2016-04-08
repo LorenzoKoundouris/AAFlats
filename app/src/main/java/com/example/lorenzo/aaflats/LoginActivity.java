@@ -124,7 +124,15 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
             }
         });
 
-        Button mEmailSignInButton = (Button) findViewById(R.id.email_sign_in_button);
+        final Button mEmailSignInButton = (Button) findViewById(R.id.email_sign_in_button);
+        final Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                // Do something after 2s = 2000ms
+                mEmailSignInButton.setEnabled(true);
+            }
+        }, 0000);
         mEmailSignInButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -221,13 +229,13 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
                 finish();
                 overridePendingTransition(R.anim.login_animation, R.anim.splash_animation);
             }
-        }, 2000);
+        }, 3000);
     }
 
     private void populateAutoComplete() {
-        if (!mayRequestContacts()) {
-            return;
-        }
+//        if (!mayRequestContacts()) {
+//            return;
+//        }
 
         String staffEmail = mSharedPreferences.getString(EMAIL_KEY, "");
         String staffPassword = mSharedPreferences.getString(PASSWORD_KEY, "");
@@ -330,17 +338,9 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
             // There was an error; don't attempt login and focus the first
             // form field with an error.
             focusView.requestFocus();
-        } else {
-
-            SharedPreferences.Editor editor = mSharedPreferences.edit();//mine
-            editor.putString(EMAIL_KEY, email); //mine
-            editor.putString(PASSWORD_KEY, password);//mine
-            String tmp = staffSigningIn.get(0).getForename() + " " + staffSigningIn.get(0).getSurname();
-            editor.putString(FULL_NAME_KEY, tmp);
-            editor.commit();
+        } else if(staffSigningIn.size() > 0){
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
-
             inputMethodManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);//mine
             showProgress(true);
             mAuthTask = new UserLoginTask(email, password);
@@ -413,12 +413,12 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
 
     @Override
     public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
-        List<String> emails = new ArrayList<>();
-        cursor.moveToFirst();
-        while (!cursor.isAfterLast()) {
-            emails.add(cursor.getString(ProfileQuery.ADDRESS));
-            cursor.moveToNext();
-        }
+//        List<String> emails = new ArrayList<>();
+//        cursor.moveToFirst();
+//        while (!cursor.isAfterLast()) {
+//            emails.add(cursor.getString(ProfileQuery.ADDRESS));
+//            cursor.moveToNext();
+//        }
 
 //        addEmailsToAutoComplete(emails);
     }
@@ -502,6 +502,13 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
 
         @Override
         protected void onPostExecute(final Boolean success) {
+
+            SharedPreferences.Editor editor = mSharedPreferences.edit();
+            editor.putString(EMAIL_KEY, loggedIn.getUsername());
+            editor.putString(PASSWORD_KEY, loggedIn.getPassword());
+            String tmp = loggedIn.getForename() + " " + loggedIn.getSurname();
+            editor.putString(FULL_NAME_KEY, tmp);
+            editor.commit();
 
             mAuthTask = null;
             showProgress(false);
