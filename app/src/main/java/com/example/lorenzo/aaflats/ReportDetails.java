@@ -25,6 +25,7 @@ public class ReportDetails extends AppCompatActivity {
     Firebase reportRef;
 
     Report parceableReport;
+    TextView reportProperty;
     TextView reportStatus;
     TextView reportContent;
     TextView reportSender;
@@ -40,10 +41,14 @@ public class ReportDetails extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
         reportRef = new Firebase(getResources().getString(R.string.reports_location));
 
         Bundle intent = getIntent().getExtras();
         parceableReport = intent.getParcelable("parceable_report");
+
+
 
         final com.getbase.floatingactionbutton.FloatingActionButton actionA
                 = (com.getbase.floatingactionbutton.FloatingActionButton) findViewById(R.id.action_a);
@@ -74,17 +79,22 @@ public class ReportDetails extends AppCompatActivity {
             }
         });
 
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-
+        if(parceableReport.getType().matches("Enquiry")){
+            actionA.setVisibility(View.GONE);
+            actionB.setTitle("Reply now");
+        }
 
 
         setTitle(parceableReport.getContent());
+        reportProperty = (TextView) findViewById(R.id.report_property);
         reportStatus = (TextView) findViewById(R.id.report_status);
         reportContent = (TextView) findViewById(R.id.report_content);
         reportSender = (TextView) findViewById(R.id.report_sender);
         reportTimestamp = (TextView) findViewById(R.id.report_timestamp);
 
+        reportProperty.setText(parceableReport.getProperty());
+        reportStatus.setText(parceableReport.getStatus());
         reportContent.setText(parceableReport.getContent());
         reportSender.setText(parceableReport.getSender());
         StringBuilder ts = new StringBuilder(parceableReport.getTimestamp());

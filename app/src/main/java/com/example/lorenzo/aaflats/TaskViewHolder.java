@@ -41,17 +41,20 @@ public class TaskViewHolder extends RecyclerView.ViewHolder implements View.OnCl
     @Override
     public void onClick(View v)
     {
-//        //v.getContext().startActivity(new Intent(v.getContext(), TaskDetails.class).putExtra(TaskDetails.taskTitle, mTask.getTitle()));
-        Task pTask = mTaskList.get(getAdapterPosition());
-        String pTaskKey = mTaskList.get(getAdapterPosition()).getTaskKey();
-//        String pTaskKey = taskKeys.get(getAdapterPosition());
-        Intent intent = new Intent(v.getContext(), TaskDetails.class);
-        intent.putExtra("parceable_task", pTask);
-        //intent.putExtra("parceable_tasklist", mTaskList);
-        intent.putExtra("parceable_task_key", pTaskKey);
-        v.getContext().startActivity(intent);
+////        //v.getContext().startActivity(new Intent(v.getContext(), TaskDetails.class).putExtra(TaskDetails.taskTitle, mTask.getTitle()));
+//        Task pTask = mTaskList.get(getAdapterPosition());
+////        String pTaskKey = mTaskList.get(getAdapterPosition()).getTaskKey();
+////        String pTaskKey = taskKeys.get(getAdapterPosition());
+//        Intent intent = new Intent(v.getContext(), TaskDetails.class);
+//        intent.putExtra("parceable_task", pTask);
+//        //intent.putExtra("parceable_tasklist", mTaskList);
+////        intent.putExtra("parceable_task_key", pTaskKey);
+//        v.getContext().startActivity(intent);
+//
+//        //System.out.println("You clicked on: " + pTask.getTitle());
 
-        //System.out.println("You clicked on: " + pTask.getTitle());
+        v.getContext().startActivity(new Intent(v.getContext(), TaskDetails.class)
+                .putExtra("parceable_task", mTaskList.get(getAdapterPosition())));
 
     }
 }

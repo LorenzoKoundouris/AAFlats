@@ -31,23 +31,23 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 public class CreateFlat extends AppCompatActivity {
-    ArrayAdapter<String> propertyAdapter;
-    ArrayList<Property> propertyList = new ArrayList<>();
-    ArrayList<Flat> flatList = new ArrayList<>();
-    ArrayList<Tenant> tenantList = new ArrayList<>();
-    ArrayList<String> propertyAddrLine1s = new ArrayList<>();
-    ArrayList<String> flatNums = new ArrayList<>();
-    ArrayList<String> nullFields = new ArrayList<>();
-    ArrayList<String> tenantFullNames = new ArrayList<>();
-    AutoCompleteTextView actvProperty;
-    Property createdProperty;
-    EditText etFlatNum;
-    EditText etFlatNotes;
-    ImageView cancelTenantBtn;
-    CardView addTenantBtn;
-    boolean addTenant = false;
-    AutoCompleteTextView flatTenant;
-    boolean isValidAddress, isValidNotes, isValidFlatNum, isValidTenant = false;
+    private ArrayAdapter<String> propertyAdapter;
+    private ArrayList<Property> propertyList = new ArrayList<>();
+    private ArrayList<Flat> flatList = new ArrayList<>();
+    private ArrayList<Tenant> tenantList = new ArrayList<>();
+    private ArrayList<String> propertyAddrLine1s = new ArrayList<>();
+    private ArrayList<String> flatNums = new ArrayList<>();
+    private ArrayList<String> nullFields = new ArrayList<>();
+    private ArrayList<String> tenantFullNames = new ArrayList<>();
+    private AutoCompleteTextView actvProperty;
+    private Property createdProperty;
+    private EditText etFlatNum;
+    private EditText etFlatNotes;
+    private ImageView cancelTenantBtn;
+    private CardView addTenantBtn;
+    private boolean addTenant = false;
+    private AutoCompleteTextView flatTenant;
+    private boolean isValidAddress, isValidNotes, isValidFlatNum, isValidTenant = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,7 +58,6 @@ public class CreateFlat extends AppCompatActivity {
 
         setTitle("Create new Flat");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
 
         Bundle myIntent = getIntent().getExtras();
         etFlatNum = (EditText) findViewById(R.id.nf_number_edittext);
@@ -86,7 +85,6 @@ public class CreateFlat extends AppCompatActivity {
                 getTenants();
             }
         });
-
 
         ArrayAdapter<String> tenantAdapter = new ArrayAdapter<>
                 (this, android.R.layout.simple_dropdown_item_1line, tenantFullNames);

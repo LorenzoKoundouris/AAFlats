@@ -2,13 +2,9 @@ package com.example.lorenzo.aaflats;
 
 import android.app.DatePickerDialog;
 import android.app.Dialog;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -17,9 +13,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.NotificationCompat;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.Toolbar;
-import android.text.Html;
 import android.text.TextUtils;
-import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -43,19 +37,18 @@ import com.firebase.client.Query;
 import com.firebase.client.ValueEventListener;
 
 import java.text.DecimalFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.Locale;
 
 public class CreateTask extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
 
     private Report attachedReport;
-    private Task newTask;
+    private Task newTask = new Task();
+    private Staff loggedStaff;
 
     private TaskCreationProcess mTaskDetails = null;
 
@@ -63,12 +56,14 @@ public class CreateTask extends AppCompatActivity implements AdapterView.OnItemS
     Firebase reportRef;
     Firebase propertyRef;
     Firebase flatRef;
+    Firebase staffRef;
 
     private LinearLayout mTargetDateButtonsLayout;
     private LinearLayout mTargetDateTextEditLayout;
     private ImageView cancelDate;
     private Button tomorrow;
     private Button pickDateButton;
+    private AutoCompleteTextView mStaffAssigned;
     private EditText mTargetDateValue;
     private EditText mTitle;
     private AutoCompleteTextView mProperty;
@@ -81,35 +76,34 @@ public class CreateTask extends AppCompatActivity implements AdapterView.OnItemS
     private TextView mCardText;
     private LinearLayout mErrorLayout;
 
-    private ArrayList<Task> taskList = new ArrayList<>();
     private ArrayList<Property> propertyList = new ArrayList<>();
+    private ArrayList<String> propertyAddrLine1s = new ArrayList<>();
+    private ArrayList<Staff> staffList = new ArrayList<>();
+    private ArrayList<String> staffNames = new ArrayList<>();
     private ArrayList<Flat> flatList = new ArrayList<>();
     private ArrayList<Report> reportList = new ArrayList<>();
-    private ArrayList<String> taskTitles = new ArrayList<>();
-    private ArrayList<String> propertyAddrLine1s = new ArrayList<>();
     private ArrayList<String> flatNums = new ArrayList<>();
     private ArrayList<String> reportTitles = new ArrayList<>();
 
     private AlertDialog.Builder builder;
     private AlertDialog alert;
 
-    private Boolean attached = false;
-
     public static final String MY_PREFERENCES = "MyPreferences";
     public static final String FULL_NAME_KEY = "StaffFullName";
+    public static final String EMAIL_KEY = "StaffEmail";
+    public static final String STAFF_KEY = "StaffKey";
     private SharedPreferences mSharedPreferences;
     private SharedPreferences.Editor editor;
 
     private Date todayDate;
-//    private Date chosenDate;
     private SimpleDateFormat formatDate;
     private int year_x, month_x, day_x;
     static final int DIALOG_ID = 0;
 
     private static final int uniqueID = 23;
-    NotificationCompat.Builder notificationBuilder;
+    private NotificationCompat.Builder notificationBuilder;
 
-    InputMethodManager inputMethodManager;
+    private InputMethodManager inputMethodManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -118,6 +112,8 @@ public class CreateTask extends AppCompatActivity implements AdapterView.OnItemS
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         setTitle("Create new task");
+
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         //Get Shared Preferences
         mSharedPreferences = getSharedPreferences(MY_PREFERENCES, MODE_PRIVATE);
@@ -136,6 +132,7 @@ public class CreateTask extends AppCompatActivity implements AdapterView.OnItemS
         pickDateButton = (Button) findViewById(R.id.nt_date_picker_button);
         mTargetDateValue = (EditText) findViewById(R.id.nt_target_date_value_edittext);
         mTitle = (EditText) findViewById(R.id.nt_title_editview);
+        mStaffAssigned = (AutoCompleteTextView) findViewById(R.id.nt_staff_actv);
         mProperty = (AutoCompleteTextView) findViewById(R.id.nt_property_actv);
         mFlat = (Spinner) findViewById(R.id.nt_flat_spinner);
         mDescription = (EditText) findViewById(R.id.nt_description_editview);
@@ -147,6 +144,7 @@ public class CreateTask extends AppCompatActivity implements AdapterView.OnItemS
 
         builder = new AlertDialog.Builder(this);
 
+        //Calendar components
         todayDate = Calendar.getInstance().getTime();
         formatDate = new SimpleDateFormat("dd/MM/yyyy");
 
@@ -155,23 +153,13 @@ public class CreateTask extends AppCompatActivity implements AdapterView.OnItemS
         reportRef = new Firebase(getString(R.string.reports_location));
         propertyRef = new Firebase(getString(R.string.properties_location));
         flatRef = new Firebase(getString(R.string.flats_location));
+        staffRef = new Firebase(getResources().getString(R.string.staff_location));
 
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
-        final ArrayList<Task> taskList = new ArrayList<>();
-        final ArrayList<Property> propertyList = new ArrayList<>();
-        final ArrayList<Flat> flatList = new ArrayList<>();
-        final ArrayList<Report> reportList = new ArrayList<>();
-        final ArrayList<String> taskTitles = new ArrayList<>();
-        final ArrayList<String> propertyAddrLine1s = new ArrayList<>();
-        final ArrayList<String> flatNums = new ArrayList<>();
-        final ArrayList<String> reportTitles = new ArrayList<>();
-        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
 //        mTargetDateButtonsLayout.setVisibility(View.INVISIBLE);
 //        mTargetDateButtonsLayout.setEnabled(false);
 
-        mTitle.requestFocus();
+        mStaffAssigned.requestFocus();
 
         // Create an ArrayAdapter using the string array
         final ArrayAdapter<String> propertyAdapter = new ArrayAdapter<>
@@ -185,41 +173,15 @@ public class CreateTask extends AppCompatActivity implements AdapterView.OnItemS
             }
         });
 
-        mProperty.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                Boolean isProperty = false;
-                if (!hasFocus && !mProperty.getText().toString().matches("")) {
-                    for (int i = 0; i < propertyAddrLine1s.size(); i++) {
-                        if (propertyAddrLine1s.get(i).matches(mProperty.getText().toString().trim())) {
-                            isProperty = true;
-                            break;
-                        }
-                    }
-                    if (!isProperty) {
-                        Toast.makeText(CreateTask.this, "You must enter an existing property", Toast.LENGTH_SHORT).show();
-                        new AlertDialog.Builder(v.getContext())
-                                .setTitle("Wrong address")
-                                .setMessage("You must enter an existing property")
-                                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        mProperty.setText("");
-                                        mProperty.requestFocus();
-                                    }
-                                })
-                                .setIcon(android.R.drawable.ic_dialog_alert)
-                                .show();
-                    }
-                }
-            }
-        });
-
+        final ArrayAdapter<String> staffAdapter = new ArrayAdapter<String>
+                (this, android.R.layout.simple_dropdown_item_1line, staffNames);
+        mStaffAssigned.setAdapter(staffAdapter);
 
         // Create an ArrayAdapter using the string array
         ArrayAdapter<CharSequence> priorityAdapter = ArrayAdapter.createFromResource(this,
-                R.array.priorities, R.layout.custom_spinner2);
+                R.array.priorities, R.layout.custom_spinner);
         // Specify the layout to use when the list of choices appears
-        priorityAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item2);
+        priorityAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
         // Apply the adapter to the mPriority
         mPriority.setAdapter(priorityAdapter);
         mPriority.setSelection(2);
@@ -319,6 +281,33 @@ public class CreateTask extends AppCompatActivity implements AdapterView.OnItemS
                 showDialog(DIALOG_ID);
             }
         });
+
+
+
+        staffRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                staffList.clear();
+                for (DataSnapshot childSnap : dataSnapshot.getChildren()) {
+                    Staff stf = childSnap.getValue(Staff.class);
+                    stf.setStaffKey(childSnap.getKey());
+                    staffList.add(stf);
+                    staffNames.add(stf.getForename() + " " + stf.getSurname());
+                    if (stf.getStaffKey().matches(mSharedPreferences.getString(STAFF_KEY, ""))) {
+                        loggedStaff = stf;
+                    }
+                }
+                staffAdapter.notifyDataSetChanged();
+                mStaffAssigned.setAdapter(staffAdapter);
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+
+            }
+        });
+
+
     } //END OF onCreate METHOD
 
     private void loadApprovedReports() {
@@ -395,8 +384,8 @@ public class CreateTask extends AppCompatActivity implements AdapterView.OnItemS
                 });
 
                 ArrayAdapter<String> flatAdapter = new ArrayAdapter<>(getBaseContext(),
-                        R.layout.custom_spinner2, flatNums);
-                flatAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item2);
+                        R.layout.custom_spinner, flatNums);
+                flatAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
                 mFlat.setAdapter(flatAdapter);
                 flatAdapter.notifyDataSetChanged();
                 mFlat.setSelection(0);
@@ -456,7 +445,7 @@ public class CreateTask extends AppCompatActivity implements AdapterView.OnItemS
 //            final Date thisDate = Calendar.getInstance().getTime();
 //            final SimpleDateFormat formatt = new SimpleDateFormat("dd/MM/yyyy");
 
-//            String chosenDat = pref.getString("chosenDate", formatt.format(thisDate));
+//            String chosenDat = mSharedPreferences.getString("chosenDate", formatt.format(thisDate));
 
 //            Date chosenDate = new Date();
 //            try {
@@ -541,6 +530,7 @@ public class CreateTask extends AppCompatActivity implements AdapterView.OnItemS
 
         //Reset errors
         mTitle.setError(null);
+        mStaffAssigned.setError(null);
         mProperty.setError(null);
         //Flat
         mDescription.setError(null);
@@ -549,9 +539,9 @@ public class CreateTask extends AppCompatActivity implements AdapterView.OnItemS
         mCardText.setError(null);
 
         //Store values at the time of the creation attempt
-
         String targetDate = mTargetDateValue.getText().toString().trim();
         String title = mTitle.getText().toString().trim();
+        String staff = mStaffAssigned.getText().toString().trim();
         String property = mProperty.getText().toString().trim();
         String flat = "";
         try {
@@ -590,6 +580,21 @@ public class CreateTask extends AppCompatActivity implements AdapterView.OnItemS
             cancel = true;
         }
 
+        //Check for a valid member of staff, if the user entered one
+        if (TextUtils.isEmpty(staff)) {
+            mStaffAssigned.setError("This field is required");
+            if (focusView == null) {
+                focusView = mStaffAssigned;
+            }
+            cancel = true;
+        } else if (!isStaffValid(staff)) {
+            mStaffAssigned.setError("This name is invalid");
+            if (focusView == null) {
+                focusView = mStaffAssigned;
+            }
+            cancel = true;
+        }
+
         //Check for a valid property, if the user entered one
         if (TextUtils.isEmpty(property)) {
             mProperty.setError("This field is required");
@@ -597,16 +602,15 @@ public class CreateTask extends AppCompatActivity implements AdapterView.OnItemS
                 focusView = mProperty;
             }
             cancel = true;
+        } else if (!isPropertyValid(property)) {
+            mProperty.setError("This property is invalid");
+            focusView = mProperty;
+            cancel = true;
         }
-//        else if (!isPropertyValid(property)) {
-//            mProperty.setError("This property is invalid");
-//            focusView = mProperty;
-//            cancel = true;
-//        }
 
         //Check for a valid flat, if the user entered one
 //        if (!isFlatValid(flat)) {
-//            //ToDo: setError this is not a valid flat
+//
 //            focusView = mFlat;
 //            cancel = true;
 //        }
@@ -620,13 +624,20 @@ public class CreateTask extends AppCompatActivity implements AdapterView.OnItemS
             cancel = true;
         }
 
-        //Check for valid report, if the user attached one
+//        Check for valid report, if the user attached one
         if (TextUtils.isEmpty(report)) {
-            mCardText.setError("A valid report is required");
-            if (focusView == null) {
-                focusView = mCard;
-            }
-            cancel = true;
+//            mCardText.setError("A valid report is required");
+//            if (focusView == null) {
+//                focusView = mCard;
+//            }
+//            cancel = true;
+            report = "";
+        }
+
+//        Check for valid notes, if the user attached some
+        if (TextUtils.isEmpty(notes)) {
+//
+            notes = "";
         }
 
         if (cancel) {
@@ -638,24 +649,37 @@ public class CreateTask extends AppCompatActivity implements AdapterView.OnItemS
             // perform the user login attempt.
 
             inputMethodManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
-            mTaskDetails = new TaskCreationProcess(targetDate, title, property, flat, description, priority, notes, report);
+            mTaskDetails = new TaskCreationProcess(targetDate, staff, title, property, flat, description, priority, notes, report);
             mTaskDetails.execute((Void) null);
         }
+    }
+
+    private boolean isPropertyValid(String property) {
+        Boolean isProperty = false;
+        for (int i = 0; i < propertyAddrLine1s.size(); i++) {
+            if (propertyAddrLine1s.get(i).matches(mProperty.getText().toString().trim())) {
+                isProperty = true;
+                break;
+            }
+        }
+        return isProperty;
+    }
+
+    private boolean isStaffValid(String staff) {
+        Boolean isStaff = false;
+        for (int i = 0; i < staffNames.size(); i++) {
+            if (staffNames.get(i).matches(mStaffAssigned.getText().toString().trim())) {
+                newTask.setAssignedStaff(staffList.get(i).getStaffKey());
+                isStaff = true;
+                break;
+            }
+        }
+        return isStaff;
     }
 
     private boolean isDescriptionValid(String description) {
         return description.length() > 4;
     }
-
-//    private boolean isFlatValid(String flat) {
-//        //ToDo: Check if flat is valid
-//        return true;
-//    }
-
-//    private boolean isPropertyValid(String property) {
-//        //ToDo: Check if property is valid
-//        return false;
-//    }
 
     private boolean isTitleValid(String title) {
         return title.length() > 4;
@@ -667,7 +691,7 @@ public class CreateTask extends AppCompatActivity implements AdapterView.OnItemS
 //        final Date thisDate = Calendar.getInstance().getTime();
 //        final SimpleDateFormat formatt = new SimpleDateFormat("dd/MM/yyyy");
 //
-//        String chosenDat = pref.getString("chosenDate", formatt.format(thisDate));
+//        String chosenDat = mSharedPreferences.getString("chosenDate", formatt.format(thisDate));
 //        Date chosenDate = new Date();
 //        try {
 //            chosenDate = new SimpleDateFormat("dd/MM/yyyy", Locale.ENGLISH).parse(chosenDat);
@@ -747,7 +771,7 @@ public class CreateTask extends AppCompatActivity implements AdapterView.OnItemS
 //            try {
 //                newTask = new Task();
 //
-//                newTask.setTargetDate(pref.getString("chosenDate", formatt.format(thisDate)));
+//                newTask.setTargetDate(mSharedPreferences.getString("chosenDate", formatt.format(thisDate)));
 //
 //                newTask.setCompletionTimestamp("pending");
 //
@@ -794,41 +818,6 @@ public class CreateTask extends AppCompatActivity implements AdapterView.OnItemS
 //
 //    }
 
-    private void sendNotification() {
-
-        Notification newNotif = new Notification();
-        newNotif.setSender(mSharedPreferences.getString(FULL_NAME_KEY, ""));
-        newNotif.setTitle("water pipez");
-        newNotif.setText("splish splash");
-        SimpleDateFormat sdf = new SimpleDateFormat("MMM MM dd, yyyy h:mm a");
-        String dateString = sdf.format(System.currentTimeMillis());
-        newNotif.setTimestamp(dateString);
-        Firebase ntfRef = new Firebase(getResources().getString(R.string.notifications_location));
-        ntfRef.push().setValue(newNotif);
-
-//        NotificationCompat.Builder mBuilder =
-//                (NotificationCompat.Builder) new NotificationCompat.Builder(this)
-//                        .setSmallIcon(R.drawable.app_icon)
-//                        .setContentTitle("My notification")
-//                        .setContentText("Hello World!");
-//        NotificationManager mgr = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-//        mgr.notify(uniqueID, mBuilder.build());
-
-
-//        notificationBuilder.setAutoCancel(true);
-//
-//        notificationBuilder.setSmallIcon(R.drawable.app_icon);
-//        notificationBuilder.setTicker("New task added by " + mSharedPreferences.getString(FULL_NAME_KEY, ""));
-//        notificationBuilder.setWhen(System.currentTimeMillis());
-//        notificationBuilder.setContentTitle(mSharedPreferences.getString(FULL_NAME_KEY, "") + " added a new task.");
-//        notificationBuilder.setContentText("Water pipe broke"); //newTask.getTitle()
-//
-//        NotificationManager mgr = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-//        Intent intent = new Intent(this, CreateTask.class);//.putExtra("parceable_task", newTask);
-//        PendingIntent pIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-//        notificationBuilder.setContentIntent(pIntent);
-//        mgr.notify(uniqueID, notificationBuilder.build());
-    }
 
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -840,8 +829,10 @@ public class CreateTask extends AppCompatActivity implements AdapterView.OnItemS
         //Another interface callback
     }
 
+
     public class TaskCreationProcess extends AsyncTask<Void, Void, Boolean> {
         private final String mTargetDate;
+        private final String mStaff;
         private final String mTitle;
         private final String mProperty;
         private final String mFlatNum;
@@ -850,10 +841,11 @@ public class CreateTask extends AppCompatActivity implements AdapterView.OnItemS
         private final String mNotes;
         private final String mReport;
 
-        public TaskCreationProcess(String targetDate, String title, String property,
+        public TaskCreationProcess(String targetDate, String staff, String title, String property,
                                    String flatNum, String description, String priority,
                                    String notes, String report) {
             this.mTargetDate = targetDate;
+            this.mStaff = staff;
             this.mTitle = title;
             this.mProperty = property;
             this.mFlatNum = flatNum;
@@ -866,30 +858,23 @@ public class CreateTask extends AppCompatActivity implements AdapterView.OnItemS
         @Override
         protected Boolean doInBackground(Void... params) {
             try {
-                newTask = new Task();
 
-                newTask.setTargetDate(mTargetDate);
-
+//                newTask.setAssignedStaff(mStaff);
+                newTask.setCompletedBy("");
                 newTask.setCompletionTimestamp("pending");
-
-                newTask.setTitle(mTitle);
-
-                newTask.setProperty(mProperty + " - " + mFlatNum);
-
+                newTask.setCreator(staffList.get(0).getStaffKey());
                 newTask.setDescription(mDescription);
-
-                newTask.setPriority(mPriority);
-
-                newTask.setStatus(false);
-
-                newTask.setReport(mReport);
-
                 newTask.setNotes(mNotes);
+                newTask.setPriority(mPriority);
+                newTask.setProperty(mProperty + " - " + mFlatNum);
+                newTask.setReport(mReport);
+                newTask.setStatus(false);
+                newTask.setTargetDate(mTargetDate);
+                newTask.setTitle(mTitle);
 
                 taskRef.push().setValue(newTask);
                 return true;
             } catch (Exception ex) {
-                Toast.makeText(CreateTask.this, "An error occure while trying to save new task", Toast.LENGTH_SHORT).show();
                 return false;
             }
         }
@@ -901,7 +886,10 @@ public class CreateTask extends AppCompatActivity implements AdapterView.OnItemS
 
             if (success) {
                 startActivity(new Intent(CreateTask.this, Homepage.class).putExtra("parceable_task", newTask)); //mine
+                Toast.makeText(CreateTask.this, "Success!", Toast.LENGTH_SHORT).show();
                 finish();
+            } else {
+                Toast.makeText(CreateTask.this, "An error occurred while trying to save new task", Toast.LENGTH_SHORT).show();
             }
         }
 

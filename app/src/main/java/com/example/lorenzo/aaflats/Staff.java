@@ -12,6 +12,7 @@ public class Staff implements Parcelable {
     private String surname;
     private String username;
     private String password;
+    private String staffKey;
 
     public Staff() {
     }
@@ -21,6 +22,7 @@ public class Staff implements Parcelable {
         surname = in.readString();
         username = in.readString();
         password = in.readString();
+        staffKey = in.readString();
     }
 
     public static final Creator<Staff> CREATOR = new Creator<Staff>() {
@@ -67,6 +69,14 @@ public class Staff implements Parcelable {
         this.password = password;
     }
 
+    public String getStaffKey() {
+        return staffKey;
+    }
+
+    public void setStaffKey(String staffKey) {
+        this.staffKey = staffKey;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -78,5 +88,6 @@ public class Staff implements Parcelable {
         dest.writeString(surname);
         dest.writeString(username);
         dest.writeString(password);
+        dest.writeString(staffKey);
     }
 }

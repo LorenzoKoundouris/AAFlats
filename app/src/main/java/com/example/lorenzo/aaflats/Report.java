@@ -13,6 +13,7 @@ public class Report implements Parcelable{
     private String timestamp;
     private String type;
     private String reportKey;
+    private String property;
 
     public Report(){}
 
@@ -23,6 +24,7 @@ public class Report implements Parcelable{
         timestamp = in.readString();
         type = in.readString();
         reportKey = in.readString();
+        property = in.readString();
     }
 
     public static final Creator<Report> CREATOR = new Creator<Report>() {
@@ -85,6 +87,14 @@ public class Report implements Parcelable{
         this.reportKey = reportKey;
     }
 
+    public String getProperty() {
+        return property;
+    }
+
+    public void setProperty(String property) {
+        this.property = property;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -98,5 +108,6 @@ public class Report implements Parcelable{
         dest.writeString(timestamp);
         dest.writeString(type);
         dest.writeString(reportKey);
+        dest.writeString(property);
     }
 }

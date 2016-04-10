@@ -9,9 +9,7 @@
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:focusable="true"
         android:background="#E0E0E0"
-        android:focusableInTouchMode="true"
         android:orientation="vertical"
         android:paddingBottom="@dimen/activity_vertical_margin"
         android:paddingLeft="@dimen/activity_horizontal_margin"
@@ -31,6 +29,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
                 android:text="Task complete:"
                 android:textAppearance="?android:attr/textAppearanceMedium" />
 
@@ -42,6 +42,18 @@
                 android:layout_marginLeft="32dp"
                 android:layout_marginStart="32dp"
                 android:layout_marginTop="1dp" />
+
+            <TextView
+                android:id="@+id/completedBy"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical"
+                android:paddingLeft="6dp"
+                android:paddingStart="6dp"
+                android:text="Keith Smith"
+                android:textColor="@color/colorAccent"
+                android:textSize="18sp" />
+
         </LinearLayout>
 
         <android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
@@ -54,202 +66,310 @@
             app:cardUseCompatPadding="true">
 
             <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
                 android:orientation="vertical"
-                android:padding="6dp">
+                android:padding="12dp">
+
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <LinearLayout
+                        android:id="@+id/td_target_date_lnr_layout"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:enabled="false"
+                        android:orientation="horizontal"
+                        android:visibility="invisible">
+
+                        <ImageView
+                            android:id="@+id/cancel_date_pick"
+                            android:layout_width="30dp"
+                            android:layout_height="30dp"
+                            android:layout_gravity="center_vertical"
+                            android:layout_marginEnd="12dp"
+                            android:layout_marginRight="12dp"
+                            android:background="@color/colorAccent"
+                            android:src="@drawable/ic_close_white_24dp" />
+
+                        <Button
+                            android:id="@+id/tomorrow_button"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Morrow" />
+
+                        <Button
+                            android:id="@+id/td_date_picker_button"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:text="Pick a date" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/td_date_text_lnr_layout"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingBottom="6dp">
+
+                        <TextView
+                            android:id="@+id/td_target_date_textview"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_vertical"
+                            android:layout_weight="1"
+                            android:text="Target date: " />
+
+
+                        <EditText
+                            android:id="@+id/td_target_date_edittext"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="3"
+                            android:enabled="false"
+                            android:hint="Target date - DD/MM/YYYY"
+                            android:textColor="@drawable/disabled_text" />
+
+                    </LinearLayout>
+
+
+                </RelativeLayout>
 
                 <LinearLayout
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal">
 
                     <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_vertical"
-                        android:layout_marginLeft="6dp"
-                        android:layout_marginStart="6dp"
-                        android:text="Title:" />
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:gravity="center_vertical"
+                        android:text="Staff \nassigned:" />
 
-                    <EditText
-                        android:id="@+id/td_title"
-                        android:layout_width="wrap_content"
+                    <android.support.design.widget.TextInputLayout
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="center_vertical"
-                        android:layout_marginLeft="31dp"
-                        android:layout_marginStart="31dp"
-                        android:layout_marginTop="2dp"
-                        android:enabled="false"
-                        android:text="titl"
-                        android:textColor="@drawable/disabled_text" />
+                        android:layout_weight="3">
+
+                        <AutoCompleteTextView
+                            android:id="@+id/td_staff"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:enabled="false"
+                            android:inputType="textCapSentences"
+                            android:text="Staff member"
+                            android:textColor="@drawable/disabled_text" />
+                    </android.support.design.widget.TextInputLayout>
                 </LinearLayout>
 
                 <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content">
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
 
                     <TextView
-                        android:layout_width="wrap_content"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:gravity="center_vertical"
+                        android:text="Title:" />
+
+                    <android.support.design.widget.TextInputLayout
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="center_vertical"
-                        android:layout_marginLeft="6dp"
-                        android:layout_marginStart="6dp"
+                        android:layout_weight="3">
+
+                        <EditText
+                            android:id="@+id/td_title"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:enabled="false"
+                            android:inputType="textCapSentences"
+                            android:text="Task title"
+                            android:textColor="@drawable/disabled_text" />
+                    </android.support.design.widget.TextInputLayout>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:gravity="center_vertical"
                         android:text="Property:" />
 
-                    <AutoCompleteTextView
-                        android:id="@+id/et_property_actv"
-                        android:layout_width="match_parent"
+                    <android.support.design.widget.TextInputLayout
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="center_vertical"
-                        android:layout_marginLeft="6dp"
-                        android:layout_marginStart="6dp"
-                        android:layout_marginTop="2dp"
-                        android:enabled="false"
-                        android:text="prop"
-                        android:textColor="@drawable/disabled_text" />
+                        android:layout_weight="3">
+
+                        <AutoCompleteTextView
+                            android:id="@+id/et_property_actv"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:enabled="false"
+                            android:inputType="textCapWords"
+                            android:text="Address line 1"
+                            android:textColor="@drawable/disabled_text" />
+                    </android.support.design.widget.TextInputLayout>
 
                 </LinearLayout>
 
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_height="match_parent">
 
                     <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_vertical"
-                        android:layout_marginLeft="6dp"
-                        android:layout_marginStart="6dp"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:gravity="center_vertical"
                         android:text="Flat:" />
 
                     <Spinner
                         android:id="@+id/et_flat_spinner"
-                        android:layout_width="match_parent"
+                        android:layout_width="0dp"
                         android:layout_height="60dp"
-                        android:layout_gravity="center_vertical"
-                        android:layout_marginLeft="35dp"
-                        android:layout_marginStart="35dp"
+                        android:layout_marginLeft="12dp"
+                        android:layout_marginStart="12dp"
+                        android:layout_weight="3"
                         android:enabled="false" />
 
                 </LinearLayout>
 
                 <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content">
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
 
                     <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_vertical"
-                        android:layout_marginLeft="6dp"
-                        android:layout_marginStart="6dp"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:gravity="center_vertical"
                         android:text="Desc.:" />
 
-                    <EditText
-                        android:id="@+id/td_description"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_vertical"
-                        android:layout_marginLeft="24dp"
-                        android:layout_marginStart="24dp"
-                        android:layout_marginTop="2dp"
-                        android:inputType="textCapSentences|textMultiLine"
-                        android:enabled="false"
-                        android:text="description"
-                        android:textColor="@drawable/disabled_text" />
+                    <android.support.design.widget.TextInputLayout
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="3">
+
+                        <EditText
+                            android:id="@+id/td_description"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:enabled="false"
+                            android:inputType="textCapSentences|textMultiLine"
+                            android:text="Description"
+                            android:textColor="@drawable/disabled_text" />
+                    </android.support.design.widget.TextInputLayout>
                 </LinearLayout>
 
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_height="match_parent">
 
                     <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_vertical"
-                        android:layout_marginLeft="6dp"
-                        android:layout_marginStart="6dp"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:gravity="center_vertical"
                         android:text="Priority:" />
 
-                    <!--<EditText
-
-                        android:id="@+id/td_priority"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_vertical"
-                        android:enabled="false"
-                        android:layout_marginTop="2dp"
-                        android:textColor="@drawable/disabled_text"
-                        android:layout_marginLeft="15dp"
-                        android:text="prio" /> -->
                     <Spinner
                         android:id="@+id/et_priority_spinner"
-                        android:layout_width="match_parent"
+                        android:layout_width="0dp"
                         android:layout_height="60dp"
-                        android:layout_gravity="center_vertical"
-                        android:layout_marginLeft="20dp"
-                        android:layout_marginStart="20dp"
+                        android:layout_marginLeft="12dp"
+                        android:layout_marginStart="12dp"
+                        android:layout_weight="3"
                         android:enabled="false" />
 
                 </LinearLayout>
 
                 <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content">
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
 
                     <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_vertical"
-                        android:layout_marginLeft="6dp"
-                        android:layout_marginStart="6dp"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:gravity="center_vertical"
                         android:text="Report:" />
 
-                    <Button
-                        android:id="@+id/bt_report"
-                        android:layout_width="wrap_content"
+                    <android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+                        xmlns:card_view="http://schemas.android.com/apk/res-auto"
+                        android:id="@+id/td_card_btn_attach"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:layout_gravity="center_vertical"
-                        android:layout_marginLeft="18dp"
-                        android:layout_marginStart="18dp"
-                        android:enabled="false"
-                        android:text="REPLACE REPORT"
-                        android:textColor="@drawable/disabled_text"
-                        android:textStyle="italic" />
+                        android:layout_weight="3"
+                        app:cardUseCompatPadding="true"
+                        card_view:cardBackgroundColor="#009688"
+                        card_view:cardCornerRadius="3dp"
+                        card_view:cardElevation="6dp">
+
+                        <TextView
+                            android:id="@+id/td_card_text_view"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:fontFamily="sans-serif-medium"
+                            android:clickable="false"
+                            android:paddingBottom="8.5dp"
+                            android:paddingLeft="12dp"
+                            android:paddingRight="12dp"
+                            android:paddingTop="8.5dp"
+                            android:text="REPLACE A REPORT"
+                            android:textAlignment="center"
+                            android:textColor="#ffffff"
+                            android:textStyle="italic" />
+
+                    </android.support.v7.widget.CardView>
+
+
                 </LinearLayout>
 
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_height="match_parent">
 
                     <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_vertical"
-                        android:layout_marginLeft="6dp"
-                        android:layout_marginStart="6dp"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:gravity="center_vertical"
                         android:text="Notes:" />
 
-                    <EditText
-                        android:id="@+id/td_notes"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_vertical"
-                        android:layout_marginLeft="22dp"
-                        android:layout_marginStart="22dp"
-                        android:layout_marginTop="2dp"
-                        android:enabled="false"
-                        android:textStyle="italic"
-                        android:inputType="textCapSentences|textMultiLine"
-                        android:text="notes"
-                        android:textColor="@drawable/disabled_text" />
+                    <android.support.design.widget.TextInputLayout
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="3">
+
+                        <EditText
+                            android:id="@+id/td_notes"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:enabled="false"
+                            android:inputType="textCapSentences|textMultiLine"
+                            android:text="Compose any notes here..."
+                            android:textColor="@drawable/disabled_text"
+                            android:textStyle="italic" />
+                    </android.support.design.widget.TextInputLayout>
                 </LinearLayout>
 
             </LinearLayout>
         </android.support.v7.widget.CardView>
 
         <android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+            android:visibility="gone"
             android:id="@+id/task_report_card_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -300,8 +420,8 @@
                         android:id="@+id/tv_timestamp"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="26dp"
                         android:layout_marginLeft="12dp"
+                        android:layout_marginStart="26dp"
                         android:text="timestamp" />
                 </LinearLayout>
 
@@ -311,6 +431,7 @@
                     android:layout_height="wrap_content"
                     android:padding="12dp"
                     android:text="....report contents..."
+                    android:textSize="18sp"
                     android:textStyle="italic" />
             </LinearLayout>
         </android.support.v7.widget.CardView>

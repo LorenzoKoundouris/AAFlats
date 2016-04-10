@@ -93,6 +93,8 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
     public static final String EMAIL_KEY = "StaffEmail";
     public static final String PASSWORD_KEY = "StaffPassword";
     public static final String FULL_NAME_KEY = "StaffFullName";
+    public static final String STAFF_KEY = "StaffKey";
+
     private ArrayList<Staff> staffSigningIn = new ArrayList<>();
     Staff loggedIn;
     InputMethodManager inputMethodManager;
@@ -125,14 +127,8 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
         });
 
         final Button mEmailSignInButton = (Button) findViewById(R.id.email_sign_in_button);
-        final Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                // Do something after 2s = 2000ms
-                mEmailSignInButton.setEnabled(true);
-            }
-        }, 0000);
+
+        mEmailSignInButton.setEnabled(true);
         mEmailSignInButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -201,8 +197,10 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for (DataSnapshot childSnap : dataSnapshot.getChildren()) {
                     Staff stf = childSnap.getValue(Staff.class);
+                    stf.setStaffKey(childSnap.getKey());
                     staffSigningIn.add(stf);
                 }
+                attemptLogin();
             }
 
             @Override
@@ -312,7 +310,6 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
         String password = mPasswordView.getText().toString();
 
 
-
         boolean cancel = false;
         View focusView = null;
 
@@ -338,7 +335,7 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
             // There was an error; don't attempt login and focus the first
             // form field with an error.
             focusView.requestFocus();
-        } else if(staffSigningIn.size() > 0){
+        } else if (staffSigningIn.size() > 0) {
             // Show a progress spinner, and kick off a background task to
             // perform the user login attempt.
             inputMethodManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);//mine
@@ -506,6 +503,7 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
             SharedPreferences.Editor editor = mSharedPreferences.edit();
             editor.putString(EMAIL_KEY, loggedIn.getUsername());
             editor.putString(PASSWORD_KEY, loggedIn.getPassword());
+            editor.putString(STAFF_KEY, loggedIn.getStaffKey());
             String tmp = loggedIn.getForename() + " " + loggedIn.getSurname();
             editor.putString(FULL_NAME_KEY, tmp);
             editor.commit();

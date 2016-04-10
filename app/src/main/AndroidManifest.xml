@@ -15,7 +15,7 @@
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
 
     <!-- To auto-complete the email text field in the login form with the user's emails -->
-    <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY"/>
+    <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY" />
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
     <uses-permission android:name="android.permission.READ_PROFILE" />
     <uses-permission android:name="android.permission.READ_CONTACTS" />
@@ -78,15 +78,22 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".PropertyDetails" />
         </activity>
+
         <activity
             android:name=".AllProperties"
             android:label="@string/title_activity_all_properties"
             android:parentActivityName=".Homepage"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@style/AppTheme.NoActionBar"
+            android:launchMode="singleTop">
+            <intent-filter>
+                <action android:name="android.intent.action.SEARCH" />
+            </intent-filter>
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.example.lorenzo.aaflats.Homepage" />
+                android:value="com.example.lorenzo.aaflats.Homepage"
+                android:resource="@xml/searchable" />
         </activity>
+
         <activity
             android:name=".FlatDetails"
             android:label="@string/title_activity_flat_details"
@@ -172,8 +179,8 @@
         </activity>
         <activity
             android:name=".SplashActivity"
-            android:theme="@style/SplashTheme"
-            android:screenOrientation="portrait">
+            android:screenOrientation="portrait"
+            android:theme="@style/SplashTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

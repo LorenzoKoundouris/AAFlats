@@ -99,7 +99,7 @@ public class TenantHomepage extends AppCompatActivity
         composeReport.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(TenantHomepage.this, ComposeNew.class).putExtra("composeType", "0"));
+                startActivity(new Intent(TenantHomepage.this, ComposeNew.class).putExtra("composeType", "0").putExtra("parceable_tenant", tenantList.get(0)));
             }
         });
 
@@ -107,7 +107,7 @@ public class TenantHomepage extends AppCompatActivity
         composeEnquiry.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(TenantHomepage.this, ComposeNew.class).putExtra("composeType", "1"));
+                startActivity(new Intent(TenantHomepage.this, ComposeNew.class).putExtra("composeType", "1").putExtra("parceable_tenant", tenantList.get(0)));
             }
         });
 
@@ -239,9 +239,9 @@ public class TenantHomepage extends AppCompatActivity
         } else if (id == R.id.nav_my_account) {
             startActivity(new Intent(TenantHomepage.this, TenantDetails.class).putExtra("parceable_tenant", tenantList.get(0)).putExtra("staff_access", false));
         } else if (id == R.id.nav_compose_report) {
-            startActivity(new Intent(TenantHomepage.this, ComposeNew.class).putExtra("composeType", "0"));
+            startActivity(new Intent(TenantHomepage.this, ComposeNew.class).putExtra("composeType", "0").putExtra("parceable_tenant", tenantList.get(0)));
         } else if (id == R.id.nav_compose_enquiry) {
-            startActivity(new Intent(TenantHomepage.this, ComposeNew.class).putExtra("composeType", "1"));
+            startActivity(new Intent(TenantHomepage.this, ComposeNew.class).putExtra("composeType", "1").putExtra("parceable_tenant", tenantList.get(0)));
         } else if(id == R.id.nav_contact_details){
             new AlertDialog.Builder(this)
                     .setTitle("A&A Flats")

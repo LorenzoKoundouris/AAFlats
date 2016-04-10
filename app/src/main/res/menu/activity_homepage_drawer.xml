@@ -7,6 +7,11 @@
             android:icon="@drawable/ic_mail_outline_black_24dp"
             android:title="Inbox" />
         <item
+            android:id="@+id/nav_newest_first"
+            android:icon="@drawable/ic_schedule_black_48dp"
+            android:title="Newest first"
+            />
+        <item
             android:id="@+id/nav_today"
             android:icon="@drawable/ic_today_black_24dp"
             android:title="Today" />

@@ -43,10 +43,9 @@ public class ComposeNew extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
-
-
         Bundle extras = getIntent().getExtras();
         int parceableComposeType = Integer.parseInt(extras.getString("composeType"));
+        final Tenant parceableTenant = extras.getParcelable("parceable_tenant");
 
         typeSpinner = (Spinner) findViewById(R.id.type_spinner);
         SpinnerAdapter typeAdapter = ArrayAdapter.createFromResource(this, R.array.report_enquiry,
@@ -92,7 +91,8 @@ public class ComposeNew extends AppCompatActivity {
                         newReport.setTimestamp(format);
                         newReport.setContent(composition.getText().toString());
                         newReport.setType(typeSpinner.getSelectedItem().toString());
-                        newReport.setSender("sender"); //ToDo: After login is done
+                        newReport.setSender(parceableTenant.getForename() + " " + parceableTenant.getSurname());
+                        newReport.setSender(parceableTenant.getProperty());
                         newReport.setStatus("pending");
 
                         reportRef.push().setValue(newReport);

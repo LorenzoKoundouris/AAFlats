@@ -19,6 +19,9 @@ public class Task implements Parcelable {
     private String completionTimestamp;
     private String targetDate;
     private String notes;
+    private String creator;
+    private String assignedStaff;
+    private String completedBy;
 
 
     public Task() {
@@ -89,6 +92,22 @@ public class Task implements Parcelable {
         this.completionTimestamp = completionTimestamp;
     }
 
+    public String getCreator() {
+        return creator;
+    }
+
+    public void setCreator(String creator) {
+        this.creator = creator;
+    }
+
+    public String getAssignedStaff() {
+        return assignedStaff;
+    }
+
+    public void setAssignedStaff(String assignedStaff) {
+        this.assignedStaff = assignedStaff;
+    }
+
     public String getTargetDate() {
         return targetDate;
     }
@@ -105,6 +124,14 @@ public class Task implements Parcelable {
         this.notes = notes;
     }
 
+    public String getCompletedBy() {
+        return completedBy;
+    }
+
+    public void setCompletedBy(String completedBy) {
+        this.completedBy = completedBy;
+    }
+
     public Task(Parcel in) {
         title = in.readString();
         description = in.readString();
@@ -116,6 +143,9 @@ public class Task implements Parcelable {
         completionTimestamp = in.readString();
         targetDate = in.readString();
         notes = in.readString();
+        creator = in.readString();
+        assignedStaff = in.readString();
+        completedBy = in.readString();
     }
 
     @Override
@@ -135,6 +165,9 @@ public class Task implements Parcelable {
         dest.writeString(completionTimestamp);
         dest.writeString(targetDate);
         dest.writeString(notes);
+        dest.writeString(creator);
+        dest.writeString(assignedStaff);
+        dest.writeString(completedBy);
     }
 
     @SuppressWarnings("unused")
