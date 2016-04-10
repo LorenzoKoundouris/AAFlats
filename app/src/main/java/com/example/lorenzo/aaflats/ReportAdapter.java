@@ -14,11 +14,9 @@ public class ReportAdapter extends RecyclerView.Adapter<ReportViewHolder> {
 
     public static Report mReport = new Report();
     private ArrayList<Report> reportList;
-    private ArrayList<String> shorterContents;
 
-    public ReportAdapter(ArrayList<Report> reportList, ArrayList<String> shorterContents){
+    public ReportAdapter(ArrayList<Report> reportList){
         this.reportList = reportList;
-        this.shorterContents = shorterContents;
     }
 
     @Override
@@ -30,7 +28,7 @@ public class ReportAdapter extends RecyclerView.Adapter<ReportViewHolder> {
     @Override
     public void onBindViewHolder(ReportViewHolder reportViewHolder, int position) {
         mReport = reportList.get(position);
-        reportViewHolder.reportContent.setText(shorterContents.get(position));
+        reportViewHolder.reportContent.setText(mReport.getContent()); //shorterContents.get(position)
         reportViewHolder.reportSender.setText(mReport.getSender());
         StringBuilder ts = new StringBuilder(mReport.getTimestamp());
         ts.insert(2, "/");

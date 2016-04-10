@@ -92,7 +92,7 @@ public class ComposeNew extends AppCompatActivity {
                         newReport.setContent(composition.getText().toString());
                         newReport.setType(typeSpinner.getSelectedItem().toString());
                         newReport.setSender(parceableTenant.getForename() + " " + parceableTenant.getSurname());
-                        newReport.setSender(parceableTenant.getProperty());
+                        newReport.setProperty(parceableTenant.getProperty());
                         newReport.setStatus("pending");
 
                         reportRef.push().setValue(newReport);

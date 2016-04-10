@@ -27,7 +27,6 @@ import java.util.Comparator;
 public class ReportFragment extends Fragment {
 
     ArrayList<Report> reportList = new ArrayList<>();
-    ArrayList<String> shorterContents = new ArrayList<>();
     public RecyclerView reportRV;
     @Nullable
     @Override
@@ -55,15 +54,7 @@ public class ReportFragment extends Fragment {
                     }
                 });
 
-                for (int i = 0; i < reportList.size(); i++) {
-                    if (reportList.get(i).getContent().length() > 23) {
-                        shorterContents.add(reportList.get(i).getContent().substring(0, 20) + "...");
-                    } else {
-                        shorterContents.add(reportList.get(i).getContent());
-                    }
-                }
-
-                reportRV.setAdapter(new ReportAdapter(reportList, shorterContents));
+                reportRV.setAdapter(new ReportAdapter(reportList));
             }
 
             @Override

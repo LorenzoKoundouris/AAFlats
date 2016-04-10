@@ -103,9 +103,7 @@ public class TenantDetails extends AppCompatActivity {
         setContentView(R.layout.activity_tenant_details);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
-
-
+        
         tenantRef = new Firebase(getResources().getString(R.string.tenants_location));
         flatRef = new Firebase(getResources().getString(R.string.flats_location));
 

@@ -1,14 +1,20 @@
 package com.example.lorenzo.aaflats;
 
+import android.app.SearchManager;
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
@@ -28,6 +34,9 @@ public class AllReports extends AppCompatActivity {
     private SwipeRefreshLayout refreshLayout;
     private RecyclerView reportRecyclerView;
     private boolean notFirstLoad = false;
+    private ArrayList<Report> searchQuery = new ArrayList<>();
+
+    private ArrayList<Report> reportList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,15 +51,13 @@ public class AllReports extends AppCompatActivity {
             public void onClick(View view) {
                 Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
-                //ToDo: go to Inbox
+                startActivity(new Intent(AllReports.this, Inbox.class));
             }
         });
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         setTitle("All reports");
 
-        final ArrayList<Report> reportList = new ArrayList<>();
-        final ArrayList<String> shorterContents = new ArrayList<>();
 
         refreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_layout_allreports);
         refreshLayout.setColorSchemeResources(
@@ -65,7 +72,7 @@ public class AllReports extends AppCompatActivity {
                     @Override
                     public void run() {
                         // Do something after 2s = 2000ms
-                        setRecyclerAdapterContents(reportList, shorterContents);
+                        setRecyclerAdapterContents(reportList);
                     }
                 }, 2000);
             }
@@ -91,15 +98,8 @@ public class AllReports extends AppCompatActivity {
                     }
                 });
 
-                for (int i = 0; i < reportList.size(); i++) {
-                    if(reportList.get(i).getContent().length() > 23){
-                        shorterContents.add(reportList.get(i).getContent().substring(0, 20) + "...");
-                    } else {
-                        shorterContents.add(reportList.get(i).getContent());
-                    }
-                }
 
-                setRecyclerAdapterContents(reportList, shorterContents);
+                setRecyclerAdapterContents(reportList);
             }
 
             @Override
@@ -117,8 +117,8 @@ public class AllReports extends AppCompatActivity {
     }
 
 
-    private void setRecyclerAdapterContents(ArrayList<Report> reportList, ArrayList<String> shorterContents){
-        reportRecyclerView.setAdapter(new ReportAdapter(reportList, shorterContents));
+    private void setRecyclerAdapterContents(ArrayList<Report> reportList){
+        reportRecyclerView.setAdapter(new ReportAdapter(reportList));
         if(!notFirstLoad){
             final Handler handler = new Handler();
             handler.postDelayed(new Runnable() {
@@ -145,5 +145,61 @@ public class AllReports extends AppCompatActivity {
         }
         return true;
     }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.search_view, menu);
+        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        MenuItem searchItem = menu.findItem(R.id.action_search);
+        SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
+        searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                //Perform final search
+                searchQuery.clear();
+                boolean exactMatch = false;
+                for (int i = 0; i < reportList.size(); i++) {
+                    if (query.matches(reportList.get(i).getReportKey())) {
+                        exactMatch = true;
+                        startActivity(new Intent(AllReports.this, ReportDetails.class)
+                                .putExtra("parceable_report", reportList.get(i)));
+                        break;
+                    } else if (reportList.get(i).getReportKey().contains(query) || reportList.get(i).getProperty().toLowerCase().contains(query.toLowerCase()) ||
+                            reportList.get(i).getSender().toLowerCase().contains(query.toLowerCase())
+                            || reportList.get(i).getContent().toLowerCase().contains(query.toLowerCase())) {
+                        searchQuery.add(reportList.get(i));
+                    }
+                }
+                if (!exactMatch) {
+                    setRecyclerAdapterContents(searchQuery);
+                }
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                //Text has changed, apply filtering
+                loadResults(newText);
+                return true;
+            }
+        });
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    private void loadResults(String newText) {
+        searchQuery.clear();
+        for (int i = 0; i < reportList.size(); i++) {
+            if (reportList.get(i).getReportKey().contains(newText) || reportList.get(i).getProperty().toLowerCase().contains(newText.toLowerCase()) ||
+                    reportList.get(i).getSender().toLowerCase().contains(newText.toLowerCase()) ||
+                    reportList.get(i).getContent().toLowerCase().contains(newText.toLowerCase())) {
+                searchQuery.add(reportList.get(i));
+            }
+        }
+        setRecyclerAdapterContents(searchQuery);
+    }
+
+
 
 }

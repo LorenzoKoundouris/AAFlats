@@ -94,7 +94,7 @@ public class ReportDetails extends AppCompatActivity {
         reportTimestamp = (TextView) findViewById(R.id.report_timestamp);
 
         reportProperty.setText(parceableReport.getProperty());
-        reportStatus.setText(parceableReport.getStatus());
+        reportStatus.setText(parceableReport.getStatus().toUpperCase());
         reportContent.setText(parceableReport.getContent());
         reportSender.setText(parceableReport.getSender());
         StringBuilder ts = new StringBuilder(parceableReport.getTimestamp());
@@ -113,12 +113,12 @@ public class ReportDetails extends AppCompatActivity {
         if (replyNow) {
             parceableReport.setStatus("Replied");
             statusChangeMap.put("status", "Replied");
-            reportStatus.setText("REPLIED");
+            reportStatus.setText(parceableReport.getStatus().toUpperCase());
 
         } else {
             parceableReport.setStatus("Pending reply");
             statusChangeMap.put("status", "Pending reply");
-            reportStatus.setText("PENDING REPLY");
+            reportStatus.setText(parceableReport.getStatus().toUpperCase());
         }
         changeEnquiryStatusRef.updateChildren(statusChangeMap);
     }
@@ -130,12 +130,12 @@ public class ReportDetails extends AppCompatActivity {
         if (taskApproved) {
             parceableReport.setStatus("Approved");
             statusChangeMap.put("status", "Approved");
-            reportStatus.setText("APPROVED");
+            reportStatus.setText(parceableReport.getStatus().toUpperCase());
 
         } else {
             parceableReport.setStatus("Rejected");
             statusChangeMap.put("status", "Rejected");
-            reportStatus.setText("REJECTED");
+            reportStatus.setText(parceableReport.getStatus().toUpperCase());
         }
         changeReportStatusRef.updateChildren(statusChangeMap);
     }

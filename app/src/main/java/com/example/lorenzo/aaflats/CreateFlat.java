@@ -8,12 +8,11 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.Toolbar;
-import android.text.Editable;
-import android.text.TextWatcher;
-import android.view.Gravity;
+import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
@@ -28,9 +27,17 @@ import com.firebase.client.Query;
 import com.firebase.client.ValueEventListener;
 
 import java.util.ArrayList;
-import java.util.Objects;
+import java.util.HashSet;
+import java.util.Set;
 
 public class CreateFlat extends AppCompatActivity {
+
+    private Flat newFlat;
+
+    private InputMethodManager inputMethodManager;
+    private ArrayList<String> unassignedTenants = new ArrayList<>();
+    private boolean nonExistentTenant = false;
+
     private ArrayAdapter<String> propertyAdapter;
     private ArrayList<Property> propertyList = new ArrayList<>();
     private ArrayList<Flat> flatList = new ArrayList<>();
@@ -59,6 +66,9 @@ public class CreateFlat extends AppCompatActivity {
         setTitle("Create new Flat");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+        //Define inputMethodService to hide keyboard
+        inputMethodManager = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+
         Bundle myIntent = getIntent().getExtras();
         etFlatNum = (EditText) findViewById(R.id.nf_number_edittext);
         etFlatNotes = (EditText) findViewById(R.id.nf_notes_editext);
@@ -72,8 +82,8 @@ public class CreateFlat extends AppCompatActivity {
 
         if (myIntent != null) {
             createdProperty = myIntent.getParcelable("created_property");
-            propertyList = myIntent.getParcelableArrayList("propertyList");
-            propertyAddrLine1s = myIntent.getStringArrayList("propertyAddrLine1s");
+//            propertyList = myIntent.getParcelableArrayList("propertyList");
+//            propertyAddrLine1s = myIntent.getStringArrayList("propertyAddrLine1s");
             actvProperty.setText(createdProperty.getAddrline1());
             loadCorrespondingFlats(createdProperty.getAddrline1());
         }
@@ -90,86 +100,144 @@ public class CreateFlat extends AppCompatActivity {
                 (this, android.R.layout.simple_dropdown_item_1line, tenantFullNames);
         flatTenant.setAdapter(tenantAdapter);
 
-        actvProperty.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                boolean isProperty = false;
-                if (!actvProperty.getText().toString().matches("")) {
-                    for (int i = 0; i < propertyAddrLine1s.size(); i++) {
-                        if (propertyAddrLine1s.get(i).matches(actvProperty.getText().toString().trim())) {
-                            isProperty = true;
-                            createdProperty = propertyList.get(i);
-                            break;
-                        }
-                    }
-                    if (!isProperty) {
-                        new AlertDialog.Builder(v.getContext())
-                                .setTitle("Wrong address")
-                                .setMessage("You must enter an existing property")
-                                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        actvProperty.setText("");
-                                        actvProperty.requestFocus();
-                                    }
-                                })
-                                .setIcon(android.R.drawable.ic_dialog_alert)
-                                .show();
-                        isValidAddress = false;
-                    } else {
-                        isValidAddress = true;
-                    }
-                }
-            }
-        });
-
-
-        Firebase propertyRef = new Firebase(getResources().getString(R.string.properties_location));
-        propertyRef.addValueEventListener(new ValueEventListener() {
+        Firebase flatRef = new Firebase(getResources().getString(R.string.flats_location));
+        flatRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                propertyList.clear();
-                propertyAddrLine1s.clear();
-                for (DataSnapshot prtSnapshot : dataSnapshot.getChildren()) {
-                    Property prt = prtSnapshot.getValue(Property.class);
-                    propertyList.add(prt);
-                    propertyAddrLine1s.add(prt.getAddrline1());
+                flatList.clear();
+                flatNums.clear();
+                for (DataSnapshot childSnapShot : dataSnapshot.getChildren()) {
+                    Flat flt = childSnapShot.getValue(Flat.class);
+                    flatList.add(flt);
+                    flatNums.add(flt.getFlatNum());
+                    propertyAddrLine1s.add(flt.getAddressLine1());
                 }
-
-                System.out.print("I FOUND THIS : " + propertyAddrLine1s.get(0).toString());
+                Set<String> removeDuplicates = new HashSet<>();
+                removeDuplicates.addAll(propertyAddrLine1s);
+                propertyAddrLine1s.clear();
+                propertyAddrLine1s.addAll(removeDuplicates);
             }
 
             @Override
             public void onCancelled(FirebaseError firebaseError) {
-                System.out.println("Property: " + "The read failed: " + firebaseError.getMessage());
+
             }
         });
 
-        actvProperty.addTextChangedListener(new TextWatcher() {
+        //Need this
+        Firebase tenantRef = new Firebase(getResources().getString(R.string.tenants_location));
+        tenantRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                if (actvProperty.getText().toString().matches("")) {
-                    etFlatNum.setEnabled(false);
-                    flatTenant.setEnabled(false);
-                    addTenantBtn.setEnabled(false);
-                    etFlatNotes.setEnabled(false);
-                } else {
-                    etFlatNum.setEnabled(true);
-                    flatTenant.setEnabled(true);
-                    addTenantBtn.setEnabled(true);
-                    etFlatNotes.setEnabled(true);
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                tenantList.clear();
+                tenantFullNames.clear();
+                unassignedTenants.clear();
+                for (DataSnapshot childSnapShot : dataSnapshot.getChildren()) {
+                    Tenant tnt = childSnapShot.getValue(Tenant.class);
+                    tenantList.add(tnt);
+                    String fullName;
+                    if (!tnt.getMiddlename().matches("")) {
+                        fullName = tnt.getForename() + " " + tnt.getMiddlename() + " " + tnt.getSurname();
+                    } else {
+                        fullName = tnt.getForename() + " " + tnt.getSurname();
+                    }
+                    tenantFullNames.add(fullName.trim());
+                    if(tnt.getProperty().matches("")){
+                        if (!tnt.getMiddlename().matches("")) {
+                            fullName = tnt.getForename() + " " + tnt.getMiddlename() + " " + tnt.getSurname();
+                        } else {
+                            fullName = tnt.getForename() + " " + tnt.getSurname();
+                        }
+                        unassignedTenants.add(fullName);
+                    }
                 }
             }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+
+            }
         });
+
+//        actvProperty.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+//            @Override
+//            public void onFocusChange(View v, boolean hasFocus) {
+//                boolean isProperty = false;
+//                if (!actvProperty.getText().toString().matches("")) {
+//                    for (int i = 0; i < propertyAddrLine1s.size(); i++) {
+//                        if (propertyAddrLine1s.get(i).matches(actvProperty.getText().toString().trim())) {
+//                            isProperty = true;
+//                            createdProperty = propertyList.get(i);
+//                            break;
+//                        }
+//                    }
+//                    if (!isProperty) {
+//                        new AlertDialog.Builder(v.getContext())
+//                                .setTitle("Wrong address")
+//                                .setMessage("You must enter an existing property")
+//                                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+//                                    public void onClick(DialogInterface dialog, int which) {
+//                                        actvProperty.setText("");
+//                                        actvProperty.requestFocus();
+//                                    }
+//                                })
+//                                .setIcon(android.R.drawable.ic_dialog_alert)
+//                                .show();
+//                        isValidAddress = false;
+//                    } else {
+//                        isValidAddress = true;
+//                    }
+//                }
+//            }
+//        });
+
+
+//        Firebase propertyRef = new Firebase(getResources().getString(R.string.properties_location));
+//        propertyRef.addValueEventListener(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(DataSnapshot dataSnapshot) {
+//                propertyList.clear();
+//                propertyAddrLine1s.clear();
+//                for (DataSnapshot prtSnapshot : dataSnapshot.getChildren()) {
+//                    Property prt = prtSnapshot.getValue(Property.class);
+//                    propertyList.add(prt);
+//                    propertyAddrLine1s.add(prt.getAddrline1());
+//                }
+////                System.out.print("I FOUND THIS : " + propertyAddrLine1s.get(0).toString());
+//            }
+//
+//            @Override
+//            public void onCancelled(FirebaseError firebaseError) {
+//                System.out.println("Property: " + "The read failed: " + firebaseError.getMessage());
+//            }
+//        });
+
+//        actvProperty.addTextChangedListener(new TextWatcher() {
+//            @Override
+//            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+//
+//            }
+//
+//            @Override
+//            public void onTextChanged(CharSequence s, int start, int before, int count) {
+//
+//            }
+//
+//            @Override
+//            public void afterTextChanged(Editable s) {
+//                if (actvProperty.getText().toString().matches("")) {
+//                    etFlatNum.setEnabled(false);
+//                    flatTenant.setEnabled(false);
+//                    addTenantBtn.setEnabled(false);
+//                    etFlatNotes.setEnabled(false);
+//                } else {
+//                    etFlatNum.setEnabled(true);
+//                    flatTenant.setEnabled(true);
+//                    addTenantBtn.setEnabled(true);
+//                    etFlatNotes.setEnabled(true);
+//                }
+//            }
+//        });
 
 //        flatTenant.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 //            @Override
@@ -228,43 +296,43 @@ public class CreateFlat extends AppCompatActivity {
 //        });
 
 
-        etFlatNum.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                if (!hasFocus && etFlatNum.getText().toString().matches("")) {
-                    Toast toast = Toast.makeText(CreateFlat.this, "No flat number ?", Toast.LENGTH_SHORT);
-                    toast.setGravity(Gravity.CENTER, 0, 0);
-                    toast.show();
-                }
-            }
-        });
-
-        etFlatNotes.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                if (!hasFocus && etFlatNotes.getText().toString().matches("")) {
-                    Toast toast = Toast.makeText(CreateFlat.this, "No notes ?", Toast.LENGTH_SHORT);
-                    toast.setGravity(Gravity.CENTER, 0, 0);
-                    toast.show();
-                    etFlatNotes.setText("No notes yet. You can add some later.");
-                    isValidNotes = true;
-                }
-            }
-        });
-
-        flatTenant.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                if (!hasFocus && flatTenant.getText().toString().matches("")) {
-                    Toast toast = Toast.makeText(CreateFlat.this, "No tenant ?", Toast.LENGTH_SHORT);
-                    toast.setGravity(Gravity.CENTER, 0, 0);
-                    toast.show();
-                }
-                if (hasFocus && !actvProperty.getText().toString().matches("")) {
-                    getTenants();
-                }
-            }
-        });
+//        etFlatNum.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+//            @Override
+//            public void onFocusChange(View v, boolean hasFocus) {
+//                if (!hasFocus && etFlatNum.getText().toString().matches("")) {
+//                    Toast toast = Toast.makeText(CreateFlat.this, "No flat number ?", Toast.LENGTH_SHORT);
+//                    toast.setGravity(Gravity.CENTER, 0, 0);
+//                    toast.show();
+//                }
+//            }
+//        });
+//
+//        etFlatNotes.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+//            @Override
+//            public void onFocusChange(View v, boolean hasFocus) {
+//                if (!hasFocus && etFlatNotes.getText().toString().matches("")) {
+//                    Toast toast = Toast.makeText(CreateFlat.this, "No notes ?", Toast.LENGTH_SHORT);
+//                    toast.setGravity(Gravity.CENTER, 0, 0);
+//                    toast.show();
+//                    etFlatNotes.setText("No notes yet. You can add some later.");
+//                    isValidNotes = true;
+//                }
+//            }
+//        });
+//
+//        flatTenant.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+//            @Override
+//            public void onFocusChange(View v, boolean hasFocus) {
+//                if (!hasFocus && flatTenant.getText().toString().matches("")) {
+//                    Toast toast = Toast.makeText(CreateFlat.this, "No tenant ?", Toast.LENGTH_SHORT);
+//                    toast.setGravity(Gravity.CENTER, 0, 0);
+//                    toast.show();
+//                }
+//                if (hasFocus && !actvProperty.getText().toString().matches("")) {
+//                    getTenants();
+//                }
+//            }
+//        });
 
         cancelTenantBtn = (ImageView) findViewById(R.id.cancel_tenant_iv);
         addTenantBtn = (CardView) findViewById(R.id.nf_card);
@@ -341,9 +409,9 @@ public class CreateFlat extends AppCompatActivity {
         switch (item.getItemId()) {
             case android.R.id.home:
                 //Toast.makeText(getApplicationContext(), "Back button clicked", Toast.LENGTH_SHORT).show();
-//                onBackPressed();
-                startActivity(new Intent(CreateFlat.this, Homepage.class));
-                finish();
+                onBackPressed();
+//                startActivity(new Intent(CreateFlat.this, Homepage.class));
+//                finish();
                 break;
             case R.id.save_new_task:
                 //Toast.makeText(getApplicationContext(), "Save button clicked", Toast.LENGTH_SHORT).show();
@@ -356,69 +424,176 @@ public class CreateFlat extends AppCompatActivity {
         return true;
     }
 
-    private void saveNewFlat() {
-        validateData();
-        if(isValidAddress && isValidFlatNum && isValidNotes){
-            try {
-                Flat newFlat = new Flat();
+    private void attemptCreation() {
+        newFlat = new Flat();
+        newFlat.setAddressLine1("");
+        newFlat.setPostcode("");
+        newFlat.setNotes("");
+        newFlat.setFlatNum("");
+        newFlat.setTenant("");
 
-                newFlat.setAddressLine1(createdProperty.getAddrline1());
+        boolean cancel = false;
+        View focusView = null;
 
-                newFlat.setPostcode(createdProperty.getPostcode());
+        //Check for valid address, if the user entered one
+        if (TextUtils.isEmpty(actvProperty.getText().toString())) {
+            actvProperty.setError("This field is required");
+            cancel = true;
+            focusView = actvProperty;
+        } else if (!isAddressValid(actvProperty.getText().toString())) {
+            actvProperty.setError("This address is invalid");
+            cancel = true;
+            focusView = actvProperty;
+        }
 
-                newFlat.setNotes(etFlatNotes.getText().toString());
-
-                newFlat.setFlatNum("Flat " + etFlatNum.getText().toString());
-
-                newFlat.setTenant(flatTenant.getText().toString());
-
-                Firebase newFlatRef = new Firebase(getString(R.string.flats_location));
-                newFlatRef.push().setValue(newFlat);
-
-                new AlertDialog.Builder(this)
-                        .setTitle("Success")
-                        .setMessage(newFlat.getFlatNum() + " has been added as a flat of " + newFlat.getAddressLine1())
-                        .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                startActivity(new Intent(CreateFlat.this, PropertyDetails.class).putExtra("parceable_property", createdProperty));
-                                finish();
-                            }
-                        })
-                        .setIcon(android.R.drawable.ic_dialog_alert)
-                        .show();
-
-            } catch (Exception e) {
-                Toast.makeText(CreateFlat.this, "Something went wrong. Flat NOT created.", Toast.LENGTH_SHORT).show();
+        //Check for a valid flat number, if the user entered one
+        if (TextUtils.isEmpty(etFlatNum.getText().toString())) {
+            etFlatNum.setError("This field is required");
+            cancel = true;
+            if (focusView == null) {
+                focusView = etFlatNum;
             }
+        } else if (!isFlatNumValid(etFlatNum.getText().toString())) {
+            etFlatNum.setError("This flat number is in use");
+            cancel = true;
+            if (focusView == null) {
+                focusView = etFlatNum;
+            }
+
+            new AlertDialog.Builder(this)
+                    .setIcon(android.R.drawable.ic_dialog_alert)
+                    .setTitle("Warning")
+                    .setMessage("These flat numbers already exist in \"" + actvProperty.getText().toString()
+                            + "\":" + "\n" + flatNums.toString() + "\nPlease enter a unique number.")
+                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    })
+                    .show();
+        }
+
+        //Check for valid tenant, if the user entered one
+        if(TextUtils.isEmpty(flatTenant.getText().toString())){
+            //No need to add a tenant
+        }else if(!isTenantValid(flatTenant.getText().toString())){
+            flatTenant.setError("This tenant does not exist in the system");
+            cancel = true;
+            if (focusView == null) {
+                focusView = flatTenant;
+            }
+        } else if(!isTenantFree(flatTenant.getText().toString())){
+            flatTenant.setError("This tenant number is in use");
+            cancel = true;
+            if (focusView == null) {
+                focusView = flatTenant;
+            }
+        }
+
+
+        if (cancel) {
+            // There was an error; don't attempt creation and focus the first
+            // form field with an error.
+            focusView.requestFocus();
+        } else {
+            // Show a progress spinner, and kick off a background task to
+            // perform the user login attempt.
+            inputMethodManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+            saveNewFlat();
         }
 
     }
 
-    private void getTenants() {
-        Firebase tenantRef = new Firebase(getResources().getString(R.string.tenants_location));
-        tenantRef.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                tenantList.clear();
-                tenantFullNames.clear();
-                for (DataSnapshot childSnapShot : dataSnapshot.getChildren()) {
-                    Tenant tnt = childSnapShot.getValue(Tenant.class);
-                    tenantList.add(tnt);
-                    String fullName;
-                    if(!tnt.getMiddlename().matches("")){
-                        fullName = tnt.getForename() + " " + tnt.getMiddlename() + " " + tnt.getSurname();
-                    } else {
-                        fullName = tnt.getForename() + " " + tnt.getSurname();
-                    }
-                    tenantFullNames.add(fullName.trim());
+    private boolean isTenantFree(String s) {
+        for (int i = 0; i < unassignedTenants.size(); i++) {
+            if (unassignedTenants.get(i).matches(s.trim())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean isTenantValid(String s) {
+        for (int i = 0; i < tenantFullNames.size(); i++) {
+            if (tenantFullNames.get(i).matches(s.trim())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean isFlatNumValid(String s) {
+        boolean foundIt = false;
+        for (Flat flt : flatList) {
+            if (flt.getAddressLine1().matches(s)) {
+                if (!flt.getFlatNum().matches("Flat " + s)) {
+                    foundIt = true;
+                } else {
+                    flatNums.add(flt.getFlatNum());
                 }
             }
+        }
+        if(foundIt){
+            return false;
+        } else{
+            return true;
+        }
+    }
 
-            @Override
-            public void onCancelled(FirebaseError firebaseError) {
-
+    private boolean isAddressValid(String s) {
+        for (String t : propertyAddrLine1s) {
+            if (t.matches(s)) {
+                return true;
             }
-        });
+        }
+        return false;
+    }
+
+
+
+
+
+
+    private void saveNewFlat() {
+        validateData();
+        try {
+
+
+            newFlat.setAddressLine1(createdProperty.getAddrline1());
+
+            newFlat.setPostcode(createdProperty.getPostcode());
+
+            newFlat.setNotes(etFlatNotes.getText().toString());
+
+            newFlat.setFlatNum("Flat " + etFlatNum.getText().toString());
+
+            newFlat.setTenant(flatTenant.getText().toString());
+
+            Firebase newFlatRef = new Firebase(getString(R.string.flats_location));
+            newFlatRef.push().setValue(newFlat);
+
+            new AlertDialog.Builder(this)
+                    .setTitle("Success")
+                    .setMessage(newFlat.getFlatNum() + " has been added as a flat of " + newFlat.getAddressLine1())
+                    .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            startActivity(new Intent(CreateFlat.this, PropertyDetails.class).putExtra("parceable_property", createdProperty));
+                            finish();
+                        }
+                    })
+                    .setIcon(android.R.drawable.ic_dialog_alert)
+                    .show();
+
+        } catch (Exception e) {
+            Toast.makeText(CreateFlat.this, "Something went wrong. Flat NOT created.", Toast.LENGTH_SHORT).show();
+        }
+
+
+    }
+
+    private void getTenants() {
+
     }
 
     private void validateData() {
@@ -455,10 +630,10 @@ public class CreateFlat extends AppCompatActivity {
 ////////////////////////////////////////// Validate flat number ^
 
         if (flatTenant.getText().toString().matches("")) {
-            if(addTenant){
+            if (addTenant) {
                 flatTenant.setBackgroundColor(Color.parseColor("#EF9A9A"));
                 isValidTenant = false;
-            } else{
+            } else {
                 isValidTenant = true;
             }
 
@@ -514,7 +689,7 @@ public class CreateFlat extends AppCompatActivity {
             if (!isValidFlatNum) {
                 nullVals += "\n- Flat number";
             }
-            if(etFlatNotes.getText().toString().matches("") || !isValidNotes){
+            if (etFlatNotes.getText().toString().matches("") || !isValidNotes) {
                 etFlatNotes.setText("No notes yet. You can add some later.");
                 isValidNotes = true;
             }

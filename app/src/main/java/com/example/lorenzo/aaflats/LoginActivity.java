@@ -113,6 +113,8 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
         qrCode = (ImageView) findViewById(R.id.qr_code_imageview);
 
 //        populateAutoComplete();
+        Bundle intent = getIntent().getExtras();
+        staffSigningIn = intent.getParcelableArrayList("parceable_staff_list");
 
         mPasswordView = (EditText) findViewById(R.id.password);
         mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -139,7 +141,7 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
         mLoginFormView = findViewById(R.id.login_form);
         mProgressView = findViewById(R.id.login_progress);
 
-        //mine
+
         int height = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 100, getResources().getDisplayMetrics());
         final FrameLayout.LayoutParams lp =
                 new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT,
@@ -149,6 +151,9 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
             public void onFocusChange(View v, boolean hasFocus) {
                 if (hasFocus) {
                     populateAutoComplete();
+                    if(!TextUtils.isEmpty(mEmailView.getText().toString())){
+                        attemptLogin();
+                    }
 //                    lp.gravity= Gravity.CENTER;
 //                    qrCode.setLayoutParams(lp);
 
@@ -190,24 +195,24 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
         });
 
 
-        final Firebase staffRef = new Firebase(getResources().getString(R.string.staff_location));
-//        Query verifyCredentials = staffRef.orderByChild("username").equalTo(mEmailView);
-        staffRef.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                for (DataSnapshot childSnap : dataSnapshot.getChildren()) {
-                    Staff stf = childSnap.getValue(Staff.class);
-                    stf.setStaffKey(childSnap.getKey());
-                    staffSigningIn.add(stf);
-                }
-                attemptLogin();
-            }
-
-            @Override
-            public void onCancelled(FirebaseError firebaseError) {
-
-            }
-        });
+//        final Firebase staffRef = new Firebase(getResources().getString(R.string.staff_location));
+////        Query verifyCredentials = staffRef.orderByChild("username").equalTo(mEmailView);
+//        staffRef.addListenerForSingleValueEvent(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(DataSnapshot dataSnapshot) {
+//                for (DataSnapshot childSnap : dataSnapshot.getChildren()) {
+//                    Staff stf = childSnap.getValue(Staff.class);
+//                    stf.setStaffKey(childSnap.getKey());
+//                    staffSigningIn.add(stf);
+//                }
+//                attemptLogin();
+//            }
+//
+//            @Override
+//            public void onCancelled(FirebaseError firebaseError) {
+//
+//            }
+//        });
 
     }//end of oncreate
 

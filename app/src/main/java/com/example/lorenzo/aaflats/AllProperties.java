@@ -18,6 +18,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
@@ -33,6 +34,8 @@ public class AllProperties extends AppCompatActivity {
     private SwipeRefreshLayout refreshLayout;
     private RecyclerView propertyRecyclerView;
     private boolean notFirstLoad = false;
+    private ArrayList<Property> searchQuery = new ArrayList<>();
+    private ArrayList<Property> propertyList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,8 +52,6 @@ public class AllProperties extends AppCompatActivity {
             }
         });
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        final ArrayList<Property> propertyList = new ArrayList<>();
-        final ArrayList<String> propertyKeys = new ArrayList<>();
 
         refreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_layout_allproperties);
         refreshLayout.setColorSchemeResources(
@@ -99,6 +100,7 @@ public class AllProperties extends AppCompatActivity {
                     String[] splitter = propertyList.get(i).getAddrline1().split(" ");
                     propertyList.get(i).setAddrline1(splitter[2] + " " + splitter[0] + " " + splitter[1]);
                 }
+//                searchQuery = propertyList;
                 setRecyclerAdapterContents(propertyList);
             }
 
@@ -156,23 +158,38 @@ public class AllProperties extends AppCompatActivity {
         MenuItem searchItem = menu.findItem(R.id.action_search);
         SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
         searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener(){
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
 
             @Override
             public boolean onQueryTextSubmit(String query) {
                 //Perform final search
-                return false;
+                searchQuery.clear();
+                boolean exactMatch = false;
+                for (int i = 0; i < propertyList.size(); i++) {
+                    if (query.toLowerCase().matches(propertyList.get(i).getAddrline1().toLowerCase()) ||
+                            query.toLowerCase().matches(propertyList.get(i).getPostcode().toLowerCase())) {
+                        exactMatch = true;
+                        startActivity(new Intent(AllProperties.this, PropertyDetails.class)
+                                .putExtra("parceable_property", propertyList.get(i)));
+                        break;
+                    } else if (propertyList.get(i).getAddrline1().toLowerCase().contains(query.toLowerCase()) ||
+                            propertyList.get(i).getPostcode().toLowerCase().contains(query.toLowerCase())) {
+                        searchQuery.add(propertyList.get(i));
+                    }
+                }
+                if (!exactMatch) {
+                    setRecyclerAdapterContents(searchQuery);
+                }
+                return true;
             }
 
             @Override
             public boolean onQueryTextChange(String newText) {
                 //Text has changed, apply filtering
-                return false;
+                loadResults(newText);
+                return true;
             }
         });
-
-
-
 
 
 //        MenuInflater menuInflater = getMenuInflater();
@@ -190,6 +207,17 @@ public class AllProperties extends AppCompatActivity {
 //            searchView.setSearchableInfo(searchManager.getSearchableInfo(AllProperties.this.getComponentName()));
 //        }
         return super.onCreateOptionsMenu(menu);
+    }
+
+    private void loadResults(String newText) {
+        searchQuery.clear();
+        for (int i = 0; i < propertyList.size(); i++) {
+            if (propertyList.get(i).getAddrline1().toLowerCase().contains(newText.toLowerCase()) ||
+                    propertyList.get(i).getPostcode().toLowerCase().contains(newText.toLowerCase())) {
+                searchQuery.add(propertyList.get(i));
+            }
+        }
+        setRecyclerAdapterContents(searchQuery);
     }
 
 }

@@ -1,16 +1,23 @@
 package com.example.lorenzo.aaflats;
 
+import android.app.SearchManager;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
@@ -26,6 +33,8 @@ public class AllTenants extends AppCompatActivity {
     private boolean notFirstLoad = false;
     private RecyclerView tenantRecyclerView;
     private SwipeRefreshLayout refreshLayout;
+    private ArrayList<Tenant> searchQuery = new ArrayList<>();
+    private ArrayList<Tenant> tenantList = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,7 +56,6 @@ public class AllTenants extends AppCompatActivity {
         });
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        final ArrayList<Tenant> tenantList = new ArrayList<>();
         tenantRecyclerView = (RecyclerView) findViewById(R.id.tenants_recycler_view);
         tenantRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
@@ -122,4 +130,64 @@ public class AllTenants extends AppCompatActivity {
         notFirstLoad = true;
         refreshLayout.setRefreshing(false);
     }
+
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.search_view, menu);
+        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        MenuItem searchItem = menu.findItem(R.id.action_search);
+        SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
+        searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                //Perform final search
+                searchQuery.clear();
+                boolean exactMatch = false;
+                for (int i = 0; i < tenantList.size(); i++) {
+                    String fullName = tenantList.get(i).getForename() + " " + tenantList.get(i).getSurname();
+                    if (query.matches(fullName) || query.matches(tenantList.get(i).getEmail())) {
+                        exactMatch = true;
+                        startActivity(new Intent(AllTenants.this, TenantDetails.class)
+                                .putExtra("parceable_tenant", tenantList.get(i)));
+                        break;
+                    } else if (fullName.contains(query) || tenantList.get(i).getProperty().toLowerCase().contains(query.toLowerCase()) ||
+                            tenantList.get(i).getEmail().toLowerCase().contains(query.toLowerCase())
+                            || tenantList.get(i).getTelephone().toLowerCase().contains(query.toLowerCase())) {
+                        searchQuery.add(tenantList.get(i));
+                    }
+                }
+                if (!exactMatch) {
+                    setRecyclerAdapterContents(searchQuery);
+                }
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                //Text has changed, apply filtering
+                loadResults(newText);
+                return true;
+            }
+        });
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    private void loadResults(String newText) {
+        searchQuery.clear();
+        for (int i = 0; i < tenantList.size(); i++) {
+            String fullName = tenantList.get(i).getForename() + " " + tenantList.get(i).getSurname();
+            if (fullName.contains(newText) ||
+                    tenantList.get(i).getProperty().toLowerCase().contains(newText.toLowerCase()) ||
+                    tenantList.get(i).getEmail().toLowerCase().contains(newText.toLowerCase()) ||
+                    tenantList.get(i).getTelephone().toLowerCase().contains(newText.toLowerCase())) {
+                searchQuery.add(tenantList.get(i));
+            }
+        }
+        setRecyclerAdapterContents(searchQuery);
+    }
+
+
 }

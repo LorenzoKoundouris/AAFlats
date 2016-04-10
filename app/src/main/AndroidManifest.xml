@@ -145,10 +145,15 @@
             android:name=".AllTenants"
             android:label="@string/title_activity_all_tenants"
             android:parentActivityName=".Homepage"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@style/AppTheme.NoActionBar"
+            android:launchMode="singleTop">
+            <intent-filter>
+                <action android:name="android.intent.action.SEARCH" />
+            </intent-filter>
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.example.lorenzo.aaflats.Homepage" />
+                android:value="com.example.lorenzo.aaflats.Homepage"
+                android:resource="@xml/searchable"/>
         </activity>
         <activity
             android:name=".TenantDetails"
@@ -172,10 +177,15 @@
             android:name=".AllReports"
             android:label="@string/title_activity_all_reports"
             android:parentActivityName=".Homepage"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@style/AppTheme.NoActionBar"
+            android:launchMode="singleTop">
+            <intent-filter>
+                <action android:name="android.intent.action.SEARCH" />
+            </intent-filter>
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.example.lorenzo.aaflats.Homepage" />
+                android:value="com.example.lorenzo.aaflats.Homepage"
+                android:resource="@xml/searchable"/>
         </activity>
         <activity
             android:name=".SplashActivity"

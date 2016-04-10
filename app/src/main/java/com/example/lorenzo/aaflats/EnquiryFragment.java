@@ -25,7 +25,6 @@ import java.util.Comparator;
 public class EnquiryFragment extends Fragment {
 
     ArrayList<Report> enquiryList = new ArrayList<>();
-    ArrayList<String> shorterContents = new ArrayList<>();
 
     @Nullable
     @Override
@@ -53,15 +52,7 @@ public class EnquiryFragment extends Fragment {
                     }
                 });
 
-                for (int i = 0; i < enquiryList.size(); i++) {
-                    if (enquiryList.get(i).getContent().length() > 23) {
-                        shorterContents.add(enquiryList.get(i).getContent().substring(0, 20) + "...");
-                    } else {
-                        shorterContents.add(enquiryList.get(i).getContent());
-                    }
-                }
-
-                enquiryRV.setAdapter(new ReportAdapter(enquiryList, shorterContents));
+                enquiryRV.setAdapter(new ReportAdapter(enquiryList));
             }
 
             @Override
