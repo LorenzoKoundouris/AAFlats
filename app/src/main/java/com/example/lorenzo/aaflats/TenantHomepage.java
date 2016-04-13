@@ -220,7 +220,6 @@ public class TenantHomepage extends AppCompatActivity
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.my_account) {
-            //ToDO: Tenant myAccount as well as navDrawer
             startActivity(new Intent(TenantHomepage.this, TenantDetails.class).putExtra("parceable_tenant", tenantList.get(0)).putExtra("staff_access", false));
             return true;
         }

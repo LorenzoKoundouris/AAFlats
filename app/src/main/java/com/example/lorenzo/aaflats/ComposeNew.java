@@ -84,7 +84,7 @@ public class ComposeNew extends AppCompatActivity {
                 Firebase reportRef = new Firebase(getResources().getString(R.string.reports_location));
                 Report newReport = new Report();
 
-                if(composition.length() > 0){
+                if(composition.length() > 0){ //Maybe enforce additional requirements?
                     try{
                         SimpleDateFormat s = new SimpleDateFormat("ddMMyyyyHHmmss");
                         String format = s.format(new Date());

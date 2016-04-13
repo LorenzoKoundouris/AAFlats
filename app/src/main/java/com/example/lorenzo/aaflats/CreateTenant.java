@@ -67,6 +67,8 @@ public class CreateTenant extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        Firebase.setAndroidContext(this);
+
         setTitle("Create new Tenant");
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -170,38 +172,6 @@ public class CreateTenant extends AppCompatActivity {
 //                }
 //            }
 //        });
-
-        etDob.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                try {
-                    SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
-                    Date dob = dateFormat.parse(s.toString());
-                } catch (Exception e) {
-                    if(etDob.hasFocus()){
-                        final Handler handler = new Handler();
-                        handler.postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                // Do something after 2s = 2000ms
-                                Toast.makeText(CreateTenant.this, "Mandatory format: DD/MM/YYYY", Toast.LENGTH_SHORT).show();
-                            }
-                        }, 3000);
-                    }
-                }
-
-            }
-        });
 
         btCalen = (ImageView) findViewById(R.id.nt_calendar_button);
         btCalen.setOnClickListener(new View.OnClickListener() {
@@ -362,6 +332,17 @@ public class CreateTenant extends AppCompatActivity {
             cancel = true;
         }
 
+        //Check for a valid date of birth, if the user entered one
+        if (TextUtils.isEmpty(etDob.getText().toString())) {
+            etDob.setError("This field is required.");
+            cancel = true;
+            focusView = etDob;
+        } else if (!isDobValid(etDob.getText().toString())) {
+            etDob.setError("This address is invalid.");
+            cancel = true;
+            focusView = etDob;
+        }
+
         //Check for a valid email, if the user entered one
         if (!validateEmail(etEmail.getText().toString())) {
             etEmail.setError("This email is invalid");
@@ -397,6 +378,17 @@ public class CreateTenant extends AppCompatActivity {
             saveNewTenant();
         }
 
+    }
+
+    private boolean isDobValid(String s) {
+        try {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+            Date dob = dateFormat.parse(s.toString());
+            return true;
+        } catch (Exception e) {
+            Toast.makeText(CreateTenant.this, "Mandatory format: DD/MM/YYYY", Toast.LENGTH_LONG).show();
+            return false;
+        }
     }
 
     private boolean isTelValid(String trim) {

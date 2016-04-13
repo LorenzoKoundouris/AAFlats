@@ -11,6 +11,7 @@ import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.Gravity;
 import android.view.View;
@@ -33,6 +34,9 @@ import java.util.Collections;
 import java.util.Comparator;
 
 public class PropertyDetails extends AppCompatActivity {
+
+    private Property edittedProperty;
+    private ArrayList<Tenant> tenantList = new ArrayList<>();
 
     boolean attemptEdit = false;
     boolean editsCancelled;
@@ -79,25 +83,26 @@ public class PropertyDetails extends AppCompatActivity {
 
         Bundle intent = getIntent().getExtras();
         parceableProperty = intent.getParcelable("parceable_property");
+        edittedProperty = parceableProperty;
 
-        Query thisPropertyKeyQ = propertyRef.orderByChild("addrline1").equalTo(parceableProperty.getAddrline1());
-        thisPropertyKeyQ.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-
-                for (DataSnapshot childSnap : dataSnapshot.getChildren()) {
-                    parceablePropertyKey = childSnap.getKey();
-                }
-            }
-
-            @Override
-            public void onCancelled(FirebaseError firebaseError) {
-
-            }
-        });
+//        Query thisPropertyKeyQ = propertyRef.orderByChild("addrline1").equalTo(parceableProperty.getAddrline1());
+//        thisPropertyKeyQ.addListenerForSingleValueEvent(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(DataSnapshot dataSnapshot) {
+//
+//                for (DataSnapshot childSnap : dataSnapshot.getChildren()) {
+//                    parceablePropertyKey = childSnap.getKey();
+//                }
+//            }
+//
+//            @Override
+//            public void onCancelled(FirebaseError firebaseError) {
+//
+//            }
+//        });
 
         final ArrayList<Flat> flatList = new ArrayList<>();
-        final ArrayList<String> flatKeys = new ArrayList<>();
+//        final ArrayList<String> flatKeys = new ArrayList<>();
         final ArrayList<String> flatNums = new ArrayList<>();
         
         etPropertyPostcode = (EditText) findViewById(R.id.property_details_postcode);
@@ -106,21 +111,21 @@ public class PropertyDetails extends AppCompatActivity {
         etPropertyNotes = (EditText) findViewById(R.id.property_details_notes);
         flatListCardView = (CardView) findViewById(R.id.flatrecycler_card_view);
 
-        etPropertyPostcode.setText(parceableProperty.getPostcode().toUpperCase());
-        prefEditor.putString("propertyPostcode", parceableProperty.getPostcode().toUpperCase());
-        etPropertyAddressLine1.setText(parceableProperty.getAddrline1());
-        prefEditor.putString("propertyAddress", parceableProperty.getAddrline1());
-//        etPropertyFlats.setText("(" + parceableProperty.getNoOfFlats() + ")");
-        etPropertyNotes.setText(parceableProperty.getNotes());
-        prefEditor.putString("propertyNotes", parceableProperty.getNotes());
-        prefEditor.commit();
-        setTitle(parceableProperty.getAddrline1());
+        etPropertyPostcode.setText(edittedProperty.getPostcode().toUpperCase());
+//        prefEditor.putString("propertyPostcode", edittedProperty.getPostcode().toUpperCase());
+        etPropertyAddressLine1.setText(edittedProperty.getAddrline1());
+//        prefEditor.putString("propertyAddress", edittedProperty.getAddrline1());
+// //       etPropertyFlats.setText("(" + parceableProperty.getNoOfFlats() + ")");
+        etPropertyNotes.setText(edittedProperty.getNotes());
+//        prefEditor.putString("propertyNotes", edittedProperty.getNotes());
+//        prefEditor.commit();
+        setTitle(edittedProperty.getAddrline1());
 
         final RecyclerView flatRecyclerView = (RecyclerView) findViewById(R.id.flat_recycler_view);
         flatRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         flatsRef = new Firebase(getResources().getString(R.string.flats_location));
-        Query flatQuery = flatsRef.orderByChild("addressLine1").equalTo(parceableProperty.getAddrline1());
+        Query flatQuery = flatsRef.orderByChild("addressLine1").equalTo(edittedProperty.getAddrline1());
 
         flatQuery.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -128,13 +133,13 @@ public class PropertyDetails extends AppCompatActivity {
                 flatList.clear();
                 for (DataSnapshot childSnapShot : dataSnapshot.getChildren()) {
                     Flat flt = childSnapShot.getValue(Flat.class);
+                    flt.setFlatKey(childSnapShot.getKey());
                     flatList.add(flt);
-                    flatKeys.add(childSnapShot.getKey());
-                    flatNums.add(flt.getFlatNum().trim().substring(0, 1).toUpperCase() +
-                            flt.getFlatNum().substring(1).trim());
-//                    String[] split = childSnapShot.getKey().split(" - ");
-//                    flatNums.add(split[1].trim().substring(0, 1).toUpperCase() +
-//                            split[1].substring(1).trim());
+//                    flatKeys.add(childSnapShot.getKey());
+                    flatNums.add(flt.getFlatNum());
+// //                   String[] split = childSnapShot.getKey().split(" - ");
+////                    flatNums.add(split[1].trim().substring(0, 1).toUpperCase() +
+// //                           split[1].substring(1).trim());
                 }
                 Collections.sort(flatList, new Comparator<Flat>() {
                     @Override
@@ -144,11 +149,11 @@ public class PropertyDetails extends AppCompatActivity {
                 });
 
                 String numFlatsCast = Integer.toString(flatList.size());
-                if(!parceableProperty.getNoOfFlats().matches(numFlatsCast)){
-                    parceableProperty.setNoOfFlats(numFlatsCast);
+                if(!edittedProperty.getNoOfFlats().matches(numFlatsCast)){
+                    edittedProperty.setNoOfFlats(numFlatsCast);
                 }
-                etPropertyFlats.setText("(" + parceableProperty.getNoOfFlats() + ")");
-                flatRecyclerView.setAdapter(new FlatAdapter(flatList, flatKeys, flatNums, parceableProperty, parceablePropertyKey));
+                etPropertyFlats.setText("(" + edittedProperty.getNoOfFlats() + ")");
+
             }
 
             @Override
@@ -156,6 +161,29 @@ public class PropertyDetails extends AppCompatActivity {
 
             }
         });
+
+        Firebase tenantRef = new Firebase(getResources().getString(R.string.tenants_location));
+        tenantRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for (DataSnapshot childSnapShot : dataSnapshot.getChildren()) {
+                    Tenant tnt = childSnapShot.getValue(Tenant.class);
+                    for(Flat flt : flatList){
+                        if(tnt.getProperty().matches(flt.getAddressLine1() + " - " + flt.getFlatNum())){
+                            tenantList.add(tnt);
+                        }
+                    }
+
+                }
+                flatRecyclerView.setAdapter(new FlatAdapter(flatList, tenantList)); //flatList, flatKeys, flatNums, parceableProperty, parceablePropertyKey)
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+
+            }
+        });
+
     }
 
     private void saveAllChanges() {

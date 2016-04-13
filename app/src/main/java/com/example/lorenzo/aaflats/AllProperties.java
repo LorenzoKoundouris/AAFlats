@@ -84,6 +84,7 @@ public class AllProperties extends AppCompatActivity {
                 propertyList.clear();
                 for (DataSnapshot childSnap : dataSnapshot.getChildren()) {
                     Property prt = childSnap.getValue(Property.class);
+                    prt.setPropertyKey(childSnap.getKey());
                     propertyList.add(prt);
                 }
                 for (int i = 0; i < propertyList.size(); i++) {

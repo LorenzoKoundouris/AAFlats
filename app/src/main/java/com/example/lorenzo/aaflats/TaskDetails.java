@@ -1027,11 +1027,17 @@ public class TaskDetails extends AppCompatActivity {
         @Override
         protected Boolean doInBackground(Void... params) {
             try {
-                //Prevent saving Firebase key as child of node
-                String tempKey = edittedTask.getTaskKey();
-                edittedTask.setTaskKey(null);
+//                String tempKey = edittedTask.getTaskKey();
+//                edittedTask.setTaskKey(null);
 
-                taskRef.child(tempKey).setValue(edittedTask);
+                taskRef.child(edittedTask.getTaskKey()).setValue(edittedTask);
+
+                //Prevent saving Firebase key as child of node
+                Firebase changeKey = taskRef.child(edittedTask.getTaskKey());
+                Map<String, Object> keyMap = new HashMap<>();
+                keyMap.put("taskKey", null);
+                changeKey.updateChildren(keyMap);
+
                 return true;
             } catch (Exception ex) {
                 Toast.makeText(TaskDetails.this, "An error occurred while trying to save new task", Toast.LENGTH_SHORT).show();

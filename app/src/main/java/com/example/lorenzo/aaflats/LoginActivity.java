@@ -151,7 +151,7 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
             public void onFocusChange(View v, boolean hasFocus) {
                 if (hasFocus) {
                     populateAutoComplete();
-                    if(!TextUtils.isEmpty(mEmailView.getText().toString())){
+                    if (!TextUtils.isEmpty(mEmailView.getText().toString())) {
                         attemptLogin();
                     }
 //                    lp.gravity= Gravity.CENTER;
@@ -302,52 +302,74 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
      * errors are presented and no actual login attempt is made.
      */
     private void attemptLogin() {
-        if (mAuthTask != null) {
-            return;
-        }
-
-        // Reset errors.
-        mEmailView.setError(null);
-        mPasswordView.setError(null);
-
-        // Store values at the time of the login attempt.
-        String email = mEmailView.getText().toString();
-        String password = mPasswordView.getText().toString();
+        new Thread(new Runnable() {
+            public void run() {
 
 
-        boolean cancel = false;
-        View focusView = null;
+                if (mAuthTask != null) {
+                    return;
+                }
 
-        // Check for a valid password, if the user entered one.
-        if (!TextUtils.isEmpty(password) && !isPasswordValid(password)) {
-            mPasswordView.setError(getString(R.string.error_invalid_password));
-            focusView = mPasswordView;
-            cancel = true;
-        }
+                // Reset errors.
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
 
-        // Check for a valid email address.
-        if (TextUtils.isEmpty(email)) {
-            mEmailView.setError(getString(R.string.error_field_required));
-            focusView = mEmailView;
-            cancel = true;
-        } else if (!isEmailValid(email)) {
-            mEmailView.setError(getString(R.string.error_invalid_email));
-            focusView = mEmailView;
-            cancel = true;
-        }
+//stuff that updates ui
+                        mEmailView.setError(null);
+                        mPasswordView.setError(null);
 
-        if (cancel) {
-            // There was an error; don't attempt login and focus the first
-            // form field with an error.
-            focusView.requestFocus();
-        } else if (staffSigningIn.size() > 0) {
-            // Show a progress spinner, and kick off a background task to
-            // perform the user login attempt.
-            inputMethodManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);//mine
-            showProgress(true);
-            mAuthTask = new UserLoginTask(email, password);
-            mAuthTask.execute((Void) null);
-        }
+                    }
+                });
+
+                // Store values at the time of the login attempt.
+                String email = mEmailView.getText().toString();
+                String password = mPasswordView.getText().toString();
+
+
+                boolean cancel = false;
+                View focusView = null;
+
+                // Check for a valid password, if the user entered one.
+                if (!TextUtils.isEmpty(password) && !isPasswordValid(password)) {
+                    mPasswordView.setError(getString(R.string.error_invalid_password));
+                    focusView = mPasswordView;
+                    cancel = true;
+                }
+
+                // Check for a valid email address.
+                if (TextUtils.isEmpty(email)) {
+                    mEmailView.setError(getString(R.string.error_field_required));
+                    focusView = mEmailView;
+                    cancel = true;
+                } else if (!isEmailValid(email)) {
+                    mEmailView.setError(getString(R.string.error_invalid_email));
+                    focusView = mEmailView;
+                    cancel = true;
+                }
+
+                if (cancel) {
+                    // There was an error; don't attempt login and focus the first
+                    // form field with an error.
+                    focusView.requestFocus();
+                } else if (staffSigningIn.size() > 0) {
+                    // Show a progress spinner, and kick off a background task to
+                    // perform the user login attempt.
+                    inputMethodManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);//mine
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+
+//stuff that updates ui
+                            showProgress(true);
+
+                        }
+                    });
+                    mAuthTask = new UserLoginTask(email, password);
+                    mAuthTask.execute((Void) null);
+                }
+            }
+        }).start();
     }
 
     private boolean isEmailValid(String email) {

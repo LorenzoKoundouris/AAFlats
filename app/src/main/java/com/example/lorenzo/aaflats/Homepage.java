@@ -13,6 +13,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -22,7 +23,6 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.ActionProvider;
 import android.view.ContextMenu;
-import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.SubMenu;
 import android.view.View;
@@ -37,6 +37,7 @@ import android.view.MenuItem;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -59,6 +60,8 @@ public class Homepage extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     private static int REQUEST_CAMERA = 0;
+
+    CoordinatorLayout snackbarCoordinatorLayout;
 
     private ArrayList<Task> highPT = new ArrayList<>();
     private ArrayList<Task> mediumPT = new ArrayList<>();
@@ -100,6 +103,8 @@ public class Homepage extends AppCompatActivity
     public static final String STAFF_KEY = "StaffKey";
     private SharedPreferences mSharedPreferences;
 
+    Context context;
+
     Firebase taskRef;
 
     @Override
@@ -111,23 +116,32 @@ public class Homepage extends AppCompatActivity
         Firebase.setAndroidContext(this);
         taskRef = new Firebase(getResources().getString(R.string.tasks_location));
 
+        snackbarCoordinatorLayout = (CoordinatorLayout)findViewById(R.id.snackbarCoordinatorLayout);;
+        context = this;
+
         notificationBuilder = new NotificationCompat.Builder(this);
 
         //Get Shared Preferences
         mSharedPreferences = getSharedPreferences(MY_PREFERENCES, MODE_PRIVATE);
 
-        Calendar c = Calendar.getInstance();
-        System.out.println("Current time => " + c.getTime());
+        new  Thread ( new  Runnable ()  {
+            public  void run ()  {
+                Calendar c = Calendar.getInstance();
+                System.out.println("Current time => " + c.getTime());
 
-        SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy");
-        todaysDate = df.format(c.getTime());
-        tempDateHolder = df.format(c.getTime());
+                SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy");
+                todaysDate = df.format(c.getTime());
+                tempDateHolder = df.format(c.getTime());
 
-        for (int i = 0; i < 8; i++) {
-            next7Dates.add(tempDateHolder);
-            c.add(Calendar.DAY_OF_MONTH, 1);
-            tempDateHolder = df.format(c.getTime());
-        }
+                for (int i = 0; i < 8; i++) {
+                    next7Dates.add(tempDateHolder);
+                    c.add(Calendar.DAY_OF_MONTH, 1);
+                    tempDateHolder = df.format(c.getTime());
+                }
+
+
+            }
+        }). start ();
 
         Bundle intent = getIntent().getExtras();
         staffLoggedIn = intent.getParcelable("parceable_staff");
@@ -392,7 +406,6 @@ public class Homepage extends AppCompatActivity
 //        });
 
 
-
         View myHeader = navigationView.getHeaderView(0);
         Spinner staffName = (Spinner) myHeader.findViewById(R.id.staff_name);
         staffEmail = (TextView) myHeader.findViewById(R.id.staff_email);
@@ -439,19 +452,24 @@ public class Homepage extends AppCompatActivity
 
     }
 
-    private void receiveNtf(Task tsk) {
-        notificationBuilder.setAutoCancel(true);
-        notificationBuilder.setSmallIcon(R.drawable.notification_icon);
-        notificationBuilder.setTicker("New task added by " + tsk.getCreator());
-        notificationBuilder.setWhen(System.currentTimeMillis());
-        notificationBuilder.setContentTitle(tsk.getCreator() + " added a new task");
-        notificationBuilder.setContentText(tsk.getTitle()); //newTask.getTitle()
+    private void receiveNtf(final Task tsk) {
+        final Context c = this;
+        new Thread(new Runnable() {
+            public void run() {
+                notificationBuilder.setAutoCancel(true);
+                notificationBuilder.setSmallIcon(R.drawable.notification_icon_inverted);
+                notificationBuilder.setTicker("New task added by " + tsk.getCreator());
+                notificationBuilder.setWhen(System.currentTimeMillis());
+                notificationBuilder.setContentTitle(tsk.getCreator() + " added a new task");
+                notificationBuilder.setContentText(tsk.getTitle()); //newTask.getTitle()
 
-        NotificationManager mgr = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        Intent intent = new Intent(this, TaskDetails.class).putExtra("parceable_task", tsk);//.putExtra("parceable_task", newTask);
-        PendingIntent pIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-        notificationBuilder.setContentIntent(pIntent);
-        mgr.notify(uniqueID, notificationBuilder.build());
+                NotificationManager mgr = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+                Intent intent = new Intent(c, TaskDetails.class).putExtra("parceable_task", tsk);//.putExtra("parceable_task", newTask);
+                PendingIntent pIntent = PendingIntent.getActivity(c, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+                notificationBuilder.setContentIntent(pIntent);
+                mgr.notify(uniqueID, notificationBuilder.build());
+            }
+        }).start();
     }
 
     private View.OnTouchListener Spinner_OnTouch = new View.OnTouchListener() {
@@ -479,197 +497,245 @@ public class Homepage extends AppCompatActivity
     }
 
     private void setupFirebase() {
-        Query getLoggedStaff = taskRef.orderByChild("assignedStaff").equalTo(staffLoggedIn.getStaffKey());
-        getLoggedStaff.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                mTaskList.clear();
+        new Thread(new Runnable() {
+            public void run() {
+                Query getLoggedStaff = taskRef.orderByChild("assignedStaff").equalTo(staffLoggedIn.getStaffKey());
+                getLoggedStaff.addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        mTaskList.clear();
 //                taskKeys.clear();
-                highPT.clear();
-                mediumPT.clear();
-                lowPT.clear();
-                pendingFT.clear();
-                onlyTodayTasks.clear();
-                onlyNext7Tasks.clear();
+                        highPT.clear();
+                        mediumPT.clear();
+                        lowPT.clear();
+                        pendingFT.clear();
+                        onlyTodayTasks.clear();
+                        onlyNext7Tasks.clear();
 
-                System.out.println(todaysDate);
-                for (DataSnapshot tskSnapshot : dataSnapshot.getChildren()) {
-                    Task tsk = tskSnapshot.getValue(Task.class);
-                    tsk.setTaskKey(tskSnapshot.getKey());
-                    mTaskList.add(tsk);
+                        System.out.println(todaysDate);
+                        for (DataSnapshot tskSnapshot : dataSnapshot.getChildren()) {
+                            Task tsk = tskSnapshot.getValue(Task.class);
+                            tsk.setTaskKey(tskSnapshot.getKey());
+                            mTaskList.add(tsk);
 //                    taskKeys.add(tskSnapshot.getKey());
 //
-                    if (tsk.getTargetDate().matches(todaysDate)) {
-                        onlyTodayTasks.add(tsk);
-                    }
-                    for (int i = 0; i < 8; i++) {
-                        if (tsk.getTargetDate().matches(next7Dates.get(i))) {
-                            onlyNext7Tasks.add(tsk);
+                            if (tsk.getTargetDate().matches(todaysDate)) {
+                                onlyTodayTasks.add(tsk);
+                            }
+                            for (int i = 0; i < 8; i++) {
+                                if (tsk.getTargetDate().matches(next7Dates.get(i))) {
+                                    onlyNext7Tasks.add(tsk);
+                                }
+                            }
                         }
+                        Collections.sort(mTaskList, new Comparator<Task>() {
+                            @Override
+                            public int compare(Task lhs, Task rhs) {
+                                return rhs.getTaskKey().compareTo(lhs.getTaskKey());
+                            }
+                        });
+                        setRecyclerAdapterContents();
+//                    setRecyclerAdapterContents(mTaskList);
                     }
-                }
-                Collections.sort(mTaskList, new Comparator<Task>() {
+
                     @Override
-                    public int compare(Task lhs, Task rhs) {
-                        return rhs.getTaskKey().compareTo(lhs.getTaskKey());
+                    public void onCancelled(FirebaseError firebaseError) {
+                        //System.out.println("Task: " + "The read failed: " + firebaseError.getMessage());
                     }
                 });
-                setRecyclerAdapterContents();
-//                    setRecyclerAdapterContents(mTaskList);
-            }
 
-            @Override
-            public void onCancelled(FirebaseError firebaseError) {
-                //System.out.println("Task: " + "The read failed: " + firebaseError.getMessage());
-            }
-        });
-        final ArrayList<Task> newTaskAddedList = new ArrayList<>();
-        taskRef.addChildEventListener(new ChildEventListener() {
-            @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                newTaskAddedList.clear();
+
+                final ArrayList<Task> newTaskAddedList = new ArrayList<>();
+                taskRef.addChildEventListener(new ChildEventListener() {
+                    @Override
+                    public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                        newTaskAddedList.clear();
 //                for (DataSnapshot childSnap : dataSnapshot.getChildren()) {
-                Task tsk = dataSnapshot.getValue(Task.class);
-                newTaskAddedList.add(tsk);
+                        Task tsk = dataSnapshot.getValue(Task.class);
+                        newTaskAddedList.add(tsk);
 //                }
-                if(staffLoggedIn.getStaffKey().matches(tsk.getAssignedStaff())){
-                    receiveNtf(newTaskAddedList.get(0));
-                }
+                        if (staffLoggedIn.getStaffKey().matches(tsk.getAssignedStaff())) {
+                            receiveNtf(newTaskAddedList.get(0));
+                        }
+                    }
+
+                    @Override
+                    public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+                        mTaskList.clear();
+                        newTaskAddedList.clear();
+                        Task newTask = dataSnapshot.getValue(Task.class);
+                    }
+
+                    @Override
+                    public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+                    }
+
+                    @Override
+                    public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+                    }
+
+                    @Override
+                    public void onCancelled(FirebaseError firebaseError) {
+
+                    }
+                });
+
             }
-
-            @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-                mTaskList.clear();
-                newTaskAddedList.clear();
-                Task newTask = dataSnapshot.getValue(Task.class);
-            }
-
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
-
-            }
-
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
-            }
-
-            @Override
-            public void onCancelled(FirebaseError firebaseError) {
-
-            }
-        });
-
+        }).start();
 //        notifyFromNowOn = true;
     }
 
     public void setRecyclerAdapterContents() {
+        new Thread(new Runnable() {
+            public void run() {
 
-        pendingFT.clear();
-        ArrayList<Task> justPrioritised = new ArrayList<>();
-        ArrayList<Task> pendingAndPrioritised = new ArrayList<>();
-        Toast toast;
-        highPT.clear();
-        mediumPT.clear();
-        lowPT.clear();
+                pendingFT.clear();
+                final ArrayList<Task> justPrioritised = new ArrayList<>();
+                final ArrayList<Task> pendingAndPrioritised = new ArrayList<>();
+                Toast toast;
+                highPT.clear();
+                mediumPT.clear();
+                lowPT.clear();
 
-        if (showToday) {
-            for (int i = 0; i < onlyTodayTasks.size(); i++) {
+                if (showToday) {
+                    for (int i = 0; i < onlyTodayTasks.size(); i++) {
 //                if(onlyTodayTasks.get(i).getPriority().matches("High") && showMyTasks &&
 //                        !onlyTodayTasks.get(i).getAssignedStaff().matches(staffLoggedIn.getStaffKey())){
 //                    highPT.add(onlyTodayTasks.get(i));
 //                } else
-                if (onlyTodayTasks.get(i).getPriority().matches("High")) {
-                    highPT.add(onlyTodayTasks.get(i));
-                }
-            }
-            Collections.sort(highPT, new Comparator<Task>() {
-                @Override
-                public int compare(Task lhs, Task rhs) {
-                    return lhs.getProperty().compareTo(rhs.getProperty());
-                }
-            });
-            for (int i = 0; i < onlyTodayTasks.size(); i++) {
+                        if (onlyTodayTasks.get(i).getPriority().matches("High")) {
+                            highPT.add(onlyTodayTasks.get(i));
+                        }
+                    }
+                    Collections.sort(highPT, new Comparator<Task>() {
+                        @Override
+                        public int compare(Task lhs, Task rhs) {
+                            return lhs.getProperty().compareTo(rhs.getProperty());
+                        }
+                    });
+                    for (int i = 0; i < onlyTodayTasks.size(); i++) {
 //                if(onlyTodayTasks.get(i).getPriority().matches("Medium") && showMyTasks &&
 //                        !onlyTodayTasks.get(i).getAssignedStaff().matches(staffLoggedIn.getStaffKey())){
 //                    mediumPT.add(onlyTodayTasks.get(i));
 //                } else
-                if (onlyTodayTasks.get(i).getPriority().matches("Medium")) {
-                    mediumPT.add(onlyTodayTasks.get(i));
-                }
-            }
-            Collections.sort(mediumPT, new Comparator<Task>() {
-                @Override
-                public int compare(Task lhs, Task rhs) {
-                    return lhs.getProperty().compareTo(rhs.getProperty());
-                }
-            });
-            for (int i = 0; i < onlyTodayTasks.size(); i++) {
+                        if (onlyTodayTasks.get(i).getPriority().matches("Medium")) {
+                            mediumPT.add(onlyTodayTasks.get(i));
+                        }
+                    }
+                    Collections.sort(mediumPT, new Comparator<Task>() {
+                        @Override
+                        public int compare(Task lhs, Task rhs) {
+                            return lhs.getProperty().compareTo(rhs.getProperty());
+                        }
+                    });
+                    for (int i = 0; i < onlyTodayTasks.size(); i++) {
 //                if(onlyTodayTasks.get(i).getPriority().matches("Low") && showMyTasks &&
 //                        !onlyTodayTasks.get(i).getAssignedStaff().matches(staffLoggedIn.getStaffKey())){
 //                    lowPT.add(onlyTodayTasks.get(i));
 //                } else
-                if (onlyTodayTasks.get(i).getPriority().matches("Low")) {
-                    lowPT.add(onlyTodayTasks.get(i));
-                }
-            }
-            Collections.sort(lowPT, new Comparator<Task>() {
-                @Override
-                public int compare(Task lhs, Task rhs) {
-                    return lhs.getProperty().compareTo(rhs.getProperty());
-                }
-            });
+                        if (onlyTodayTasks.get(i).getPriority().matches("Low")) {
+                            lowPT.add(onlyTodayTasks.get(i));
+                        }
+                    }
+                    Collections.sort(lowPT, new Comparator<Task>() {
+                        @Override
+                        public int compare(Task lhs, Task rhs) {
+                            return lhs.getProperty().compareTo(rhs.getProperty());
+                        }
+                    });
 
-            justPrioritised.addAll(highPT);
-            justPrioritised.addAll(mediumPT);
-            justPrioritised.addAll(lowPT);
+                    justPrioritised.addAll(highPT);
+                    justPrioritised.addAll(mediumPT);
+                    justPrioritised.addAll(lowPT);
 
-            if (showPendingOnly && prioritiseAll) {
+                    if (showPendingOnly && prioritiseAll) {
 
-                pendingAndPrioritised.addAll(justPrioritised);
+                        pendingAndPrioritised.addAll(justPrioritised);
 
-                for (Task tsk : justPrioritised) {
+                        for (Task tsk : justPrioritised) {
 //                    if(tsk.getStatus() && showMyTasks && !tsk.getAssignedStaff().matches(staffLoggedIn.getStaffKey())){
 //                        pendingAndPrioritised.remove(tsk);
 //                    } else
-                    if (tsk.getStatus()) {
-                        pendingAndPrioritised.remove(tsk);
-                    }
-                }
+                            if (tsk.getStatus()) {
+                                pendingAndPrioritised.remove(tsk);
+                            }
+                        }
 
-                //Show today's prioritised pending tasks
-                toast = Toast.makeText(Homepage.this, "Showing today's prioritised tasks that are pending ", Toast.LENGTH_SHORT);
-                toast.setGravity(Gravity.CENTER, 0, 0);
-                toast.show();
-                taskRecyclerView.setAdapter(new TaskAdapter(pendingAndPrioritised));
+                        //Show today's prioritised pending tasks
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                taskRecyclerView.setAdapter(new TaskAdapter(pendingAndPrioritised));
+                                Snackbar snackbar = Snackbar
+                                        .make(snackbarCoordinatorLayout, "Showing today's prioritised tasks that are pending", Snackbar.LENGTH_LONG);
 
-            } else if (showPendingOnly) {
-                for (Task tsk : onlyTodayTasks){
+                                snackbar.show();
+                            }
+                        });
+//                        toast = Toast.makeText(Homepage.this, "Showing today's prioritised tasks that are pending ", Toast.LENGTH_SHORT);
+//                        toast.setGravity(Gravity.CENTER, 0, 0);
+//                        toast.show();
+
+                    } else if (showPendingOnly) {
+                        for (Task tsk : onlyTodayTasks) {
 //                    if(!tsk.getStatus() && showMyTasks && !tsk.getAssignedStaff().matches(staffLoggedIn.getStaffKey())){
 //                        pendingFT.add(tsk);
 //                    } else
-                    if (!tsk.getStatus()) {
-                        pendingFT.add(tsk);
-                    }
-                }
-                //Show today's pending tasks
-                toast = Toast.makeText(Homepage.this, "Showing today's tasks that are pending ", Toast.LENGTH_SHORT);
-                toast.setGravity(Gravity.CENTER, 0, 0);
-                toast.show();
-                taskRecyclerView.setAdapter(new TaskAdapter(pendingFT));
+                            if (!tsk.getStatus()) {
+                                pendingFT.add(tsk);
+                            }
+                        }
+                        //Show today's pending tasks
 
-            } else if (prioritiseAll) {
-                //Show today's prioritised tasks
-                toast = Toast.makeText(Homepage.this, "Showing today's prioritised tasks", Toast.LENGTH_SHORT);
-                toast.setGravity(Gravity.CENTER, 0, 0);
-                toast.show();
-                taskRecyclerView.setAdapter(new TaskAdapter(justPrioritised));
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                taskRecyclerView.setAdapter(new TaskAdapter(pendingFT));
+                                Snackbar snackbar = Snackbar
+                                        .make(snackbarCoordinatorLayout, "Showing today's tasks that are pending", Snackbar.LENGTH_LONG);
 
-            } else {
-                //Show today's tasks
-                toast = Toast.makeText(Homepage.this, "Showing today's tasks", Toast.LENGTH_SHORT);
-                toast.setGravity(Gravity.CENTER, 0, 0);
-                toast.show();
+                                snackbar.show();
+                            }
+                        });
+
+//                        toast = Toast.makeText(Homepage.this, "Showing today's tasks that are pending ", Toast.LENGTH_SHORT);
+//                        toast.setGravity(Gravity.CENTER, 0, 0);
+//                        toast.show();
+
+                    } else if (prioritiseAll) {
+                        //Show today's prioritised tasks
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+//                                toast = Toast.makeText(Homepage.this, "Showing today's prioritised tasks", Toast.LENGTH_SHORT);
+//                                toast.setGravity(Gravity.CENTER, 0, 0);
+//                                toast.show();
+                                taskRecyclerView.setAdapter(new TaskAdapter(justPrioritised));
+                                Snackbar snackbar = Snackbar
+                                        .make(snackbarCoordinatorLayout, "Showing today's prioritised tasks", Snackbar.LENGTH_LONG);
+
+                                snackbar.show();
+                            }
+                        });
+
+
+                    } else {
+                        //Show today's tasks
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                taskRecyclerView.setAdapter(new TaskAdapter(onlyTodayTasks));
+
+                                Snackbar snackbar = Snackbar
+                                        .make(snackbarCoordinatorLayout, "Showing today's tasks", Snackbar.LENGTH_LONG);
+                                snackbar.show();
+                            }
+                        });
+//                        toast = Toast.makeText(Homepage.this, "Showing today's tasks", Toast.LENGTH_SHORT);
+//                        toast.setGravity(Gravity.CENTER, 0, 0);
+//                        toast.show();
 
 //                if(showMyTasks){
 //                    for(int i = 0; i < onlyTodayTasks.size(); i++){
@@ -679,118 +745,178 @@ public class Homepage extends AppCompatActivity
 //                        }
 //                    }
 //                } else {
-                    taskRecyclerView.setAdapter(new TaskAdapter(onlyTodayTasks));
 //                }
-            }
-
-        } else if (showNext7) {
-
-            for (int i = 0; i < onlyNext7Tasks.size(); i++) {
-                if (onlyNext7Tasks.get(i).getPriority().matches("High")) {
-                    highPT.add(onlyNext7Tasks.get(i));
-                }
-            }
-            Collections.sort(highPT, new Comparator<Task>() {
-                @Override
-                public int compare(Task lhs, Task rhs) {
-                    return lhs.getProperty().compareTo(rhs.getProperty());
-                }
-            });
-            for (int i = 0; i < onlyNext7Tasks.size(); i++) {
-                if (onlyNext7Tasks.get(i).getPriority().matches("Medium")) {
-                    mediumPT.add(onlyNext7Tasks.get(i));
-                }
-            }
-            Collections.sort(mediumPT, new Comparator<Task>() {
-                @Override
-                public int compare(Task lhs, Task rhs) {
-                    return lhs.getProperty().compareTo(rhs.getProperty());
-                }
-            });
-            for (int i = 0; i < onlyNext7Tasks.size(); i++) {
-                if (onlyNext7Tasks.get(i).getPriority().matches("Low")) {
-                    lowPT.add(onlyNext7Tasks.get(i));
-                }
-            }
-            Collections.sort(lowPT, new Comparator<Task>() {
-                @Override
-                public int compare(Task lhs, Task rhs) {
-                    return lhs.getProperty().compareTo(rhs.getProperty());
-                }
-            });
-
-            justPrioritised.addAll(highPT);
-            justPrioritised.addAll(mediumPT);
-            justPrioritised.addAll(lowPT);
-
-            if (showPendingOnly && prioritiseAll) {
-
-                pendingAndPrioritised.addAll(justPrioritised);
-
-                for (Task tsk : justPrioritised) {
-                    if (tsk.getStatus()) {
-                        pendingAndPrioritised.remove(tsk);
                     }
-                }
 
-                //Show next 7 days prioritised pending tasks
-                toast = Toast.makeText(Homepage.this, "Showing next 7 days prioritised tasks that are pending ", Toast.LENGTH_SHORT);
-                toast.setGravity(Gravity.CENTER, 0, 0);
-                toast.show();
-                taskRecyclerView.setAdapter(new TaskAdapter(pendingAndPrioritised));
+                } else if (showNext7) {
 
-            } else if (showPendingOnly) {
-                for (Task tsk : onlyNext7Tasks) {
-                    if (!tsk.getStatus()) {
-                        pendingFT.add(tsk);
+                    for (int i = 0; i < onlyNext7Tasks.size(); i++) {
+                        if (onlyNext7Tasks.get(i).getPriority().matches("High")) {
+                            highPT.add(onlyNext7Tasks.get(i));
+                        }
                     }
+                    Collections.sort(highPT, new Comparator<Task>() {
+                        @Override
+                        public int compare(Task lhs, Task rhs) {
+                            return lhs.getProperty().compareTo(rhs.getProperty());
+                        }
+                    });
+                    for (int i = 0; i < onlyNext7Tasks.size(); i++) {
+                        if (onlyNext7Tasks.get(i).getPriority().matches("Medium")) {
+                            mediumPT.add(onlyNext7Tasks.get(i));
+                        }
+                    }
+                    Collections.sort(mediumPT, new Comparator<Task>() {
+                        @Override
+                        public int compare(Task lhs, Task rhs) {
+                            return lhs.getProperty().compareTo(rhs.getProperty());
+                        }
+                    });
+                    for (int i = 0; i < onlyNext7Tasks.size(); i++) {
+                        if (onlyNext7Tasks.get(i).getPriority().matches("Low")) {
+                            lowPT.add(onlyNext7Tasks.get(i));
+                        }
+                    }
+                    Collections.sort(lowPT, new Comparator<Task>() {
+                        @Override
+                        public int compare(Task lhs, Task rhs) {
+                            return lhs.getProperty().compareTo(rhs.getProperty());
+                        }
+                    });
+
+                    justPrioritised.addAll(highPT);
+                    justPrioritised.addAll(mediumPT);
+                    justPrioritised.addAll(lowPT);
+
+                    if (showPendingOnly && prioritiseAll) {
+
+                        pendingAndPrioritised.addAll(justPrioritised);
+
+                        for (Task tsk : justPrioritised) {
+                            if (tsk.getStatus()) {
+                                pendingAndPrioritised.remove(tsk);
+                            }
+                        }
+
+                        //Show next 7 days prioritised pending tasks
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                taskRecyclerView.setAdapter(new TaskAdapter(pendingAndPrioritised));
+                                Snackbar snackbar = Snackbar
+                                        .make(snackbarCoordinatorLayout, "Showing next 7 days prioritised tasks that are pending", Snackbar.LENGTH_LONG);
+
+                                snackbar.show();
+                            }
+                        });
+//                        toast = Toast.makeText(Homepage.this, "Showing next 7 days prioritised tasks that are pending ", Toast.LENGTH_SHORT);
+//                        toast.setGravity(Gravity.CENTER, 0, 0);
+//                        toast.show();
+
+                    } else if (showPendingOnly) {
+                        for (Task tsk : onlyNext7Tasks) {
+                            if (!tsk.getStatus()) {
+                                pendingFT.add(tsk);
+                            }
+                        }
+                        //Show next 7 days pending tasks
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                taskRecyclerView.setAdapter(new TaskAdapter(pendingFT));
+                                Snackbar snackbar = Snackbar
+                                        .make(snackbarCoordinatorLayout, "Showing next 7 days tasks that are pending", Snackbar.LENGTH_LONG);
+
+                                snackbar.show();
+                            }
+                        });
+//                        toast = Toast.makeText(Homepage.this, "Showing next 7 days tasks that are pending", Toast.LENGTH_SHORT);
+//                        toast.setGravity(Gravity.CENTER, 0, 0);
+//                        toast.show();
+
+                    } else if (prioritiseAll) {
+                        //Show next 7 days prioritised tasks
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                taskRecyclerView.setAdapter(new TaskAdapter(justPrioritised));
+                                Snackbar snackbar = Snackbar
+                                        .make(snackbarCoordinatorLayout, "Showing next 7 days prioritised tasks", Snackbar.LENGTH_LONG);
+
+                                snackbar.show();
+                            }
+                        });
+//                        toast = Toast.makeText(Homepage.this, "Showing next 7 days prioritised tasks", Toast.LENGTH_SHORT);
+//                        toast.setGravity(Gravity.CENTER, 0, 0);
+//                        toast.show();
+
+                    } else {
+                        //Show next 7 days tasks
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                taskRecyclerView.setAdapter(new TaskAdapter(onlyNext7Tasks));
+                                Snackbar snackbar = Snackbar
+                                        .make(snackbarCoordinatorLayout, "Showing next 7 days tasks", Snackbar.LENGTH_SHORT);
+
+                                snackbar.show();
+                            }
+                        });
+//                        toast = Toast.makeText(Homepage.this, "Showing next 7 days tasks", Toast.LENGTH_SHORT);
+//                        toast.setGravity(Gravity.CENTER, 0, 0);
+//                        toast.show();
+                    }
+                } else {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            taskRecyclerView.setAdapter(new TaskAdapter(mTaskList));
+                            Snackbar snackbar = Snackbar
+                                    .make(snackbarCoordinatorLayout, "Showing newest first", Snackbar.LENGTH_LONG);
+
+                            snackbar.show();
+                        }
+                    });
+//                    toast = Toast.makeText(Homepage.this, "Showing newest first", Toast.LENGTH_SHORT);
+//                    toast.setGravity(Gravity.CENTER, 0, 0);
+//                    toast.show();
                 }
-                //Show next 7 days pending tasks
-                toast = Toast.makeText(Homepage.this, "Showing next 7 days tasks that are pending", Toast.LENGTH_SHORT);
-                toast.setGravity(Gravity.CENTER, 0, 0);
-                toast.show();
-                taskRecyclerView.setAdapter(new TaskAdapter(pendingFT));
-
-            } else if (prioritiseAll) {
-                //Show next 7 days prioritised tasks
-                toast = Toast.makeText(Homepage.this, "Showing next 7 days prioritised tasks", Toast.LENGTH_SHORT);
-                toast.setGravity(Gravity.CENTER, 0, 0);
-                toast.show();
-                taskRecyclerView.setAdapter(new TaskAdapter(justPrioritised));
-
-            } else {
-                //Show next 7 days tasks
-                toast = Toast.makeText(Homepage.this, "Showing next 7 days tasks", Toast.LENGTH_SHORT);
-                toast.setGravity(Gravity.CENTER, 0, 0);
-                toast.show();
-                taskRecyclerView.setAdapter(new TaskAdapter(onlyNext7Tasks));
-            }
-        } else {
-            taskRecyclerView.setAdapter(new TaskAdapter(mTaskList));
-            toast = Toast.makeText(Homepage.this, "Showing newest first", Toast.LENGTH_SHORT);
-            toast.setGravity(Gravity.CENTER, 0, 0);
-            toast.show();
-        }
 
 //        onlyTodayTasks.clear();
 //        onlyNext7Tasks.clear();
 
 //        taskRecyclerView.setAdapter(new TaskAdapter(mTaskList)); //, Task.class
-        if (!notFirstLoad) {
-            final Handler handler = new Handler();
-            handler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    // Do something after 2s = 2000ms
-                    taskRecyclerView.setVisibility(View.VISIBLE);
-                    ProgressBar mProgressBar = (ProgressBar) findViewById(R.id.progressBar_homepage);
-                    mProgressBar.setVisibility(View.INVISIBLE);
-                }
-            }, 2000);
+                if (!notFirstLoad) {
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            final Handler handler = new Handler();
+                            handler.postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+                                    // Do something after 2s = 2000ms
+                                    taskRecyclerView.setVisibility(View.VISIBLE);
+                                    ProgressBar mProgressBar = (ProgressBar) findViewById(R.id.progressBar_homepage);
+                                    mProgressBar.setVisibility(View.INVISIBLE);
+                                }
+                            }, 2000);
+                        }
+                    });
 
-        }
-        notFirstLoad = true;
-        refreshLayout.setRefreshing(false);
+
+                }
+                notFirstLoad = true;
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+
+//stuff that updates ui
+                        refreshLayout.setRefreshing(false);
+
+                    }
+                });
+            }
+        }).start();
     }
 
     @Override
@@ -1068,7 +1194,7 @@ public class Homepage extends AppCompatActivity
 
         if (id == R.id.nav_inbox) {
             startActivity(new Intent(Homepage.this, Inbox.class));
-        } else if(id == R.id.nav_newest_first){
+        } else if (id == R.id.nav_newest_first) {
             dateTasks.setText("Newest first");
             allTasks = true;
             showToday = false;

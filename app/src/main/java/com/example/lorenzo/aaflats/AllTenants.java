@@ -43,6 +43,8 @@ public class AllTenants extends AppCompatActivity {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        Firebase.setAndroidContext(this);
+
         setTitle("All tenants");
 
         setupRecyclerview();
@@ -89,6 +91,7 @@ public class AllTenants extends AppCompatActivity {
 
                 for(DataSnapshot childSnap : dataSnapshot.getChildren()){
                     Tenant tnt = childSnap.getValue(Tenant.class);
+                    tnt.setTenantKey(childSnap.getKey());
                     tenantList.add(tnt);
                 }
                 Collections.sort(tenantList, new Comparator<Tenant>() {
