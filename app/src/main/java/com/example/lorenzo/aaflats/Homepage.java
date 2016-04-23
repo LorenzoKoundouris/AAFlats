@@ -8,7 +8,9 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -54,6 +56,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Random;
 
 
 public class Homepage extends AppCompatActivity
@@ -92,7 +95,7 @@ public class Homepage extends AppCompatActivity
     private TextView logoutText;
     private TextView staffEmail;
 
-    private static final int uniqueID = 25;
+    private static int uniqueID; // =25
     private NotificationCompat.Builder notificationBuilder;
 
     private Staff staffLoggedIn;
@@ -123,6 +126,8 @@ public class Homepage extends AppCompatActivity
 
         //Get Shared Preferences
         mSharedPreferences = getSharedPreferences(MY_PREFERENCES, MODE_PRIVATE);
+
+
 
         new  Thread ( new  Runnable ()  {
             public  void run ()  {
@@ -457,11 +462,26 @@ public class Homepage extends AppCompatActivity
         new Thread(new Runnable() {
             public void run() {
                 notificationBuilder.setAutoCancel(true);
-                notificationBuilder.setSmallIcon(R.drawable.notification_icon_inverted);
+                notificationBuilder.setSmallIcon(R.drawable.notification_icon);
                 notificationBuilder.setTicker("New task added by " + tsk.getCreator());
                 notificationBuilder.setWhen(System.currentTimeMillis());
                 notificationBuilder.setContentTitle(tsk.getCreator() + " added a new task");
                 notificationBuilder.setContentText(tsk.getTitle()); //newTask.getTitle()
+
+//                notificationBuilder.setSound(Uri.parse("file:///sdcard/notification/notification.mp3"));
+                notificationBuilder.setVibrate(new long[]{1000, 1000, 1000, 1000, 1000}); //delay, vibrate, sleep, vibrate, sleep
+                if(tsk.getPriority().matches("High")){
+                    notificationBuilder.setLights(Color.RED, 3000, 3000);
+                } else if(tsk.getPriority().matches("Medium")){
+                    notificationBuilder.setLights(Color.YELLOW, 3000, 3000);
+                } else {
+                    notificationBuilder.setLights(Color.GREEN, 3000, 3000);
+                }
+
+
+                Random randomGen = new Random();
+                uniqueID = randomGen.nextInt(20000 - 1 + 1) + 1;
+
 
                 NotificationManager mgr = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
                 Intent intent = new Intent(c, TaskDetails.class).putExtra("parceable_task", tsk);//.putExtra("parceable_task", newTask);

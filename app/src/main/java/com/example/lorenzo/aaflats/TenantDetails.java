@@ -778,24 +778,28 @@ public class TenantDetails extends AppCompatActivity {
     }
 
     private void saveEdittedTenant() {
-        for (Flat flt : flatList) {
-            if (mAddress.getText().toString().matches(flt.getAddressLine1() + " - " + flt.getFlatNum())) {
-                flatKey = flt.getFlatKey();
+        if(edittedTenant.isCurrentTenant()){
+            for (Flat flt : flatList) {
+                if (mAddress.getText().toString().matches(flt.getAddressLine1() + " - " + flt.getFlatNum())) {
+                    flatKey = flt.getFlatKey();
+                }
+            }
+            Firebase changeTenant = flatRef.child(flatKey);
+
+            final Map<String, Object> flatHasTenantMap = new HashMap<>();
+
+            if (mCurrentTenantCB.isChecked()) {
+
+                flatHasTenantMap.put("tenant", edittedTenant.getTenantKey());
+                changeTenant.updateChildren(flatHasTenantMap);
+                edittedTenant.setProperty(mAddress.getText().toString());
+            } else {
+                flatHasTenantMap.put("tenant", "");
+                changeTenant.updateChildren(flatHasTenantMap);
+//            edittedTenant.setProperty(mAddress.getText().toString());
             }
         }
-        Firebase changeTenant = flatRef.child(flatKey);
-        final Map<String, Object> flatHasTenantMap = new HashMap<>();
 
-        if (mCurrentTenantCB.isChecked()) {
-
-            flatHasTenantMap.put("tenant", edittedTenant.getTenantKey());
-            changeTenant.updateChildren(flatHasTenantMap);
-            edittedTenant.setProperty(mAddress.getText().toString());
-        } else {
-            flatHasTenantMap.put("tenant", "");
-            changeTenant.updateChildren(flatHasTenantMap);
-//            edittedTenant.setProperty(mAddress.getText().toString());
-        }
 
         edittedTenant.setDob(mDob.getText().toString().trim());
         edittedTenant.setTelephone(mTelephone.getText().toString());

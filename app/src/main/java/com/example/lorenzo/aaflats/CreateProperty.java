@@ -197,6 +197,7 @@ public class CreateProperty extends AppCompatActivity {
                             intent.putExtra("created_property", newProperty);
                             intent.putExtra("propertyList", propertyList);
                             intent.putExtra("propertyAddrLine1s", propertyAddrLine1s);
+                            finish();
                             startActivity(intent);
                         }
 
@@ -204,6 +205,7 @@ public class CreateProperty extends AppCompatActivity {
                     .setNegativeButton("No", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
+                            finish();
                             startActivity(new Intent(CreateProperty.this, PropertyDetails.class).putExtra("parceable_property", newProperty));
                         }
                     })
@@ -226,38 +228,41 @@ public class CreateProperty extends AppCompatActivity {
             etNewPropertyPostcode.setBackgroundColor(Color.parseColor("#EF9A9A"));
             validPostcode = false;
         } else {
-            boolean postcodeExists = false;
+//            boolean postcodeExists = false;
             validPostcode = false;
-            isValidPostcodeFormat(etNewPropertyPostcode.getText().toString().trim());
-            if (validPostcode) {
-                for (int i = 0; i < propertyPostcodes.size(); i++) {
-                    if (propertyPostcodes.get(i).matches(etNewPropertyPostcode.getText().toString().toUpperCase().trim())) {
-                        postcodeExists = true;
-                        break;
-                    }
-                }
-                if (postcodeExists) {
-                    new AlertDialog.Builder(this)
-                            .setTitle("Postcode exists")
-                            .setMessage("This postcode belongs to an existing property record.")
-                            .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int which) {
-                                    etNewPropertyPostcode.setText("");
-                                }
-                            })
-                            .setIcon(android.R.drawable.ic_dialog_alert)
-                            .show();
-                    validPostcode = false;
-                } else {
-                    validPostcode = true;
-                    etNewPropertyPostcode.setBackgroundColor(Color.parseColor("#ffffff"));
-                }
-            }
+
+            validPostcode = isValidPostcodeFormat(etNewPropertyPostcode.getText().toString().trim());
+//            if (validPostcode) {
+//                for (int i = 0; i < propertyPostcodes.size(); i++) {
+//                    if (propertyPostcodes.get(i).matches(etNewPropertyPostcode.getText().toString().toUpperCase().trim())) {
+//                        postcodeExists = true;
+//                        break;
+//                    }
+//                }
+//                if (postcodeExists) {
+//                    new AlertDialog.Builder(this)
+//                            .setTitle("Postcode exists")
+//                            .setMessage("This postcode belongs to an existing property record.")
+//                            .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+//                                public void onClick(DialogInterface dialog, int which) {
+//                                    etNewPropertyPostcode.setError("Used postcode");
+////                                    etNewPropertyPostcode.setText("");
+//                                }
+//                            })
+//                            .setIcon(android.R.drawable.ic_dialog_alert)
+//                            .show();
+//                    validPostcode = false;
+//                } else {
+//                    validPostcode = true;
+//                    etNewPropertyPostcode.setBackgroundColor(Color.parseColor("#ffffff"));
+//                }
+//            }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
             if (etNewPropertyAddressLine1.getText().toString().matches("")) {
                 etNewPropertyAddressLine1.setBackgroundColor(Color.parseColor("#EF9A9A"));
+                etNewPropertyAddressLine1.setError("This field is required");
                 validAddress = false;
             } else {
                 boolean addressExists = false;
@@ -273,7 +278,8 @@ public class CreateProperty extends AppCompatActivity {
                             .setMessage("This address belongs to an existing property record.")
                             .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int which) {
-                                    etNewPropertyAddressLine1.setText("");
+//                                    etNewPropertyAddressLine1.setText("");
+                                    etNewPropertyAddressLine1.setError("Address exists");
                                 }
                             })
                             .setIcon(android.R.drawable.ic_dialog_alert)
@@ -286,11 +292,12 @@ public class CreateProperty extends AppCompatActivity {
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
             if (etNewPropertyNotes.getText().toString().matches("")) {
-                etNewPropertyNotes.setText("No notes yet :( \nThat's okay, you can add some later..");
-                validNotes = false;
-            } else {
+                etNewPropertyNotes.setText("No notes yet. That's okay, you can add some later..");
                 validNotes = true;
             }
+//            else {
+//                validNotes = true;
+//            }
 ///////////////////////////////////////////////////////////////////////////////////////////////
             String nullVals = "";
             if (!validAddress) {

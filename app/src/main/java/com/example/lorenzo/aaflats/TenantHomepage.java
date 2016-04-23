@@ -3,10 +3,7 @@ package com.example.lorenzo.aaflats;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
-import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.support.design.widget.NavigationView;
@@ -18,7 +15,6 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ArrayAdapter;
-import android.widget.AutoCompleteTextView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -36,7 +32,8 @@ public class TenantHomepage extends AppCompatActivity
 
     ArrayList<String> logoutName = new ArrayList<>();
     ArrayAdapter<String> logoutAdapter;
-    ArrayList<Tenant> tenantList = new ArrayList<>();
+    Tenant tenantLoggingIn = new Tenant();
+    Flat parceableFlat = new Flat();
     Spinner actvLogout;
     View myHeader;
     TextView logoutText;
@@ -61,24 +58,20 @@ public class TenantHomepage extends AppCompatActivity
         navigationView.getMenu().getItem(0).setChecked(true);
 
         Bundle intent = getIntent().getExtras();
-        Flat parceableFlat;
         Firebase.setAndroidContext(this);
         Firebase tenantRef = new Firebase(getResources().getString(R.string.tenants_location));
-        String tenantPropertyFlat = "";
-        try {
-            parceableFlat = intent.getParcelable("parceable_flat");
-            tenantPropertyFlat = parceableFlat.getAddressLine1() + " - " + parceableFlat.getFlatNum();
-        } catch (Exception ex) {
+        parceableFlat = intent.getParcelable("parceable_flat");
+//        String tenantPropertyFlat = parceableFlat.getAddressLine1() + " - " + parceableFlat.getFlatNum();
 
-        }
 
-        Query getFirebaseTenant = tenantRef.orderByChild("property").equalTo(tenantPropertyFlat);
+//        Query getFirebaseTenant = tenantRef.orderByChild("property").equalTo(tenantPropertyFlat);
+        Query getFirebaseTenant = tenantRef.orderByKey().equalTo(parceableFlat.getTenant());
         getFirebaseTenant.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for (DataSnapshot childSnap : dataSnapshot.getChildren()) {
                     Tenant tnt = childSnap.getValue(Tenant.class);
-                    tenantList.add(tnt);
+                    tenantLoggingIn = tnt;
                 }
                 displayTenantDetails();
             }
@@ -99,7 +92,7 @@ public class TenantHomepage extends AppCompatActivity
         composeReport.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(TenantHomepage.this, ComposeNew.class).putExtra("composeType", "0").putExtra("parceable_tenant", tenantList.get(0)));
+                startActivity(new Intent(TenantHomepage.this, ComposeNew.class).putExtra("composeType", "0").putExtra("parceable_tenant", tenantLoggingIn).putExtra("parceable_flat", parceableFlat));
             }
         });
 
@@ -107,7 +100,7 @@ public class TenantHomepage extends AppCompatActivity
         composeEnquiry.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(TenantHomepage.this, ComposeNew.class).putExtra("composeType", "1").putExtra("parceable_tenant", tenantList.get(0)));
+                startActivity(new Intent(TenantHomepage.this, ComposeNew.class).putExtra("composeType", "1").putExtra("parceable_tenant", tenantLoggingIn).putExtra("parceable_flat", parceableFlat));
             }
         });
 
@@ -171,7 +164,7 @@ public class TenantHomepage extends AppCompatActivity
 
 
         try {
-            logoutName.add(tenantList.get(0).getForename() + " " + tenantList.get(0).getSurname());
+            logoutName.add(tenantLoggingIn.getForename() + " " + tenantLoggingIn.getSurname());
 //            logoutName.add("Lorenzo");
         } catch (Exception ex) {
             Toast.makeText(TenantHomepage.this, "Could not load tenant details", Toast.LENGTH_SHORT).show();
@@ -186,9 +179,9 @@ public class TenantHomepage extends AppCompatActivity
         TextView greetingText = (TextView) findViewById(R.id.greeting_text);
         try {
 
-            tenantAddress.setText(tenantList.get(0).getProperty());
+            tenantAddress.setText(tenantLoggingIn.getProperty());
 //            tenantAddress.setText("12 Trematon Terrace - Flat 1");
-            greetingText.setText("Welcome back, " + tenantList.get(0).getForename());
+            greetingText.setText("Welcome back, " + tenantLoggingIn.getForename());
         } catch (Exception ex) {
             Toast.makeText(TenantHomepage.this, "Could not load tenant details", Toast.LENGTH_SHORT).show();
         }
@@ -220,7 +213,7 @@ public class TenantHomepage extends AppCompatActivity
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.my_account) {
-            startActivity(new Intent(TenantHomepage.this, TenantDetails.class).putExtra("parceable_tenant", tenantList.get(0)).putExtra("staff_access", false));
+            startActivity(new Intent(TenantHomepage.this, TenantDetails.class).putExtra("parceable_tenant", tenantLoggingIn).putExtra("staff_access", false));
             return true;
         }
 
@@ -236,11 +229,11 @@ public class TenantHomepage extends AppCompatActivity
         if (id == R.id.nav_camera) {
             // Handle the camera action
         } else if (id == R.id.nav_my_account) {
-            startActivity(new Intent(TenantHomepage.this, TenantDetails.class).putExtra("parceable_tenant", tenantList.get(0)).putExtra("staff_access", false));
+            startActivity(new Intent(TenantHomepage.this, TenantDetails.class).putExtra("parceable_tenant", tenantLoggingIn).putExtra("staff_access", false));
         } else if (id == R.id.nav_compose_report) {
-            startActivity(new Intent(TenantHomepage.this, ComposeNew.class).putExtra("composeType", "0").putExtra("parceable_tenant", tenantList.get(0)));
+            startActivity(new Intent(TenantHomepage.this, ComposeNew.class).putExtra("composeType", "0").putExtra("parceable_tenant", tenantLoggingIn).putExtra("parceable_flat", parceableFlat));
         } else if (id == R.id.nav_compose_enquiry) {
-            startActivity(new Intent(TenantHomepage.this, ComposeNew.class).putExtra("composeType", "1").putExtra("parceable_tenant", tenantList.get(0)));
+            startActivity(new Intent(TenantHomepage.this, ComposeNew.class).putExtra("composeType", "1").putExtra("parceable_tenant", tenantLoggingIn).putExtra("parceable_flat", parceableFlat));
         } else if(id == R.id.nav_contact_details){
             new AlertDialog.Builder(this)
                     .setTitle("A&A Flats")

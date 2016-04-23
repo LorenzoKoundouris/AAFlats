@@ -939,7 +939,7 @@ public class TaskDetails extends AppCompatActivity {
         }
 
         // Check for valid notes, if the user attached some
-        if (TextUtils.isEmpty(edittedTask.getReport())) {
+        if (TextUtils.isEmpty(edittedTask.getNotes())) {
 //            mCardText.setError("A valid report is required");
 //            if (focusView == null) {
 //                focusView = mCard;

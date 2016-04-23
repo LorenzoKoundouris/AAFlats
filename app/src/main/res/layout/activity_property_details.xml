@@ -11,5 +11,4 @@
         layout="@layout/app_bar_property_details"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
-
 </android.support.design.widget.CoordinatorLayout>

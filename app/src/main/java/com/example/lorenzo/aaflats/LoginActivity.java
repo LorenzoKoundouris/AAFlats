@@ -114,7 +114,9 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
 
 //        populateAutoComplete();
         Bundle intent = getIntent().getExtras();
-        staffSigningIn = intent.getParcelableArrayList("parceable_staff_list");
+        if (intent != null) {
+            staffSigningIn = intent.getParcelableArrayList("parceable_staff_list");
+        }
 
         mPasswordView = (EditText) findViewById(R.id.password);
         mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -217,8 +219,8 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
     }//end of oncreate
 
     private void scanQRNow() {
-        Animation mAnimation = new TranslateAnimation(0, 0, 0, 2000);
-        mAnimation.setDuration(3000);
+        Animation mAnimation = new TranslateAnimation(0, 0, 0, 2000); //2000
+        mAnimation.setDuration(3000); //3000
         mAnimation.setFillAfter(true);
 //        mAnimation.setRepeatCount(-1);
 //      mAnimation.setRepeatMode(Animation.REVERSE);
@@ -232,13 +234,13 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
                 finish();
                 overridePendingTransition(R.anim.login_animation, R.anim.splash_animation);
             }
-        }, 3000);
+        }, 1500); //3000
     }
 
     private void populateAutoComplete() {
-//        if (!mayRequestContacts()) {
-//            return;
-//        }
+        if (!mayRequestContacts()) {
+            return;
+        }
 
         String staffEmail = mSharedPreferences.getString(EMAIL_KEY, "");
         String staffPassword = mSharedPreferences.getString(PASSWORD_KEY, "");
@@ -351,16 +353,27 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
                 if (cancel) {
                     // There was an error; don't attempt login and focus the first
                     // form field with an error.
-                    focusView.requestFocus();
+                    final View finalFocusView = focusView;
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            finalFocusView.requestFocus();
+                        }
+                    });
                 } else if (staffSigningIn.size() > 0) {
                     // Show a progress spinner, and kick off a background task to
                     // perform the user login attempt.
-                    inputMethodManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);//mine
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
 
 //stuff that updates ui
+                            try {
+                                inputMethodManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+                            } catch (Exception ignore) {
+
+                            }
+
                             showProgress(true);
 
                         }
@@ -527,18 +540,18 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
         @Override
         protected void onPostExecute(final Boolean success) {
 
-            SharedPreferences.Editor editor = mSharedPreferences.edit();
-            editor.putString(EMAIL_KEY, loggedIn.getUsername());
-            editor.putString(PASSWORD_KEY, loggedIn.getPassword());
-            editor.putString(STAFF_KEY, loggedIn.getStaffKey());
-            String tmp = loggedIn.getForename() + " " + loggedIn.getSurname();
-            editor.putString(FULL_NAME_KEY, tmp);
-            editor.commit();
-
             mAuthTask = null;
             showProgress(false);
 
             if (success) {
+                SharedPreferences.Editor editor = mSharedPreferences.edit();
+                editor.putString(EMAIL_KEY, loggedIn.getUsername());
+                editor.putString(PASSWORD_KEY, loggedIn.getPassword());
+                editor.putString(STAFF_KEY, loggedIn.getStaffKey());
+                String tmp = loggedIn.getForename() + " " + loggedIn.getSurname();
+                editor.putString(FULL_NAME_KEY, tmp);
+                editor.commit();
+
                 startActivity(new Intent(LoginActivity.this, Homepage.class).putExtra("parceable_staff", loggedIn)); //mine
                 finish();
             } else {

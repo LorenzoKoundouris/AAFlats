@@ -13,25 +13,25 @@ import java.util.ArrayList;
 public class FlatCompletedTasksViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
 
     protected ArrayList<Task> flatCompletedTasks;
-    protected ArrayList<String> flatCompletedTasksKeys;
+//    protected ArrayList<String> flatCompletedTasksKeys;
     protected TextView flatCompletedTaskTitle;
 
-    public FlatCompletedTasksViewHolder(View itemView, ArrayList<Task> flatCompletedTasks, ArrayList<String> flatCompletedTasksKeys) {
+    public FlatCompletedTasksViewHolder(View itemView, ArrayList<Task> flatCompletedTasks) { //, ArrayList<String> flatCompletedTasksKeys
         super(itemView);
         flatCompletedTaskTitle = (TextView) itemView.findViewById(R.id.flat_task_title);
 
         this.flatCompletedTasks = flatCompletedTasks;
-        this.flatCompletedTasksKeys = flatCompletedTasksKeys;
+//        this.flatCompletedTasksKeys = flatCompletedTasksKeys;
         itemView.setOnClickListener(this);
     }
 
     @Override
     public void onClick(View v) {
         Task pTask = flatCompletedTasks.get(getAdapterPosition());
-        String pFlatTaskKey = flatCompletedTasksKeys.get(getAdapterPosition());
+//        String pFlatTaskKey = flatCompletedTasksKeys.get(getAdapterPosition());
         Intent intent = new Intent(v.getContext(), TaskDetails.class);
         intent.putExtra("parceable_task", pTask);
-        intent.putExtra("parceable_task_key", pFlatTaskKey);
+//        intent.putExtra("parceable_task_key", pFlatTaskKey);
         v.getContext().startActivity(intent);
     }
 }

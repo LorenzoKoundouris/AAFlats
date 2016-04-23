@@ -12,6 +12,7 @@ import java.util.ArrayList;
  */
 public class FlatAdapter extends RecyclerView.Adapter<FlatViewHolder>{
     public static Flat mFlat = new Flat();
+    public static Tenant mTenant = new Tenant();
     private ArrayList<Flat> flatList = new ArrayList<>();
     private ArrayList<Tenant> tenantList = new ArrayList<>();
 //    private ArrayList<String> flatKeys = new ArrayList<>();
@@ -37,7 +38,14 @@ public class FlatAdapter extends RecyclerView.Adapter<FlatViewHolder>{
     public void onBindViewHolder(FlatViewHolder flatViewHolder, int position) {
         mFlat = flatList.get(position);
 //        flatViewHolder.flatTenant.setText(flatNums.get(position) + " - " + mFlat.getTenant());
-        flatViewHolder.flatTenant.setText(mFlat.getFlatNum() + " - " + mFlat.getTenant());
+        mTenant.setForename("");
+        mTenant.setSurname("");
+        for(Tenant tnt : tenantList){
+            if(tnt.getTenantKey().matches(mFlat.getTenant())){
+               mTenant = tnt;
+            }
+        }
+        flatViewHolder.flatTenant.setText(mFlat.getFlatNum() + " - " + mTenant.getForename() + " " + mTenant.getSurname());//mFlat.getTenant()
     }
 
     @Override

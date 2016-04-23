@@ -13,18 +13,18 @@ import java.util.ArrayList;
 public class FlatCompletedTasksAdapter extends RecyclerView.Adapter<FlatCompletedTasksViewHolder>{
 
     private ArrayList<Task> flatCompletedTasks;
-    private ArrayList<String> flatCompletedTasksKeys;
+//    private ArrayList<String> flatCompletedTasksKeys;
 
-    public FlatCompletedTasksAdapter(ArrayList<Task> flatCompletedTasks, ArrayList<String> flatCompletedTasksKeys) {
+    public FlatCompletedTasksAdapter(ArrayList<Task> flatCompletedTasks) { //, ArrayList<String> flatCompletedTasksKeys
         this.flatCompletedTasks = flatCompletedTasks;
-        this.flatCompletedTasksKeys = flatCompletedTasksKeys;
+//        this.flatCompletedTasksKeys = flatCompletedTasksKeys;
     }
 
 
     @Override
     public FlatCompletedTasksViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
         View flatTaskView = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.flat_task_item, viewGroup, false);
-        return new FlatCompletedTasksViewHolder(flatTaskView,flatCompletedTasks,flatCompletedTasksKeys);
+        return new FlatCompletedTasksViewHolder(flatTaskView,flatCompletedTasks); //,flatCompletedTasksKeys
     }
 
     @Override

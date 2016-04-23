@@ -151,7 +151,8 @@ public class AllTenants extends AppCompatActivity {
                 boolean exactMatch = false;
                 for (int i = 0; i < tenantList.size(); i++) {
                     String fullName = tenantList.get(i).getForename() + " " + tenantList.get(i).getSurname();
-                    if (query.matches(fullName) || query.matches(tenantList.get(i).getEmail())) {
+                    if (query.toLowerCase().matches(fullName.toLowerCase()) ||
+                            query.toLowerCase().matches(tenantList.get(i).getEmail().toLowerCase())) {
                         exactMatch = true;
                         startActivity(new Intent(AllTenants.this, TenantDetails.class)
                                 .putExtra("parceable_tenant", tenantList.get(i)));
@@ -182,7 +183,7 @@ public class AllTenants extends AppCompatActivity {
         searchQuery.clear();
         for (int i = 0; i < tenantList.size(); i++) {
             String fullName = tenantList.get(i).getForename() + " " + tenantList.get(i).getSurname();
-            if (fullName.contains(newText) ||
+            if (fullName.toLowerCase().contains(newText.toLowerCase()) ||
                     tenantList.get(i).getProperty().toLowerCase().contains(newText.toLowerCase()) ||
                     tenantList.get(i).getEmail().toLowerCase().contains(newText.toLowerCase()) ||
                     tenantList.get(i).getTelephone().toLowerCase().contains(newText.toLowerCase())) {

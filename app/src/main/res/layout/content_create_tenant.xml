@@ -46,9 +46,9 @@
                     android:layout_marginLeft="6dp"
                     android:layout_marginStart="6dp"
                     android:layout_marginTop="5dp"
+                    android:digits="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ "
                     android:hint="First name"
                     android:inputType="textCapWords|text"
-                    android:digits="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
                     android:textStyle="italic" />
             </android.support.design.widget.TextInputLayout>
         </LinearLayout>
@@ -69,19 +69,24 @@
                 android:textColor="@color/colorPrimary"
                 android:textSize="18sp" />
 
-            <EditText
-                android:id="@+id/nt_middlename_editview"
+            <android.support.design.widget.TextInputLayout
                 android:layout_width="0dp"
-                android:digits="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:layout_marginLeft="6dp"
-                android:layout_marginStart="6dp"
-                android:layout_marginTop="5dp"
-                android:layout_weight="3"
-                android:hint="Middle name"
-                android:inputType="textCapWords|text"
-                android:textStyle="italic" />
+                android:layout_weight="3">
+
+                <EditText
+                    android:id="@+id/nt_middlename_editview"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginLeft="6dp"
+                    android:layout_marginStart="6dp"
+                    android:layout_marginTop="5dp"
+                    android:digits="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ "
+                    android:hint="Middle name"
+                    android:inputType="textCapWords|text"
+                    android:textStyle="italic" />
+            </android.support.design.widget.TextInputLayout>
         </LinearLayout>
 
         <LinearLayout
@@ -110,10 +115,10 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_gravity="center_vertical"
-                    android:digits="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
                     android:layout_marginLeft="6dp"
                     android:layout_marginStart="6dp"
                     android:layout_marginTop="5dp"
+                    android:digits="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ "
                     android:hint="Last name"
                     android:inputType="textCapWords|text"
                     android:textStyle="italic" />
@@ -146,10 +151,10 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_gravity="center_vertical"
-                    android:digits="0123456789/"
                     android:layout_marginLeft="6dp"
                     android:layout_marginStart="6dp"
                     android:layout_marginTop="5dp"
+                    android:digits="0123456789/"
                     android:hint="Date of birth"
                     android:inputType="date"
                     android:textStyle="italic" />

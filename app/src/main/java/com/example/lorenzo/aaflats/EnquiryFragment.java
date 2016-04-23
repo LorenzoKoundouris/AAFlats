@@ -15,9 +15,14 @@ import com.firebase.client.FirebaseError;
 import com.firebase.client.Query;
 import com.firebase.client.ValueEventListener;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
+import java.util.Locale;
 
 /**
  * Created by Lorenzo on 03/04/2016.
@@ -42,13 +47,14 @@ public class EnquiryFragment extends Fragment {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for (DataSnapshot childSnap : dataSnapshot.getChildren()) {
                     Report rpt = childSnap.getValue(Report.class);
+                    rpt.setReportKey(childSnap.getKey());
                     enquiryList.add(rpt);
                 }
 
                 Collections.sort(enquiryList, new Comparator<Report>() {
                     @Override
                     public int compare(Report lhs, Report rhs) {
-                        return lhs.getTimestamp().compareTo(rhs.getTimestamp());
+                        return getTMDate(rhs.getTimestamp()).compareTo(getTMDate(lhs.getTimestamp()));
                     }
                 });
 
@@ -63,6 +69,19 @@ public class EnquiryFragment extends Fragment {
 
 
         return v;
+    }
+
+    private Date getTMDate(String timestamp) {
+        DateFormat dFormat = new SimpleDateFormat("ddMMyyyyHHmmss", Locale.ENGLISH);
+        Date tsDate = null;//timestamp.getTime()
+        try {
+            tsDate = dFormat.parse(timestamp);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+//        Date thisD = new Date();
+//        Timestamp timestamp1 = new Timestamp(thisD.getTime());
+        return tsDate;
     }
 
     //Set title for fragment

@@ -43,6 +43,9 @@
                 android:layout_alignParentEnd="true"
                 android:layout_alignParentRight="true"
                 android:textStyle="italic"
+                android:singleLine="true"
+                android:paddingLeft="6dp"
+                android:paddingStart="6dp"
                 android:text="notes"
                 android:layout_alignBottom="@id/property_postcode"/>
 

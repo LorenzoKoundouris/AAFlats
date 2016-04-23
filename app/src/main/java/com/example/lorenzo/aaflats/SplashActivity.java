@@ -14,12 +14,14 @@ import com.firebase.client.ValueEventListener;
 import java.util.ArrayList;
 
 public class SplashActivity extends AppCompatActivity {
-
+    private ArrayList<Staff> staffSigningIn = new ArrayList<>();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        final ArrayList<Staff> staffSigningIn = new ArrayList<>();
+
         Firebase.setAndroidContext(this);
+
+
         final Firebase staffRef = new Firebase(getResources().getString(R.string.staff_location));
 //        Query verifyCredentials = staffRef.orderByChild("username").equalTo(mEmailView);
         staffRef.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -30,6 +32,7 @@ public class SplashActivity extends AppCompatActivity {
                     stf.setStaffKey(childSnap.getKey());
                     staffSigningIn.add(stf);
                 }
+                readyGo();
             }
 
             @Override
@@ -37,8 +40,10 @@ public class SplashActivity extends AppCompatActivity {
 
             }
         });
+    }
 
 
+    public void readyGo(){
         final Handler handler = new Handler();
         handler.postDelayed(new Runnable() {
             @Override
@@ -48,8 +53,7 @@ public class SplashActivity extends AppCompatActivity {
                 overridePendingTransition(R.anim.login_animation, R.anim.splash_animation);
                 finish();
             }
-        }, 2500); //4000
-
+        }, 0000); //4000
     }
 
 }

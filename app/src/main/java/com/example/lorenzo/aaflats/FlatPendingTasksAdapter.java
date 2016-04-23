@@ -13,17 +13,17 @@ import java.util.ArrayList;
 public class FlatPendingTasksAdapter extends RecyclerView.Adapter<FlatPendingTasksViewHolder>{
 
     private ArrayList<Task> flatPendingTasks;
-    private ArrayList<String> flatPendingTasksKeys;
+//    private ArrayList<String> flatPendingTasksKeys;
 
-    public FlatPendingTasksAdapter(ArrayList<Task> flatPendingTasks, ArrayList<String> flatPendingTasksKeys) {
+    public FlatPendingTasksAdapter(ArrayList<Task> flatPendingTasks) { //, ArrayList<String> flatPendingTasksKeys
         this.flatPendingTasks = flatPendingTasks;
-        this.flatPendingTasksKeys = flatPendingTasksKeys;
+//        this.flatPendingTasksKeys = flatPendingTasksKeys;
     }
 
     @Override
     public FlatPendingTasksViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType) {
         View flatTaskView = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.flat_task_item, viewGroup, false);
-        return new FlatPendingTasksViewHolder(flatTaskView,flatPendingTasks,flatPendingTasksKeys);
+        return new FlatPendingTasksViewHolder(flatTaskView,flatPendingTasks); //, flatPendingTasksKeys
     }
 
     @Override

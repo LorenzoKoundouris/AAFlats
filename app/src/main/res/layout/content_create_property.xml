@@ -4,9 +4,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     android:focusable="true"
     android:focusableInTouchMode="true"
+    android:orientation="vertical"
     android:paddingBottom="@dimen/activity_vertical_margin"
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
@@ -31,16 +31,19 @@
             android:text="Address: "
             android:textColor="@color/colorPrimary"
             android:textSize="18sp" />
-
-        <EditText
-            android:id="@+id/np_address_editview"
+        <android.support.design.widget.TextInputLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="2.5"
-            android:layout_marginStart="6dp"
+            android:layout_weight="2.5">
+        <EditText
+            android:id="@+id/np_address_editview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:layout_marginLeft="6dp"
-            android:inputType="textCapWords"
-            android:hint="House number" />
+            android:layout_marginStart="6dp"
+            android:hint="House number"
+            android:inputType="textCapWords" />
+        </android.support.design.widget.TextInputLayout>
     </LinearLayout>
 
 
@@ -60,16 +63,19 @@
             android:text="Postcode: "
             android:textColor="@color/colorPrimary"
             android:textSize="18sp" />
-
-        <EditText
-            android:id="@+id/np_postcode_editview"
+        <android.support.design.widget.TextInputLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="2.5"
-            android:layout_marginStart="6dp"
+            android:layout_weight="2.5">
+        <EditText
+            android:id="@+id/np_postcode_editview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:layout_marginLeft="6dp"
-            android:inputType="textCapCharacters"
-            android:hint="XXX XXX" />
+            android:layout_marginStart="6dp"
+            android:hint="XXX XXX"
+            android:inputType="textCapCharacters" />
+        </android.support.design.widget.TextInputLayout>
     </LinearLayout>
 
     <LinearLayout
@@ -89,18 +95,23 @@
             android:textColor="@color/colorPrimary"
             android:textSize="18sp" />
 
-        <EditText
-            android:id="@+id/np_notes_editview"
+        <android.support.design.widget.TextInputLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="2.5"
-            android:layout_marginStart="6dp"
-            android:layout_marginLeft="6dp"
-            android:inputType="textCapSentences|textMultiLine"
-            android:lines="3"
-            android:maxLines="5"
-            android:maxLength="250"
-            android:hint="Compose any notes here.."
-            android:textStyle="italic" />
+            android:layout_weight="2.5">
+
+            <EditText
+                android:id="@+id/np_notes_editview"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="6dp"
+                android:layout_marginStart="6dp"
+                android:hint="Compose any notes here.."
+                android:inputType="textCapSentences|textMultiLine"
+                android:lines="3"
+                android:maxLength="250"
+                android:maxLines="5"
+                android:textStyle="italic" />
+        </android.support.design.widget.TextInputLayout>
     </LinearLayout>
 </LinearLayout>

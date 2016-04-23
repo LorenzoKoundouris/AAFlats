@@ -9,6 +9,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
@@ -65,8 +66,8 @@ public class FlatDetails extends AppCompatActivity {
         TextView flatPostcode = (TextView) findViewById(R.id.flat_details_postcode);
         flatPostcode.setText(parceableFlat.getPostcode());
 
-        TextView flatTenant = (TextView) findViewById(R.id.flat_details_tenant);
-        flatTenant.setText(parceableFlat.getTenant());
+        final TextView flatTenant = (TextView) findViewById(R.id.flat_details_tenant);
+//        flatTenant.setText(parceableFlat.getTenant());
 
         TextView flatNotes = (TextView) findViewById(R.id.flat_details_notes);
         flatNotes.setText(parceableFlat.getNotes());
@@ -77,23 +78,45 @@ public class FlatDetails extends AppCompatActivity {
         final ArrayList<String> flatCompletedTasksKeys = new ArrayList<>();
         Firebase taskRef = new Firebase(getString(R.string.tasks_location));
         Firebase propertyRef = new Firebase(getResources().getString(R.string.properties_location));
+        Firebase tenantRef = new Firebase(getResources().getString(R.string.tenants_location));
         //Query tasksOfThisFlatQ = taskRef.orderByChild("property").equalTo(parceableFlatKey);// .orderByChild("status").equalTo("false");
+
+        Query getTenant = tenantRef.orderByKey().equalTo(parceableFlat.getTenant());
+
+        getTenant.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for(DataSnapshot childSnap : dataSnapshot.getChildren()){
+                    Tenant tnt = childSnap.getValue(Tenant.class);
+                    flatTenant.setText(tnt.getForename() + " " + tnt.getSurname());
+                }
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+
+            }
+        });
+
+
         Query tasksOfThisFlatQ = taskRef.orderByChild("property").equalTo(parceableFlat.getAddressLine1() + " - " + parceableFlat.getFlatNum());
         tasksOfThisFlatQ.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 flatPendingTasks.clear();
                 flatCompletedTasks.clear();
-                flatPendingTasksKeys.clear();
-                flatCompletedTasksKeys.clear();
+//                flatPendingTasksKeys.clear();
+//                flatCompletedTasksKeys.clear();
                 for (DataSnapshot childSnapShot : dataSnapshot.getChildren()) {
                     Task tsk = childSnapShot.getValue(Task.class);
                     if (!tsk.getStatus()) {
+                        tsk.setTaskKey(childSnapShot.getKey());
                         flatPendingTasks.add(tsk);
-                        flatPendingTasksKeys.add(childSnapShot.getKey());
+//                        flatPendingTasksKeys.add(childSnapShot.getKey());
                     } else {
+                        tsk.setTaskKey(childSnapShot.getKey());
                         flatCompletedTasks.add(tsk);
-                        flatCompletedTasksKeys.add(childSnapShot.getKey());
+//                        flatCompletedTasksKeys.add(childSnapShot.getKey());
                     }
                 }
             }
@@ -124,8 +147,8 @@ public class FlatDetails extends AppCompatActivity {
         RecyclerView fltDtCompTskRecyclerView = (RecyclerView) findViewById(R.id.flt_det_comp_tsk_recyclerview);
         fltDtPdgTskRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         fltDtCompTskRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        fltDtPdgTskRecyclerView.setAdapter(new FlatPendingTasksAdapter(flatPendingTasks, flatPendingTasksKeys));
-        fltDtCompTskRecyclerView.setAdapter(new FlatCompletedTasksAdapter(flatCompletedTasks, flatCompletedTasksKeys));
+        fltDtPdgTskRecyclerView.setAdapter(new FlatPendingTasksAdapter(flatPendingTasks)); //, flatPendingTasksKeys
+        fltDtCompTskRecyclerView.setAdapter(new FlatCompletedTasksAdapter(flatCompletedTasks)); //, flatCompletedTasksKeys
     }
 
     private void editFlatDetails() {

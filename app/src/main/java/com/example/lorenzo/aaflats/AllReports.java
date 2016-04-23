@@ -25,9 +25,16 @@ import com.firebase.client.FirebaseError;
 import com.firebase.client.Query;
 import com.firebase.client.ValueEventListener;
 
+import java.sql.Time;
+import java.sql.Timestamp;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
+import java.util.Locale;
 
 public class AllReports extends AppCompatActivity {
 
@@ -91,13 +98,24 @@ public class AllReports extends AppCompatActivity {
                     reportList.add(rpt);
                 }
 
+//                getTMDate(reportList);
+
                 Collections.sort(reportList, new Comparator<Report>() {
                     @Override
                     public int compare(Report lhs, Report rhs) {
-                        return lhs.getTimestamp().compareTo(rhs.getTimestamp());
+//                        Timestamp tm = new Timestamp(Long.valueOf(rhs.getTimestamp()).longValue());
+//                        Timestamp tm2 = new Timestamp(Long.valueOf(lhs.getTimestamp()).longValue());
+
+                        return getTMDate(rhs.getTimestamp()).compareTo(getTMDate(lhs.getTimestamp()));
+//                        rhs.getTimestamp().compareTo(lhs.getTimestamp());
                     }
                 });
-
+//                Collections.sort(reportList, new Comparator<Report>() {
+//                    @Override
+//                    public int compare(Report lhs, Report rhs) {
+//                        return rhs.getTimestamp().compareTo(lhs.getTimestamp());
+//                    }
+//                });
 
                 setRecyclerAdapterContents(reportList);
             }
@@ -109,6 +127,19 @@ public class AllReports extends AppCompatActivity {
         });
         setupRecyclerview();
     }//End of onCreate
+
+    private Date getTMDate(String timestamp) {
+        DateFormat dFormat = new SimpleDateFormat("ddMMyyyyHHmmss", Locale.ENGLISH);
+        Date tsDate = null;//timestamp.getTime()
+        try {
+            tsDate = dFormat.parse(timestamp);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+//        Date thisD = new Date();
+//        Timestamp timestamp1 = new Timestamp(thisD.getTime());
+        return tsDate;
+    }
 
 
     private void setupRecyclerview(){
@@ -191,7 +222,8 @@ public class AllReports extends AppCompatActivity {
     private void loadResults(String newText) {
         searchQuery.clear();
         for (int i = 0; i < reportList.size(); i++) {
-            if (reportList.get(i).getReportKey().contains(newText) || reportList.get(i).getProperty().toLowerCase().contains(newText.toLowerCase()) ||
+            if (reportList.get(i).getReportKey().contains(newText) ||
+                    reportList.get(i).getProperty().toLowerCase().contains(newText.toLowerCase()) ||
                     reportList.get(i).getSender().toLowerCase().contains(newText.toLowerCase()) ||
                     reportList.get(i).getContent().toLowerCase().contains(newText.toLowerCase())) {
                 searchQuery.add(reportList.get(i));

@@ -46,6 +46,7 @@ public class ComposeNew extends AppCompatActivity {
         Bundle extras = getIntent().getExtras();
         int parceableComposeType = Integer.parseInt(extras.getString("composeType"));
         final Tenant parceableTenant = extras.getParcelable("parceable_tenant");
+        final Flat parceableFlat = extras.getParcelable("parceable_flat");
 
         typeSpinner = (Spinner) findViewById(R.id.type_spinner);
         SpinnerAdapter typeAdapter = ArrayAdapter.createFromResource(this, R.array.report_enquiry,
@@ -102,7 +103,7 @@ public class ComposeNew extends AppCompatActivity {
                         toast.show();
 
                         finish();
-                        startActivity(new Intent(ComposeNew.this, TenantHomepage.class));
+                        startActivity(new Intent(ComposeNew.this, TenantHomepage.class).putExtra("parceable_flat", parceableFlat));
 
                     } catch(Exception ex){
                         Toast toast = Toast.makeText(ComposeNew.this, newReport.getType() + " NOT sent. Failure!", Toast.LENGTH_SHORT);

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/parent_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#E0E0E0"
@@ -38,23 +38,30 @@
                 android:orientation="horizontal">
 
                 <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="2"
+                    android:gravity="center_vertical"
                     android:text="Postcode: "
                     android:textColor="@color/colorPrimary"
                     android:textSize="18sp" />
 
-                <EditText
-                    android:id="@+id/property_details_postcode"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="23dp"
-                    android:layout_marginStart="23dp"
-                    android:enabled="false"
-                    android:hint="PL4 6QS"
-                    android:inputType="textCapCharacters"
-                    android:textColor="@drawable/disabled_text"
-                    android:textSize="18sp" />
+                <android.support.design.widget.TextInputLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="4">
+
+                    <EditText
+                        android:id="@+id/property_details_postcode"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:enabled="false"
+                        android:hint="Postcode"
+                        android:digits="ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890 "
+                        android:inputType="textCapCharacters"
+                        android:textColor="@drawable/disabled_text"
+                        android:textSize="18sp" />
+                </android.support.design.widget.TextInputLayout>
 
             </LinearLayout>
 
@@ -64,22 +71,30 @@
                 android:layout_marginTop="12dp">
 
                 <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="2"
+                    android:gravity="center_vertical"
                     android:text="Address: "
                     android:textColor="@color/colorPrimary"
                     android:textSize="18sp" />
 
-                <EditText
-                    android:id="@+id/property_details_addrline1"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="32dp"
-                    android:layout_marginStart="32dp"
-                    android:enabled="false"
-                    android:hint="12 Trematon Terrace"
-                    android:textColor="@drawable/disabled_text"
-                    android:textSize="18sp" />
+                <android.support.design.widget.TextInputLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="4">
+
+                    <EditText
+                        android:id="@+id/property_details_addrline1"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:enabled="false"
+                        android:digits="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890 "
+                        android:hint="Address"
+                        android:textColor="@drawable/disabled_text"
+                        android:textSize="18sp"
+                        android:inputType="textCapWords"/>
+                </android.support.design.widget.TextInputLayout>
             </LinearLayout>
 
             <LinearLayout
@@ -88,28 +103,36 @@
                 android:layout_marginTop="12dp">
 
                 <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="center_vertical"
                     android:text="Notes: "
                     android:textColor="@color/colorPrimary"
                     android:textSize="18sp" />
 
-                <EditText
-                    android:id="@+id/property_details_notes"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="50dp"
-                    android:layout_marginStart="50dp"
-                    android:enabled="false"
-                    android:hint="Compose any notes here..."
-                    android:inputType="textCapSentences|textMultiLine"
-                    android:lines="3"
-                    android:maxLength="250"
-                    android:maxLines="5"
-                    android:textColor="@drawable/disabled_text"
-                    android:textSize="18sp"
-                    android:textStyle="italic" />
+
+                <android.support.design.widget.TextInputLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="3">
+
+                    <EditText
+                        android:id="@+id/property_details_notes"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:enabled="false"
+                        android:hint="Compose any notes here..."
+                        android:inputType="textCapSentences|textMultiLine"
+                        android:lines="3"
+                        android:maxLength="250"
+                        android:maxLines="5"
+                        android:textColor="@drawable/disabled_text"
+                        android:textSize="18sp"
+                        android:textStyle="italic" />
+                </android.support.design.widget.TextInputLayout>
             </LinearLayout>
+
 
         </LinearLayout>
 
@@ -127,7 +150,7 @@
         <LinearLayout
             android:id="@+id/property_flat_list_lnr"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:orientation="vertical">
 
             <LinearLayout

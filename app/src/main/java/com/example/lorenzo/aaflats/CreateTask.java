@@ -862,7 +862,7 @@ public class CreateTask extends AppCompatActivity implements AdapterView.OnItemS
 //                newTask.setAssignedStaff(mStaff);
                 newTask.setCompletedBy("");
                 newTask.setCompletionTimestamp("pending");
-                newTask.setCreator(staffList.get(0).getStaffKey());
+                newTask.setCreator(loggedStaff.getStaffKey());
                 newTask.setDescription(mDescription);
                 newTask.setNotes(mNotes);
                 newTask.setPriority(mPriority);

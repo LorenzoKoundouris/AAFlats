@@ -9,6 +9,7 @@
         android:layout_height="wrap_content"
         android:padding="12dp"
         android:layout_marginStart="12dp"
+        android:layout_marginLeft="12dp"
         android:textSize="18sp"
         android:textColor="@android:color/holo_blue_dark"
         />

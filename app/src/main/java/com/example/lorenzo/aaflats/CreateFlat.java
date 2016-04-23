@@ -27,7 +27,9 @@ import com.firebase.client.Query;
 import com.firebase.client.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 public class CreateFlat extends AppCompatActivity {
@@ -37,6 +39,8 @@ public class CreateFlat extends AppCompatActivity {
     private InputMethodManager inputMethodManager;
     private ArrayList<String> unassignedTenants = new ArrayList<>();
     private boolean nonExistentTenant = false;
+    Firebase tenantRef;
+    Tenant addedTenant;
 
     private ArrayAdapter<String> propertyAdapter;
     private ArrayList<Property> propertyList = new ArrayList<>();
@@ -85,6 +89,7 @@ public class CreateFlat extends AppCompatActivity {
 //            propertyList = myIntent.getParcelableArrayList("propertyList");
 //            propertyAddrLine1s = myIntent.getStringArrayList("propertyAddrLine1s");
             actvProperty.setText(createdProperty.getAddrline1());
+            newFlat.setAddressLine1(createdProperty.getAddrline1());
             loadCorrespondingFlats(createdProperty.getAddrline1());
         }
 
@@ -92,12 +97,12 @@ public class CreateFlat extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 loadCorrespondingFlats(actvProperty.getText().toString());
-                getTenants();
+//                getTenants();
             }
         });
 
         ArrayAdapter<String> tenantAdapter = new ArrayAdapter<>
-                (this, android.R.layout.simple_dropdown_item_1line, tenantFullNames);
+                (this, android.R.layout.simple_dropdown_item_1line, unassignedTenants); //tenantFullNames
         flatTenant.setAdapter(tenantAdapter);
 
         Firebase flatRef = new Firebase(getResources().getString(R.string.flats_location));
@@ -110,12 +115,31 @@ public class CreateFlat extends AppCompatActivity {
                     Flat flt = childSnapShot.getValue(Flat.class);
                     flatList.add(flt);
                     flatNums.add(flt.getFlatNum());
-                    propertyAddrLine1s.add(flt.getAddressLine1());
+//                    propertyAddrLine1s.add(flt.getAddressLine1());
                 }
-                Set<String> removeDuplicates = new HashSet<>();
-                removeDuplicates.addAll(propertyAddrLine1s);
+//                Set<String> removeDuplicates = new HashSet<>();
+//                removeDuplicates.addAll(propertyAddrLine1s);
+//                propertyAddrLine1s.clear();
+//                propertyAddrLine1s.addAll(removeDuplicates);
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+
+            }
+        });
+
+        Firebase propertyRef = new Firebase(getResources().getString(R.string.properties_location));
+        propertyRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                propertyList.clear();
                 propertyAddrLine1s.clear();
-                propertyAddrLine1s.addAll(removeDuplicates);
+                for (DataSnapshot childSnapShot : dataSnapshot.getChildren()) {
+                    Property prt = childSnapShot.getValue(Property.class);
+                    propertyAddrLine1s.add(prt.getAddrline1());
+                    propertyList.add(prt);
+                }
             }
 
             @Override
@@ -125,7 +149,7 @@ public class CreateFlat extends AppCompatActivity {
         });
 
         //Need this
-        Firebase tenantRef = new Firebase(getResources().getString(R.string.tenants_location));
+        tenantRef = new Firebase(getResources().getString(R.string.tenants_location));
         tenantRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -134,6 +158,7 @@ public class CreateFlat extends AppCompatActivity {
                 unassignedTenants.clear();
                 for (DataSnapshot childSnapShot : dataSnapshot.getChildren()) {
                     Tenant tnt = childSnapShot.getValue(Tenant.class);
+                    tnt.setTenantKey(childSnapShot.getKey());
                     tenantList.add(tnt);
                     String fullName;
                     if (!tnt.getMiddlename().matches("")) {
@@ -142,7 +167,7 @@ public class CreateFlat extends AppCompatActivity {
                         fullName = tnt.getForename() + " " + tnt.getSurname();
                     }
                     tenantFullNames.add(fullName.trim());
-                    if(tnt.getProperty().matches("")){
+                    if (tnt.getProperty().matches("")) {
                         if (!tnt.getMiddlename().matches("")) {
                             fullName = tnt.getForename() + " " + tnt.getMiddlename() + " " + tnt.getSurname();
                         } else {
@@ -415,7 +440,8 @@ public class CreateFlat extends AppCompatActivity {
                 break;
             case R.id.save_new_task:
                 //Toast.makeText(getApplicationContext(), "Save button clicked", Toast.LENGTH_SHORT).show();
-                saveNewFlat();
+//                saveNewFlat();
+                attemptCreation();
                 break;
             case R.id.action_settings:
                 startActivity(new Intent(CreateFlat.this, Homepage.class));
@@ -431,6 +457,11 @@ public class CreateFlat extends AppCompatActivity {
         newFlat.setNotes("");
         newFlat.setFlatNum("");
         newFlat.setTenant("");
+
+        actvProperty.setError(null);
+        etFlatNum.setError(null);
+        etFlatNotes.setError(null);
+        flatTenant.setError(null);
 
         boolean cancel = false;
         View focusView = null;
@@ -453,7 +484,7 @@ public class CreateFlat extends AppCompatActivity {
             if (focusView == null) {
                 focusView = etFlatNum;
             }
-        } else if (!isFlatNumValid(etFlatNum.getText().toString())) {
+        } else if (!isFlatNumValid("Flat " + etFlatNum.getText().toString())) {
             etFlatNum.setError("This flat number is in use");
             cancel = true;
             if (focusView == null) {
@@ -463,8 +494,8 @@ public class CreateFlat extends AppCompatActivity {
             new AlertDialog.Builder(this)
                     .setIcon(android.R.drawable.ic_dialog_alert)
                     .setTitle("Warning")
-                    .setMessage("These flat numbers already exist in \"" + actvProperty.getText().toString()
-                            + "\":" + "\n" + flatNums.toString() + "\nPlease enter a unique number.")
+                    .setMessage("These flats already exist in " + actvProperty.getText().toString()
+                            + ":\n\n" + flatNums.toString() + "\n\nPlease enter a unique number.")
                     .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
@@ -475,20 +506,25 @@ public class CreateFlat extends AppCompatActivity {
         }
 
         //Check for valid tenant, if the user entered one
-        if(TextUtils.isEmpty(flatTenant.getText().toString())){
+        if (TextUtils.isEmpty(flatTenant.getText().toString())) {
             //No need to add a tenant
-        }else if(!isTenantValid(flatTenant.getText().toString())){
+        } else if (!isTenantValid(flatTenant.getText().toString())) {
             flatTenant.setError("This tenant does not exist in the system");
             cancel = true;
             if (focusView == null) {
                 focusView = flatTenant;
             }
-        } else if(!isTenantFree(flatTenant.getText().toString())){
+        } else if (!isTenantFree(flatTenant.getText().toString())) {
             flatTenant.setError("This tenant number is in use");
             cancel = true;
             if (focusView == null) {
                 focusView = flatTenant;
             }
+        }
+
+        //notes
+        if (TextUtils.isEmpty(etFlatNotes.getText().toString())) {
+            etFlatNotes.setText("No notes yet. That's okay, you can add some later..");
         }
 
 
@@ -506,17 +542,26 @@ public class CreateFlat extends AppCompatActivity {
     }
 
     private boolean isTenantFree(String s) {
-        for (int i = 0; i < unassignedTenants.size(); i++) {
-            if (unassignedTenants.get(i).matches(s.trim())) {
+
+        for (String t : unassignedTenants) {
+            if (t.matches(s.trim())) {
                 return true;
             }
         }
+
+//        for (int i = 0; i < unassignedTenants.size(); i++) {
+//            if (unassignedTenants.get(i).matches(s.trim())) {
+//                return true;
+//            }
+//        }
         return false;
     }
 
     private boolean isTenantValid(String s) {
+
         for (int i = 0; i < tenantFullNames.size(); i++) {
             if (tenantFullNames.get(i).matches(s.trim())) {
+                addedTenant = tenantList.get(i);
                 return true;
             }
         }
@@ -524,26 +569,18 @@ public class CreateFlat extends AppCompatActivity {
     }
 
     private boolean isFlatNumValid(String s) {
-        boolean foundIt = false;
-        for (Flat flt : flatList) {
-            if (flt.getAddressLine1().matches(s)) {
-                if (!flt.getFlatNum().matches("Flat " + s)) {
-                    foundIt = true;
-                } else {
-                    flatNums.add(flt.getFlatNum());
-                }
+        for (String f : flatNums) {
+            if (f.matches(s)) {
+                return false;
             }
         }
-        if(foundIt){
-            return false;
-        } else{
-            return true;
-        }
+        return true;
     }
 
     private boolean isAddressValid(String s) {
-        for (String t : propertyAddrLine1s) {
-            if (t.matches(s)) {
+        for (Property prt : propertyList) { //(String t : propertyAddrLine1s)
+            if (prt.getAddrline1().matches(s)) {
+                createdProperty = prt;
                 return true;
             }
         }
@@ -551,16 +588,20 @@ public class CreateFlat extends AppCompatActivity {
     }
 
 
-
-
-
-
     private void saveNewFlat() {
-        validateData();
+//        validateData();
         try {
+//            Property parseableProperty = new Property();
+//            newFlat.setAddressLine1(createdProperty.getAddrline1());
 
+            newFlat.setAddressLine1(actvProperty.getText().toString().trim());
 
-            newFlat.setAddressLine1(createdProperty.getAddrline1());
+//            for(Property prt : propertyList){
+//                if(prt.getAddrline1().matches(newFlat.getAddressLine1())){
+//                    newFlat.setPostcode(prt.getPostcode());
+//                    parseableProperty = prt;
+//                }
+//            }
 
             newFlat.setPostcode(createdProperty.getPostcode());
 
@@ -568,14 +609,47 @@ public class CreateFlat extends AppCompatActivity {
 
             newFlat.setFlatNum("Flat " + etFlatNum.getText().toString());
 
-            newFlat.setTenant(flatTenant.getText().toString());
+            if (addTenant) {
+//                newFlat.setTenant(flatTenant.getText().toString());
+                newFlat.setTenant(addedTenant.getTenantKey());
+
+                Firebase changeTenant = tenantRef.child(addedTenant.getTenantKey());
+                Map<String, Object> tenantMap = new HashMap<>();
+                tenantMap.put("property", (newFlat.getAddressLine1() + " - " + newFlat.getFlatNum()));
+                tenantMap.put("currentTenant", true);
+                tenantMap.put("tenantKey", null);
+                changeTenant.updateChildren(tenantMap);
+
+//                String fullName;
+//                for (Tenant tnt : tenantList) {
+//                    if (!tnt.getMiddlename().matches("")) {
+//                        fullName = tnt.getForename() + " " + tnt.getMiddlename() + " " + tnt.getSurname();
+//                    } else {
+//                        fullName = tnt.getForename() + " " + tnt.getSurname();
+//                    }
+//
+//                    if (fullName.matches(flatTenant.getText().toString().trim())) {
+//                        changeTenant = tenantRef.child(tnt.getTenantKey());
+//
+//                        Map<String, Object> tenantMap = new HashMap<>();
+//                        tenantMap.put("property", (newFlat.getAddressLine1() + " - " + newFlat.getFlatNum()));
+//                        tenantMap.put("currentTenant", true);
+//                        tenantMap.put("tenantKey", null);
+//                        changeTenant.updateChildren(tenantMap);
+//                        break;
+//                    }
+//                }
+
+
+            }
 
             Firebase newFlatRef = new Firebase(getString(R.string.flats_location));
             newFlatRef.push().setValue(newFlat);
 
+
             new AlertDialog.Builder(this)
                     .setTitle("Success")
-                    .setMessage(newFlat.getFlatNum() + " has been added as a flat of " + newFlat.getAddressLine1())
+                    .setMessage(newFlat.getFlatNum() + " has been added to " + newFlat.getAddressLine1())
                     .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
                             startActivity(new Intent(CreateFlat.this, PropertyDetails.class).putExtra("parceable_property", createdProperty));
@@ -589,10 +663,6 @@ public class CreateFlat extends AppCompatActivity {
             Toast.makeText(CreateFlat.this, "Something went wrong. Flat NOT created.", Toast.LENGTH_SHORT).show();
         }
 
-
-    }
-
-    private void getTenants() {
 
     }
 
@@ -690,7 +760,7 @@ public class CreateFlat extends AppCompatActivity {
                 nullVals += "\n- Flat number";
             }
             if (etFlatNotes.getText().toString().matches("") || !isValidNotes) {
-                etFlatNotes.setText("No notes yet. You can add some later.");
+                etFlatNotes.setText("No notes yet. That's okay, you can add some later..");
                 isValidNotes = true;
             }
 

@@ -84,7 +84,7 @@ public class ScanQR extends AppCompatActivity implements ZBarScannerView.ResultH
 //        Toast.makeText(ScanQR.this, "Res.getCon: " + result.getContents(), Toast.LENGTH_SHORT).show();
 //        Toast.makeText(ScanQR.this, "Res.getBarFor: " + result.getBarcodeFormat(), Toast.LENGTH_SHORT).show();
 
-        mScannerView.stopCamera();
+//        mScannerView.stopCamera();
 
         boolean foundFlat = false;
         Flat tempF;
