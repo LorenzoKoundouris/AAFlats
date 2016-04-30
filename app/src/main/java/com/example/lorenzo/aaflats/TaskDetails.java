@@ -41,7 +41,6 @@ import com.firebase.client.FirebaseError;
 import com.firebase.client.Query;
 import com.firebase.client.ValueEventListener;
 
-import java.lang.reflect.Type;
 import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -123,13 +122,18 @@ public class TaskDetails extends AppCompatActivity {
     Firebase reportRef;
     Firebase flatRef;
     Firebase deleteTask;
+    Firebase deleteNotif;
+    Firebase notifRef;
     Query findReportQuery;
 
     public static final String MY_PREFERENCES = "MyPreferences";
     public static final String STAFF_KEY = "StaffKey";
     public static final String FULL_NAME_KEY = "StaffFullName";
     private SharedPreferences mSharedPreferences;
-//    private SharedPreferences.Editor editor;
+
+    public static final String MY_TASK_NOTIFICATIONS = "MyTaskNotifications";
+    private SharedPreferences mTaskNotifications;
+    private SharedPreferences.Editor editor;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -140,7 +144,8 @@ public class TaskDetails extends AppCompatActivity {
 
         //Get shared preferences
         mSharedPreferences = getApplicationContext().getSharedPreferences(MY_PREFERENCES, MODE_PRIVATE);
-//        editor = mSharedPreferences.edit();
+        mTaskNotifications = getSharedPreferences(MY_TASK_NOTIFICATIONS, MODE_PRIVATE);
+        editor = mTaskNotifications.edit();
 
         //Define inputMethodService to hide keyboard
         inputMethodManager = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
@@ -148,6 +153,10 @@ public class TaskDetails extends AppCompatActivity {
         //Clicked-on Task to be passed from Homepage
         Bundle intent = getIntent().getExtras();
         parceableTask = intent.getParcelable("parceable_task");
+
+        editor.remove(parceableTask.getTaskKey()).commit();
+
+//        Toast.makeText(TaskDetails.this, "tk: " + parceableTask.getTaskKey(), Toast.LENGTH_SHORT).show();
 //        parceableTaskKey = intent.getString("parceable_task_key");
         //ArrayList<Task> pTaskList = (ArrayList<Task>) intent.getParcelable("parceable_tasklist");
 
@@ -186,6 +195,7 @@ public class TaskDetails extends AppCompatActivity {
         propertyRef = new Firebase(getString(R.string.properties_location));
         taskRef = new Firebase(getString(R.string.tasks_location));
         flatRef = new Firebase(getString(R.string.flats_location));
+        notifRef = new Firebase(getResources().getString(R.string.notifications_location));
         findReportQuery = reportRef.orderByKey().equalTo(parceableTask.getReport());
 
         thisTaskRef = taskRef.child(parceableTask.getTaskKey());
@@ -416,6 +426,26 @@ public class TaskDetails extends AppCompatActivity {
 
             }
         });
+
+
+        Query seenNotif = notifRef.orderByChild("objectID").equalTo(parceableTask.getTaskKey());
+        seenNotif.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for(DataSnapshot childSnap : dataSnapshot.getChildren()){
+                    Notification ntf = childSnap.getValue(Notification.class);
+                    String delNotifURL = notifRef + "/" + childSnap.getKey();
+                    deleteNotif = new Firebase(delNotifURL);
+                    deleteNotif.removeValue();
+                }
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+
+            }
+        });
+
 
         cbTaskStatus.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override

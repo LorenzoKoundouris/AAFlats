@@ -56,6 +56,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Map;
 import java.util.Random;
 
 
@@ -119,7 +120,8 @@ public class Homepage extends AppCompatActivity
         Firebase.setAndroidContext(this);
         taskRef = new Firebase(getResources().getString(R.string.tasks_location));
 
-        snackbarCoordinatorLayout = (CoordinatorLayout)findViewById(R.id.snackbarCoordinatorLayout);;
+        snackbarCoordinatorLayout = (CoordinatorLayout) findViewById(R.id.snackbarCoordinatorLayout);
+
         context = this;
 
         notificationBuilder = new NotificationCompat.Builder(this);
@@ -128,11 +130,10 @@ public class Homepage extends AppCompatActivity
         mSharedPreferences = getSharedPreferences(MY_PREFERENCES, MODE_PRIVATE);
 
 
-
-        new  Thread ( new  Runnable ()  {
-            public  void run ()  {
+        new Thread(new Runnable() {
+            public void run() {
                 Calendar c = Calendar.getInstance();
-                System.out.println("Current time => " + c.getTime());
+//                System.out.println("Current time => " + c.getTime());
 
                 SimpleDateFormat df = new SimpleDateFormat("dd/MM/yyyy");
                 todaysDate = df.format(c.getTime());
@@ -146,7 +147,7 @@ public class Homepage extends AppCompatActivity
 
 
             }
-        }). start ();
+        }).start();
 
         Bundle intent = getIntent().getExtras();
         staffLoggedIn = intent.getParcelable("parceable_staff");
@@ -440,8 +441,33 @@ public class Homepage extends AppCompatActivity
                                 SharedPreferences settings =
                                         v.getContext().getSharedPreferences("MyPreferences",
                                                 Context.MODE_PRIVATE);
-                                settings.edit().clear().commit();
-                                startActivity(new Intent(Homepage.this, LoginActivity.class));
+                                SharedPreferences.Editor editor = settings.edit();
+                                /////////////////////////////////////////////////////
+                                Map<String, ?> usedAccounts = settings.getAll();
+                                final ArrayList<String> aa = new ArrayList<>();
+                                for (Map.Entry<String, ?> tEntry : usedAccounts.entrySet()) {
+                                    aa.add(tEntry.getValue().toString());
+                                }
+                                System.out.println(aa.toString());
+                                ////////////////////////////////////////
+                                editor.putBoolean("logout", true).commit();
+
+                                /////////////////////////////////////////////////////
+                                Map<String, ?> usedAccounts2 = settings.getAll();
+                                final ArrayList<String> aa2 = new ArrayList<>();
+                                for (Map.Entry<String, ?> tEntry2 : usedAccounts2.entrySet()) {
+                                    aa2.add(tEntry2.getValue().toString());
+                                }
+                                System.out.println(aa2.toString());
+                                ////////////////////////////////////////
+
+//                                settings.edit().clear().commit();
+
+
+                                stopService(new Intent(v.getContext(), MyService.class));
+                                startService(new Intent(v.getContext(), MyService.class));
+
+                                startActivity(new Intent(Homepage.this, SplashActivity.class));
                                 finish();
                             }
                         })
@@ -470,9 +496,9 @@ public class Homepage extends AppCompatActivity
 
 //                notificationBuilder.setSound(Uri.parse("file:///sdcard/notification/notification.mp3"));
                 notificationBuilder.setVibrate(new long[]{1000, 1000, 1000, 1000, 1000}); //delay, vibrate, sleep, vibrate, sleep
-                if(tsk.getPriority().matches("High")){
+                if (tsk.getPriority().matches("High")) {
                     notificationBuilder.setLights(Color.RED, 3000, 3000);
-                } else if(tsk.getPriority().matches("Medium")){
+                } else if (tsk.getPriority().matches("Medium")) {
                     notificationBuilder.setLights(Color.YELLOW, 3000, 3000);
                 } else {
                     notificationBuilder.setLights(Color.GREEN, 3000, 3000);
@@ -487,7 +513,7 @@ public class Homepage extends AppCompatActivity
                 Intent intent = new Intent(c, TaskDetails.class).putExtra("parceable_task", tsk);//.putExtra("parceable_task", newTask);
                 PendingIntent pIntent = PendingIntent.getActivity(c, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
                 notificationBuilder.setContentIntent(pIntent);
-                mgr.notify(uniqueID, notificationBuilder.build());
+//                mgr.notify(uniqueID, notificationBuilder.build());
             }
         }).start();
     }
@@ -532,7 +558,7 @@ public class Homepage extends AppCompatActivity
                         onlyTodayTasks.clear();
                         onlyNext7Tasks.clear();
 
-                        System.out.println(todaysDate);
+//                        System.out.println(todaysDate);
                         for (DataSnapshot tskSnapshot : dataSnapshot.getChildren()) {
                             Task tsk = tskSnapshot.getValue(Task.class);
                             tsk.setTaskKey(tskSnapshot.getKey());
@@ -1109,7 +1135,7 @@ public class Homepage extends AppCompatActivity
 //                                });
 
                                         String YouEditTextValue = actvProperty.getText().toString();
-                                        System.out.println(YouEditTextValue);
+//                                        System.out.println(YouEditTextValue);
 
                                         Intent intent = new Intent(Homepage.this, FlatDetails.class);
                                         intent.putExtra("parceable_flat", tempFlat.get(0));
@@ -1252,7 +1278,17 @@ public class Homepage extends AppCompatActivity
         } else if (id == R.id.nav_map) {
             startActivity(new Intent(Homepage.this, MapProperty.class));
         } else if (id == R.id.nav_chat) {
-            startActivity(new Intent(Homepage.this, TenantHomepage.class));
+            new AlertDialog.Builder(this)
+                    .setTitle("Update")
+                    .setMessage("Send and receive messages with our chat service. Coming soon!")
+                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    })
+            ;
+//            startActivity(new Intent(Homepage.this, TenantHomepage.class));
 //            startActivity(new Intent(Homepage.this, LoginActivity.class));
         } else if (id == R.id.nav_add_tenant) {
             startActivity(new Intent(Homepage.this, CreateTenant.class));

@@ -43,6 +43,8 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 public class CreateTask extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
 
@@ -100,7 +102,7 @@ public class CreateTask extends AppCompatActivity implements AdapterView.OnItemS
     private int year_x, month_x, day_x;
     static final int DIALOG_ID = 0;
 
-    private static final int uniqueID = 23;
+    private static int uniqueID;
     private NotificationCompat.Builder notificationBuilder;
 
     private InputMethodManager inputMethodManager;
@@ -871,8 +873,12 @@ public class CreateTask extends AppCompatActivity implements AdapterView.OnItemS
                 newTask.setStatus(false);
                 newTask.setTargetDate(mTargetDate);
                 newTask.setTitle(mTitle);
+                newTask.setTaskKey("23");
 
                 taskRef.push().setValue(newTask);
+
+                sendNotification(newTask);
+
                 return true;
             } catch (Exception ex) {
                 return false;
@@ -897,6 +903,70 @@ public class CreateTask extends AppCompatActivity implements AdapterView.OnItemS
         protected void onCancelled() {
             mTaskDetails = null;
         }
+    }
+
+    private void sendNotification(final Task tk) {
+//        final Context c = this;
+//        new Thread(new Runnable() {
+//            public void run() {
+//                notificationBuilder.setAutoCancel(true);
+//                notificationBuilder.setSmallIcon(R.drawable.notification_icon);
+//                notificationBuilder.setTicker("New task added by " + tk.getCreator());
+//                notificationBuilder.setWhen(System.currentTimeMillis());
+//                notificationBuilder.setContentTitle(tk.getCreator() + " added a new task");
+//                notificationBuilder.setContentText(tk.getTitle()); //newTask.getTitle()
+//
+////                notificationBuilder.setSound(Uri.parse("file:///sdcard/notification/notification.mp3"));
+//                notificationBuilder.setVibrate(new long[]{1000, 1000, 1000, 1000, 1000}); //delay, vibrate, sleep, vibrate, sleep
+//                if (tk.getPriority().matches("High")) {
+//                    notificationBuilder.setLights(Color.RED, 3000, 3000);
+//                } else if (tk.getPriority().matches("Medium")) {
+//                    notificationBuilder.setLights(Color.YELLOW, 3000, 3000);
+//                } else {
+//                    notificationBuilder.setLights(Color.GREEN, 3000, 3000);
+//                }
+//
+//
+//                Random randomGen = new Random();
+//                uniqueID = randomGen.nextInt(20000 - 1 + 1) + 1;
+//
+//
+//                NotificationManager mgr = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+//                Intent intent = new Intent(c, TaskDetails.class).putExtra("parceable_task", tk);//.putExtra("parceable_task", newTask);
+//                PendingIntent pIntent = PendingIntent.getActivity(c, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+//                notificationBuilder.setContentIntent(pIntent);
+//                mgr.notify(uniqueID, notificationBuilder.build());
+//            }
+//        }).start();
+        SimpleDateFormat s = new SimpleDateFormat("ddMMyyyyHHmmss");
+        String format = s.format(new Date());
+
+        final Firebase notifRef = new Firebase(getResources().getString(R.string.notifications_location));
+        final Notification newNoti = new Notification();
+        newNoti.setTimestampSent(format);
+        newNoti.setType("Task");
+        Query getNetTaskKey = taskRef.orderByChild("taskKey").equalTo("23");
+        getNetTaskKey.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                for (DataSnapshot chilsSnap : dataSnapshot.getChildren()) {
+//                    tsk.add(chilsSnap.getValue(Task.class));
+                    newNoti.setObjectID(chilsSnap.getKey());
+                }
+                notifRef.push().setValue(newNoti);
+
+                Firebase removeTempKey = taskRef.child(newNoti.getObjectID());
+                Map<String, Object> rmKeyMap = new HashMap<>();
+                rmKeyMap.put("taskKey", null);
+                removeTempKey.updateChildren(rmKeyMap);
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+
+            }
+        });
     }
 
 

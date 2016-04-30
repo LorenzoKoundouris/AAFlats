@@ -21,13 +21,20 @@ import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
+import com.firebase.client.FirebaseError;
+import com.firebase.client.Query;
+import com.firebase.client.ValueEventListener;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ComposeNew extends AppCompatActivity {
 
+    Firebase reportRef;
     private Spinner typeSpinner;
 
     @Override
@@ -47,6 +54,9 @@ public class ComposeNew extends AppCompatActivity {
         int parceableComposeType = Integer.parseInt(extras.getString("composeType"));
         final Tenant parceableTenant = extras.getParcelable("parceable_tenant");
         final Flat parceableFlat = extras.getParcelable("parceable_flat");
+
+
+        reportRef = new Firebase(getResources().getString(R.string.reports_location));
 
         typeSpinner = (Spinner) findViewById(R.id.type_spinner);
         SpinnerAdapter typeAdapter = ArrayAdapter.createFromResource(this, R.array.report_enquiry,
@@ -82,7 +92,6 @@ public class ComposeNew extends AppCompatActivity {
                 Snackbar.make(view, "Sending...", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
 
-                Firebase reportRef = new Firebase(getResources().getString(R.string.reports_location));
                 Report newReport = new Report();
 
                 if(composition.length() > 0){ //Maybe enforce additional requirements?
@@ -95,8 +104,11 @@ public class ComposeNew extends AppCompatActivity {
                         newReport.setSender(parceableTenant.getForename() + " " + parceableTenant.getSurname());
                         newReport.setProperty(parceableTenant.getProperty());
                         newReport.setStatus("pending");
+                        newReport.setReportKey("23");
 
                         reportRef.push().setValue(newReport);
+
+                        sendNotification(newReport);
 
                         Toast toast = Toast.makeText(ComposeNew.this, newReport.getType() + " sent. SUCCESS!", Toast.LENGTH_SHORT);
                         toast.setGravity(Gravity.CENTER, 0, 0);
@@ -124,6 +136,32 @@ public class ComposeNew extends AppCompatActivity {
                     alert.show();
                 }
 
+
+            }
+        });
+    }
+
+    private void sendNotification(final Report newReport) {
+        final Firebase notifRef = new Firebase(getResources().getString(R.string.notifications_location));
+        final Notification newNoti = new Notification();
+        newNoti.setType("Report");
+        Query getReportKey = reportRef.orderByChild("reportKey").equalTo("23");
+        getReportKey.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for(DataSnapshot childSnap : dataSnapshot.getChildren()){
+                    newNoti.setObjectID(childSnap.getKey());
+                }
+                notifRef.push().setValue(newNoti);
+
+                Firebase removeTempKey = reportRef.child(newNoti.getObjectID());
+                Map<String, Object> rmKeyMap = new HashMap<>();
+                rmKeyMap.put("reportKey", null);
+                removeTempKey.updateChildren(rmKeyMap);
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
 
             }
         });

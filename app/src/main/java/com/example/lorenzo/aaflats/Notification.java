@@ -5,44 +5,35 @@ package com.example.lorenzo.aaflats;
  */
 public class Notification {
 
-    String sender;
-    String text;
-    String title;
-    String timestamp;
+    String objectID;
+    String timestampSent;
+    String type;
 
     public Notification(){
 
     }
 
-    public String getSender() {
-        return sender;
+    public String getObjectID() {
+        return objectID;
     }
 
-    public void setSender(String sender) {
-        this.sender = sender;
+    public void setObjectID(String objectID) {
+        this.objectID = objectID;
     }
 
-    public String getText() {
-        return text;
+    public String getTimestampSent() {
+        return timestampSent;
     }
 
-    public void setText(String text) {
-        this.text = text;
+    public void setTimestampSent(String timestampSent) {
+        this.timestampSent = timestampSent;
     }
 
-    public String getTitle() {
-        return title;
+    public String getType() {
+        return type;
     }
 
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getTimestamp() {
-        return timestamp;
-    }
-
-    public void setTimestamp(String timestamp) {
-        this.timestamp = timestamp;
+    public void setType(String type) {
+        this.type = type;
     }
 }

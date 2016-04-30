@@ -56,13 +56,14 @@ import com.firebase.client.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static android.Manifest.permission.READ_CONTACTS;
 
 /**
  * A login screen that offers login via email/password.
  */
-public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
+public class LoginActivity extends Activity {
 
     /**
      * Id to identity READ_CONTACTS permission request.
@@ -95,6 +96,12 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
     public static final String FULL_NAME_KEY = "StaffFullName";
     public static final String STAFF_KEY = "StaffKey";
 
+    private SharedPreferences mPreviousAccounts;
+    private SharedPreferences.Editor accountEditor;
+    public static final String MY_ACCOUNTS = "MyAccounts";
+
+    private Context context;
+
     private ArrayList<Staff> staffSigningIn = new ArrayList<>();
     Staff loggedIn;
     InputMethodManager inputMethodManager;
@@ -105,12 +112,32 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
+        context = this;
+
         // Set up the login form.
-        mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
         Firebase.setAndroidContext(this);
+        mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
+        mPasswordView = (EditText) findViewById(R.id.password);
+        mLoginFormView = findViewById(R.id.login_form);
+        mProgressView = findViewById(R.id.login_progress);
+        final Button mEmailSignInButton = (Button) findViewById(R.id.email_sign_in_button);
         mSharedPreferences = getSharedPreferences(MY_PREFERENCES, MODE_PRIVATE);
         inputMethodManager = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
         qrCode = (ImageView) findViewById(R.id.qr_code_imageview);
+
+        mPreviousAccounts = getSharedPreferences(MY_ACCOUNTS, MODE_PRIVATE);
+        accountEditor = mPreviousAccounts.edit();
+
+        /////////////////////////////////////////////////////
+        Map<String, ?> usedAccounts = mPreviousAccounts.getAll();
+        final ArrayList<String> pa = new ArrayList<>();
+        for (Map.Entry<String, ?> tEntry : usedAccounts.entrySet()) {
+            pa.add(tEntry.getValue().toString());
+        }
+        System.out.println("Previous accounts: \t" + pa.toString());
+        ////////////////////////////////////////
+
 
 //        populateAutoComplete();
         Bundle intent = getIntent().getExtras();
@@ -118,19 +145,15 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
             staffSigningIn = intent.getParcelableArrayList("parceable_staff_list");
         }
 
-        mPasswordView = (EditText) findViewById(R.id.password);
         mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
                 if (id == R.id.login || id == EditorInfo.IME_NULL) {
-                    attemptLogin();
                     return true;
                 }
                 return false;
             }
         });
-
-        final Button mEmailSignInButton = (Button) findViewById(R.id.email_sign_in_button);
 
         mEmailSignInButton.setEnabled(true);
         mEmailSignInButton.setOnClickListener(new OnClickListener() {
@@ -140,30 +163,19 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
             }
         });
 
-        mLoginFormView = findViewById(R.id.login_form);
-        mProgressView = findViewById(R.id.login_progress);
+        populateAutoComplete();
 
-
-        int height = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 100, getResources().getDisplayMetrics());
-        final FrameLayout.LayoutParams lp =
-                new FrameLayout.LayoutParams(FrameLayout.LayoutParams.MATCH_PARENT,
-                        height);
         mEmailView.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if (hasFocus) {
-                    populateAutoComplete();
-                    if (!TextUtils.isEmpty(mEmailView.getText().toString())) {
-                        attemptLogin();
-                    }
-//                    lp.gravity= Gravity.CENTER;
-//                    qrCode.setLayoutParams(lp);
+//                    if (!TextUtils.isEmpty(mEmailView.getText().toString()) &&
+//                            !TextUtils.isEmpty(mPasswordView.getText().toString())) {
+//                        attemptLogin();
+//                    }
+
 
                 }
-//                else {
-//                    lp.gravity= Gravity.BOTTOM;
-//                    qrCode.setLayoutParams(lp);
-//                }
             }
         });
 
@@ -238,45 +250,44 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
     }
 
     private void populateAutoComplete() {
-        if (!mayRequestContacts()) {
-            return;
-        }
 
         String staffEmail = mSharedPreferences.getString(EMAIL_KEY, "");
         String staffPassword = mSharedPreferences.getString(PASSWORD_KEY, "");
 
-        mEmailView.setText(staffEmail);
-        mPasswordView.setText(staffPassword);
-
-        ArrayList<String> previouslyUsedUsernames = new ArrayList<>();
-        previouslyUsedUsernames.add(staffEmail);
-
-        addEmailsToAutoComplete(previouslyUsedUsernames);
-
-        getLoaderManager().initLoader(0, null, this);
-    }
-
-    private boolean mayRequestContacts() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-            return true;
-        }
-        if (checkSelfPermission(READ_CONTACTS) == PackageManager.PERMISSION_GRANTED) {
-            return true;
-        }
-        if (shouldShowRequestPermissionRationale(READ_CONTACTS)) {
-            Snackbar.make(mEmailView, R.string.permission_rationale, Snackbar.LENGTH_INDEFINITE)
-                    .setAction(android.R.string.ok, new View.OnClickListener() {
-                        @Override
-                        @TargetApi(Build.VERSION_CODES.M)
-                        public void onClick(View v) {
-                            requestPermissions(new String[]{READ_CONTACTS}, REQUEST_READ_CONTACTS);
-                        }
-                    });
+        boolean logout = mSharedPreferences.getBoolean("logout", false);
+        if(logout){
+            mEmailView.setText(staffEmail);
         } else {
-            requestPermissions(new String[]{READ_CONTACTS}, REQUEST_READ_CONTACTS);
+            mEmailView.setText(staffEmail);
+            mPasswordView.setText(staffPassword);
+            attemptLogin();
         }
-        return false;
+
+
+        /////////////////////////////////////////////////////
+        Map<String, ?> mypref = mSharedPreferences.getAll();
+        final ArrayList<String> mp = new ArrayList<>();
+        for (Map.Entry<String, ?> tEntry : mypref.entrySet()) {
+            mp.add(tEntry.getValue().toString());
+        }
+        System.out.println("My preferences before: \t" + mp.toString());
+        ////////////////////////////////////////
+
+
+        Map<String, ?> usedAccounts = mPreviousAccounts.getAll();
+        final ArrayList<String> aa = new ArrayList<>();
+        for (Map.Entry<String, ?> tEntry : usedAccounts.entrySet()) {
+            aa.add(tEntry.getValue().toString());
+        }
+
+        System.out.println("Populate accounts: \t" + aa.toString());
+
+//        ArrayList<String> previouslyUsedUsernames = new ArrayList<>();
+//        previouslyUsedUsernames.add(staffEmail);
+
+        addEmailsToAutoComplete(aa);//previouslyUsedUsernames
     }
+
 
     /**
      * Callback received when a permissions request has been completed.
@@ -284,11 +295,6 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
-        if (requestCode == REQUEST_READ_CONTACTS) {
-            if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                populateAutoComplete();
-            }
-        }
 
         if (requestCode == REQUEST_CAMERA) {
             if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
@@ -366,8 +372,6 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-
-//stuff that updates ui
                             try {
                                 inputMethodManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
                             } catch (Exception ignore) {
@@ -431,40 +435,6 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
         }
     }
 
-    @Override
-    public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
-        return new CursorLoader(this,
-                // Retrieve data rows for the device user's 'profile' contact.
-                Uri.withAppendedPath(ContactsContract.Profile.CONTENT_URI,
-                        ContactsContract.Contacts.Data.CONTENT_DIRECTORY), ProfileQuery.PROJECTION,
-
-                // Select only email addresses.
-                ContactsContract.Contacts.Data.MIMETYPE +
-                        " = ?", new String[]{ContactsContract.CommonDataKinds.Email
-                .CONTENT_ITEM_TYPE},
-
-                // Show primary email addresses first. Note that there won't be
-                // a primary email address if the user hasn't specified one.
-                ContactsContract.Contacts.Data.IS_PRIMARY + " DESC");
-    }
-
-    @Override
-    public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
-//        List<String> emails = new ArrayList<>();
-//        cursor.moveToFirst();
-//        while (!cursor.isAfterLast()) {
-//            emails.add(cursor.getString(ProfileQuery.ADDRESS));
-//            cursor.moveToNext();
-//        }
-
-//        addEmailsToAutoComplete(emails);
-    }
-
-    @Override
-    public void onLoaderReset(Loader<Cursor> cursorLoader) {
-
-    }
-
     private void addEmailsToAutoComplete(List<String> emailAddressCollection) {
         //Create adapter to tell the AutoCompleteTextView what to show in its dropdown list.
         ArrayAdapter<String> adapter =
@@ -472,17 +442,6 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
                         android.R.layout.simple_dropdown_item_1line, emailAddressCollection);
 
         mEmailView.setAdapter(adapter);
-    }
-
-
-    private interface ProfileQuery {
-        String[] PROJECTION = {
-                ContactsContract.CommonDataKinds.Email.ADDRESS,
-                ContactsContract.CommonDataKinds.Email.IS_PRIMARY,
-        };
-
-        int ADDRESS = 0;
-        int IS_PRIMARY = 1;
     }
 
     /**
@@ -504,18 +463,49 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
         @Override
         protected Boolean doInBackground(Void... params) {
             // TODO: attempt authentication against a network service.
+            boolean validUsername = false;
+
             boolean isStaff = false;
-            for (int i = 0; i < staffSigningIn.size(); i++) {
-                if (staffSigningIn.get(i).getUsername().matches(mEmail)
-                        && staffSigningIn.get(i).getPassword().matches(mPassword)) {
+            int i;
+            for (i = 0; i < staffSigningIn.size(); i++) {
+                if (staffSigningIn.get(i).getUsername().matches(mEmail)){
+                    validUsername = true;
+                    break;
+                }
+//                if (staffSigningIn.get(i).getUsername().matches(mEmail)
+//                        && staffSigningIn.get(i).getPassword().matches(mPassword)) {
+//                    isStaff = true;
+//                    loggedIn = staffSigningIn.get(i);
+//                    break;
+//                } else {
+//                    isStaff = false;
+//                }
+            }
+            if(validUsername){
+                if(staffSigningIn.get(i).getPassword().matches(mPassword)){
                     isStaff = true;
                     loggedIn = staffSigningIn.get(i);
-                    break;
-                } else {
-                    isStaff = false;
+                    accountEditor.putString(loggedIn.getUsername(), loggedIn.getUsername()).commit();
+                } else{
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            mPasswordView.setError("Wrong password");
+                        }
+                    });
                 }
+            } else{
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        mEmailView.setError("Wrong username");
+                    }
+                });
             }
+
+
             return isStaff;
+
 
 //            try {
 //                // Simulate network access.
@@ -540,17 +530,34 @@ public class LoginActivity extends Activity implements LoaderCallbacks<Cursor> {
         @Override
         protected void onPostExecute(final Boolean success) {
 
+
             mAuthTask = null;
             showProgress(false);
 
             if (success) {
+
+                Intent startServiceIntent = new Intent(context, MyService.class);
+                startServiceIntent.setAction("com.example.lorenzo.aaflats.action.startforeground");
+                context.startService(startServiceIntent);
+
                 SharedPreferences.Editor editor = mSharedPreferences.edit();
                 editor.putString(EMAIL_KEY, loggedIn.getUsername());
                 editor.putString(PASSWORD_KEY, loggedIn.getPassword());
                 editor.putString(STAFF_KEY, loggedIn.getStaffKey());
+                editor.putBoolean("logout", false);
                 String tmp = loggedIn.getForename() + " " + loggedIn.getSurname();
                 editor.putString(FULL_NAME_KEY, tmp);
                 editor.commit();
+
+                /////////////////////////////////////////////////////
+                Map<String, ?> usedAccounts = mSharedPreferences.getAll();
+                final ArrayList<String> pa = new ArrayList<>();
+                for (Map.Entry<String, ?> tEntry : usedAccounts.entrySet()) {
+                    pa.add(tEntry.getValue().toString());
+                }
+                System.out.println("My preferences changed: \t" + pa.toString());
+                ////////////////////////////////////////
+
 
                 startActivity(new Intent(LoginActivity.this, Homepage.class).putExtra("parceable_staff", loggedIn)); //mine
                 finish();
