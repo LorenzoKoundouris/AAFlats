@@ -11,6 +11,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.media.RingtoneManager;
 import android.net.Uri;
+import android.os.Handler;
 import android.os.IBinder;
 import android.support.v7.app.NotificationCompat;
 import android.text.TextUtils;
@@ -48,8 +49,13 @@ public class MyService extends Service {
     private Notification notif = new Notification();
     private ArrayList<Notification> taskNotifList = new ArrayList<>();
     private ArrayList<Notification> reportNotifList = new ArrayList<>();
-    private Task newTask = new Task();
-    private Report newReport = new Report();
+    ArrayList<Task> saveOfflineTasks = new ArrayList<>();
+    ArrayList<Report> saveOfflineReports = new ArrayList<>();
+//    private Task newTask = new Task();
+//    private Report newReport = new Report();
+    boolean savedTasksExist = false;
+    boolean savedReportsExist = false;
+    boolean logout;
 
     Firebase taskRef;
     Firebase reportRef;
@@ -65,11 +71,11 @@ public class MyService extends Service {
 
         mTaskNotifications = getSharedPreferences(MY_TASK_NOTIFICATIONS, MODE_PRIVATE);
         taskEditor = mTaskNotifications.edit();
-        taskEditor.putBoolean("editor_activated", true).commit();
+        taskEditor.putBoolean("editor_activated", true).apply();
 
         mReportNotifications = getSharedPreferences(MY_REPORT_NOTIFICATIONS, MODE_PRIVATE);
         reportEditor = mReportNotifications.edit();
-        reportEditor.putBoolean("editor_activated", true).commit();
+        reportEditor.putBoolean("editor_activated", true).apply();
 
         notificationBuilder = new NotificationCompat.Builder(this);
 
@@ -78,12 +84,13 @@ public class MyService extends Service {
 
         System.out.println("Started MY SERVICE");
 
-        boolean logout = mSharedPreferences.getBoolean("logout", true);
+        logout = mSharedPreferences.getBoolean("logout", true);
         String loggedUsn = mSharedPreferences.getString(EMAIL_KEY, "");
 
         NotificationManager mgr = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         if (!logout) {
-            Toast.makeText(MyService.this, "A&A Flats running in background.\nSigned-in: " + mSharedPreferences.getString(EMAIL_KEY, ""),
+            Toast.makeText(MyService.this, "A&A Flats running in background.\nSigned-in: "
+                            + mSharedPreferences.getString(EMAIL_KEY, ""),
                     Toast.LENGTH_SHORT).show();
 
             notificationBuilder.setSmallIcon(R.drawable.notification_icon);//notification_icon
@@ -91,6 +98,7 @@ public class MyService extends Service {
             notificationBuilder.setWhen(System.currentTimeMillis());
             notificationBuilder.setContentTitle("A&A Flats running in background");
             notificationBuilder.setContentText(loggedUsn); //newTask.getTitle()
+            notificationBuilder.setOngoing(true);
             uniqueID = 23;
 
             Intent intent = new Intent(this, SplashActivity.class);//.putExtra("parceable_task", newTask);
@@ -99,29 +107,43 @@ public class MyService extends Service {
             mgr.notify(uniqueID, notificationBuilder.build());
 
             enableNotificationListener();
+
+            if (savedTasksExist) {
+                System.out.println("savedTasksExist Reached");
+                displayOfflineTasks();
+            }
+            if (savedReportsExist) {
+                displayOfflineReports();
+            }
+
         } else {
             mgr.cancel(23);
             Toast.makeText(MyService.this, "notif removed", Toast.LENGTH_SHORT).show();
         }
     }
 
+
     private void enableNotificationListener() {
+
 
 //        Toast.makeText(MyService.this, "enableNotificationListener running", Toast.LENGTH_SHORT).show();
         final Firebase notifRef = new Firebase(getResources().getString(R.string.notifications_location));
 //        Query getUnseenNotifs = notifRef.orderByChild("seen").equalTo(false);
 //        Query getTaskNotifs = notifRef.orderByChild("type").equalTo("Task");
-        notifRef.addValueEventListener(new ValueEventListener() {
+        notifRef.addValueEventListener(new ValueEventListener() { //addValueEventListeneraddListenerForSingleValueEvent
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+                logout = mSharedPreferences.getBoolean("logout", true);
+                System.out.println("notifRef logout: " + logout);
+
                 taskNotifList.clear();
                 reportNotifList.clear();
                 for (DataSnapshot childSnap : dataSnapshot.getChildren()) {
                     notif = childSnap.getValue(Notification.class);
 
-                    if(notif.getType().matches("Task")){
+                    if (notif.getType().matches("Task")) {
                         taskNotifList.add(notif);
-                    } else if(notif.getType().matches("Report")){
+                    } else if (notif.getType().matches("Report")) {
                         reportNotifList.add(notif);
                     }
                 }
@@ -131,7 +153,7 @@ public class MyService extends Service {
                         getTaskDetails(nt.getObjectID());
                     }
                 }
-                if(!reportNotifList.isEmpty()){
+                if (!reportNotifList.isEmpty()) {
                     for (Notification nt : reportNotifList) {
                         getReportDetails(nt.getObjectID());
                     }
@@ -140,6 +162,7 @@ public class MyService extends Service {
 //                for(Notification nt : taskNotifList){
 //                    getTaskDetails(nt.getObjectID());
 //                }
+
             }
 
             @Override
@@ -147,35 +170,7 @@ public class MyService extends Service {
 
             }
         });
-//        notifRef.addChildEventListener(new ChildEventListener() {
-//            @Override
-//            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-//                for (DataSnapshot childSnap : dataSnapshot.getChildren()) {
-//                    Notification notif = childSnap.getValue(Notification.class);
-//                }
-//                getTaskDetails();
-//            }
-//
-//            @Override
-//            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-//
-//            }
-//
-//            @Override
-//            public void onChildRemoved(DataSnapshot dataSnapshot) {
-//
-//            }
-//
-//            @Override
-//            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-//
-//            }
-//
-//            @Override
-//            public void onCancelled(FirebaseError firebaseError) {
-//
-//            }
-//        });
+
 
     }
 
@@ -183,19 +178,22 @@ public class MyService extends Service {
 
         final Map<String, ?> notifiedReports = mReportNotifications.getAll();
         final ArrayList<String> rr = new ArrayList<>();
-        for(Map.Entry<String, ?> rEntry : notifiedReports.entrySet()){
+        for (Map.Entry<String, ?> rEntry : notifiedReports.entrySet()) {
             rr.add(rEntry.getValue().toString());
         }
 
         getReportQ = reportRef.orderByKey().equalTo(oID);
-        getReportQ.addValueEventListener(new ValueEventListener() {
+        getReportQ.addListenerForSingleValueEvent(new ValueEventListener() { //addListenerForSingleValueEvent
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+                logout = mSharedPreferences.getBoolean("logout", true);
+                System.out.println("getReportQ logout: " + logout);
+
 
                 boolean notified = false;
 
                 for (DataSnapshot childsnap : dataSnapshot.getChildren()) {
-                    newReport = childsnap.getValue(Report.class);
+                    Report newReport = childsnap.getValue(Report.class);
                     newReport.setReportKey(childsnap.getKey());
                     for (String rEntry : rr) {
                         if (newReport.getReportKey().matches(rEntry)) {
@@ -208,6 +206,7 @@ public class MyService extends Service {
                     }
 
                 }
+
             }
 
             @Override
@@ -217,43 +216,49 @@ public class MyService extends Service {
         });
     }
 
-    private void displayReportNotification(final Report newReport) {
+    private void displayReportNotification(final Report newRpt) {
         final Context c = this;
-        new Thread(new Runnable() {
-            public void run() {
-                notificationBuilder.setAutoCancel(true);
-                notificationBuilder.setSmallIcon(R.drawable.ic_send_white_48dp);//notification_icon
-                Bitmap bm = BitmapFactory.decodeResource(getResources(), R.drawable.app_icon3);
-                notificationBuilder.setLargeIcon(bm);
-                notificationBuilder.setTicker("New report received by " + newReport.getSender());
-                notificationBuilder.setWhen(System.currentTimeMillis());
-                notificationBuilder.setContentTitle("New " + newReport.getType());
-                notificationBuilder.setContentText("From " + newReport.getSender()); //newTask.getTitle()
+//        new Thread(new Runnable() {
+//            public void run() {
+                if (logout) {
+                    saveOfflineReports.add(newRpt);
+                    savedReportsExist = true;
+                    System.out.println("Offline report: " + newRpt.getContent());
+                } else {
+                    notificationBuilder.setAutoCancel(true);
+                    notificationBuilder.setSmallIcon(R.drawable.ic_new_mail);//notification_icon
+                    Bitmap bm = BitmapFactory.decodeResource(getResources(), R.drawable.app_icon3);
+                    notificationBuilder.setLargeIcon(bm);
+                    notificationBuilder.setTicker("New report received by " + newRpt.getSender());
+                    notificationBuilder.setWhen(System.currentTimeMillis());
+                    notificationBuilder.setContentTitle("New " + newRpt.getType());
+                    notificationBuilder.setContentText("From " + newRpt.getSender()); //newTask.getTitle()
 
-                Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-                notificationBuilder.setSound(alarmSound);//file:///sdcard/notification/notification.mp3
-                //Uri.parse("android.resource://" + getPackageName() + "ringtone/my_notif.mp3"
-                notificationBuilder.setVibrate(new long[]{1000, 1000, 1000, 1000, 1000}); //delay, vibrate, sleep, vibrate, sleep
+                    Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                    notificationBuilder.setSound(alarmSound);//file:///sdcard/notification/notification.mp3
+                    //Uri.parse("android.resource://" + getPackageName() + "ringtone/my_notif.mp3"
+                    notificationBuilder.setVibrate(new long[]{1000, 1000, 200, 1000, 1000}); //delay, vibrate, sleep, vibrate, sleep
 
-                notificationBuilder.setLights(Color.BLUE, 3000, 3000);
+                    notificationBuilder.setLights(Color.BLUE, 3000, 3000);
 
 
-                Random randomGen = new Random();
-                uniqueID = randomGen.nextInt(20000 - 10001 + 1) + 10001;
+                    Random randomGen = new Random();
+                    uniqueID = randomGen.nextInt(20000 - 10001 + 1) + 10001;
 
 //                taskEditor.putString(Integer.toString(uniqueID), Integer.toString(uniqueID));
 //                taskEditor.commit();
 
-                NotificationManager mgr = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-                Intent intent = new Intent(c, ReportDetails.class).putExtra("parceable_report", newReport);//.putExtra("parceable_task", newTask);
-                PendingIntent pIntent = PendingIntent.getActivity(c, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-                notificationBuilder.setContentIntent(pIntent);
-                mgr.notify(uniqueID, notificationBuilder.build());
+                    NotificationManager mgr = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+                    Intent intent = new Intent(c, ReportDetails.class).putExtra("parceable_report", newRpt);//.putExtra("parceable_task", newTask);
+                    PendingIntent pIntent = PendingIntent.getActivity(c, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+                    notificationBuilder.setContentIntent(pIntent);
+                    mgr.notify(uniqueID, notificationBuilder.build());
 
-                reportEditor.putString(newReport.getReportKey(), newReport.getReportKey()).commit();
+                    reportEditor.putString(newRpt.getReportKey(), newRpt.getReportKey()).apply();
+                }
 
-            }
-        }).start();
+//            }
+//        }).start();
     }
 
     private void getTaskDetails(String tID) {
@@ -269,14 +274,14 @@ public class MyService extends Service {
 //        Firebase taskRef = new Firebase(getResources().getString(R.string.tasks_location));//"https://aaflats.firebaseio.com/tasks"
 //        Query getTaskQ = taskRef.orderByKey().equalTo("-KG3rOIDSrUmo-8XjmGp"); //notif.getObjectID()
         getTaskQ = taskRef.orderByKey().equalTo(tID);
-        getTaskQ.addValueEventListener(new ValueEventListener() {
+        getTaskQ.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
 
                 boolean notified = false;
 
                 for (DataSnapshot childSnap : dataSnapshot.getChildren()) {
-                    newTask = childSnap.getValue(Task.class);
+                    Task newTask = childSnap.getValue(Task.class);
                     newTask.setTaskKey(childSnap.getKey());
                     if (newTask.getAssignedStaff().matches(mSharedPreferences.getString(STAFF_KEY, ""))) {
 //                        Toast.makeText(MyService.this, "Tasks for " + mSharedPreferences.getString(STAFF_KEY, ""),
@@ -296,6 +301,7 @@ public class MyService extends Service {
 
                         if (!notified) {
                             displayTaskNotification(newTask);
+                            newTask = new Task();
                         }
 
                     }
@@ -311,50 +317,160 @@ public class MyService extends Service {
 
     private void displayTaskNotification(final Task tsk) {
 
+        final Context c = this;
 //        Toast.makeText(MyService.this, "displayTaskNotification running - " + newTask.getTitle(), Toast.LENGTH_SHORT).show();
 
-        final Context c = this;
-        new Thread(new Runnable() {
-            public void run() {
-                notificationBuilder.setAutoCancel(true);
-                notificationBuilder.setSmallIcon(R.drawable.ic_build_plus_48dp);//notification_icon
-                Bitmap bm = BitmapFactory.decodeResource(getResources(), R.drawable.app_icon3);
-                notificationBuilder.setLargeIcon(bm);
-                notificationBuilder.setTicker("New task added by " + tsk.getCreator());
-                notificationBuilder.setWhen(System.currentTimeMillis());
-                notificationBuilder.setContentTitle(tsk.getCreator() + " added a new task");
-                notificationBuilder.setContentText(tsk.getTitle()); //newTask.getTitle()
-
-                Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-                notificationBuilder.setSound(alarmSound);//file:///sdcard/notification/notification.mp3
-                //Uri.parse("android.resource://" + getPackageName() + "ringtone/my_notif.mp3"
-                notificationBuilder.setVibrate(new long[]{1000, 1000, 1000, 1000, 1000}); //delay, vibrate, sleep, vibrate, sleep
-                if (tsk.getPriority().matches("High")) {
-                    notificationBuilder.setLights(Color.RED, 3000, 3000);
-                } else if (tsk.getPriority().matches("Medium")) {
-                    notificationBuilder.setLights(Color.YELLOW, 3000, 3000);
+//        new Thread(new Runnable() {
+//            public void run() {
+                if (logout) {
+                    saveOfflineTasks.add(tsk);
+                    savedTasksExist = true;
+                    System.out.println("Offline task: " + tsk.getTitle());
                 } else {
-                    notificationBuilder.setLights(Color.GREEN, 3000, 3000);
-                }
+                    notificationBuilder.setAutoCancel(true);
+                    notificationBuilder.setSmallIcon(R.drawable.ic_build_plus_48dp);//notification_icon
+                    Bitmap bm = BitmapFactory.decodeResource(getResources(), R.drawable.app_icon3);
+                    notificationBuilder.setLargeIcon(bm);
+                    notificationBuilder.setTicker("New task added by " + tsk.getCreator());
+                    notificationBuilder.setWhen(System.currentTimeMillis());
+                    notificationBuilder.setContentTitle(tsk.getCreator() + " added a new task");
+                    notificationBuilder.setContentText(tsk.getTitle()); //newTask.getTitle()
+
+                    Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                    notificationBuilder.setSound(alarmSound);//file:///sdcard/notification/notification.mp3
+                    //Uri.parse("android.resource://" + getPackageName() + "ringtone/my_notif.mp3"
+                    notificationBuilder.setVibrate(new long[]{1000, 1000, 1000, 1000, 1000}); //delay, vibrate, sleep, vibrate, sleep
+                    if (tsk.getPriority().matches("High")) {
+                        notificationBuilder.setLights(Color.RED, 3000, 3000);
+                    } else if (tsk.getPriority().matches("Medium")) {
+                        notificationBuilder.setLights(Color.YELLOW, 3000, 3000);
+                    } else {
+                        notificationBuilder.setLights(Color.GREEN, 3000, 3000);
+                    }
 
 
-                Random randomGen = new Random();
-                uniqueID = randomGen.nextInt(10000 - 1 + 1) + 1;
+                    Random randomGen = new Random();
+                    uniqueID = randomGen.nextInt(10000 - 1 + 1) + 1;
 
 //                taskEditor.putString(Integer.toString(uniqueID), Integer.toString(uniqueID));
 //                taskEditor.commit();
 
-                NotificationManager mgr = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-                Intent intent = new Intent(c, TaskDetails.class).putExtra("parceable_task", tsk);//.putExtra("parceable_task", newTask);
-                PendingIntent pIntent = PendingIntent.getActivity(c, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-                notificationBuilder.setContentIntent(pIntent);
-                mgr.notify(uniqueID, notificationBuilder.build());
+                    NotificationManager mgr = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+                    Intent intent = new Intent(c, TaskDetails.class).putExtra("parceable_task", tsk);//.putExtra("parceable_task", newTask);
+                    PendingIntent pIntent = PendingIntent.getActivity(c, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+                    notificationBuilder.setContentIntent(pIntent);
+                    mgr.notify(uniqueID, notificationBuilder.build());
 
-                taskEditor.putString(tsk.getTaskKey(), tsk.getTaskKey()).commit();
-
-            }
-        }).start();
+                    taskEditor.putString(tsk.getTaskKey(), tsk.getTaskKey()).apply();
+                }
+//            }
+//        }).start();
     }
+
+
+    private void displayOfflineTasks() {
+        final Context c = this;
+//        new Thread(new Runnable() {
+//            public void run() {
+                for (Task offTsk : saveOfflineTasks) {
+                    notificationBuilder.setAutoCancel(true);
+                    notificationBuilder.setSmallIcon(R.drawable.ic_build_plus_48dp);//notification_icon
+                    Bitmap bm = BitmapFactory.decodeResource(getResources(), R.drawable.app_icon3);
+                    notificationBuilder.setLargeIcon(bm);
+                    notificationBuilder.setTicker("New offline task added by " + offTsk.getCreator());
+                    notificationBuilder.setWhen(System.currentTimeMillis());
+                    notificationBuilder.setContentTitle(offTsk.getCreator() + " added a new task");
+                    notificationBuilder.setContentText(offTsk.getTitle()); //newTask.getTitle()
+
+                    Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                    notificationBuilder.setSound(alarmSound);//file:///sdcard/notification/notification.mp3
+                    //Uri.parse("android.resource://" + getPackageName() + "ringtone/my_notif.mp3"
+                    notificationBuilder.setVibrate(new long[]{1000, 1000, 1000, 1000, 1000}); //delay, vibrate, sleep, vibrate, sleep
+                    if (offTsk.getPriority().matches("High")) {
+                        notificationBuilder.setLights(Color.RED, 3000, 3000);
+                    } else if (offTsk.getPriority().matches("Medium")) {
+                        notificationBuilder.setLights(Color.YELLOW, 3000, 3000);
+                    } else {
+                        notificationBuilder.setLights(Color.GREEN, 3000, 3000);
+                    }
+
+
+                    Random randomGen = new Random();
+                    uniqueID = randomGen.nextInt(30000 - 20001 + 1) + 20001;
+
+//                taskEditor.putString(Integer.toString(uniqueID), Integer.toString(uniqueID));
+//                taskEditor.commit();
+
+                    NotificationManager mgr = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+                    Intent intent = new Intent(c, TaskDetails.class).putExtra("parceable_task", offTsk);//.putExtra("parceable_task", newTask);
+                    PendingIntent pIntent = PendingIntent.getActivity(c, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+                    notificationBuilder.setContentIntent(pIntent);
+                    mgr.notify(uniqueID, notificationBuilder.build());
+
+                    taskEditor.putString(offTsk.getTaskKey(), offTsk.getTaskKey()).apply();
+
+                }
+                saveOfflineTasks.clear();
+                savedTasksExist = false;
+//            }
+//        }).start();
+
+
+    }
+
+    private void displayOfflineReports() {
+
+        final Context c = this;
+
+//        new Thread(new Runnable() {
+//            public void run() {
+                for (final Report offRpt : saveOfflineReports) {
+//////////////////////////////////////////////////////////////
+//                    final Handler handler = new Handler();
+//                    handler.postDelayed(new Runnable() {
+//                        @Override
+//                        public void run() {
+                            notificationBuilder.setAutoCancel(true);
+                            notificationBuilder.setSmallIcon(R.drawable.ic_send_white_48dp);//notification_icon
+                            Bitmap bm = BitmapFactory.decodeResource(getResources(), R.drawable.app_icon3);
+                            notificationBuilder.setLargeIcon(bm);
+                            notificationBuilder.setTicker("New report received by " + offRpt.getSender());
+                            notificationBuilder.setWhen(System.currentTimeMillis());
+                            notificationBuilder.setContentTitle("New " + offRpt.getType());
+                            notificationBuilder.setContentText("From " + offRpt.getSender()); //newTask.getTitle()
+
+                            Uri alarmSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                            notificationBuilder.setSound(alarmSound);//file:///sdcard/notification/notification.mp3
+                            //Uri.parse("android.resource://" + getPackageName() + "ringtone/my_notif.mp3"
+                            notificationBuilder.setVibrate(new long[]{1000, 1000, 1000, 1000, 1000}); //delay, vibrate, sleep, vibrate, sleep
+
+                            notificationBuilder.setLights(Color.BLUE, 3000, 3000);
+
+
+                            Random randomGen = new Random();
+                            uniqueID = randomGen.nextInt(40000 - 30001 + 1) + 30001;
+
+//                taskEditor.putString(Integer.toString(uniqueID), Integer.toString(uniqueID));
+//                taskEditor.commit();
+
+                            NotificationManager mgr = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+                            Intent intent = new Intent(c, ReportDetails.class).putExtra("parceable_report", offRpt);//.putExtra("parceable_task", newTask);
+                            PendingIntent pIntent = PendingIntent.getActivity(c, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+                            notificationBuilder.setContentIntent(pIntent);
+                            mgr.notify(uniqueID, notificationBuilder.build());
+
+                            reportEditor.putString(offRpt.getReportKey(), offRpt.getReportKey()).apply();
+//                        }
+//                    }, 500); //4000
+
+
+                }
+                saveOfflineReports.clear();
+                savedReportsExist = false;
+//            }
+//        }).start();
+    }
+
 
     @Override
     public IBinder onBind(Intent intent) {

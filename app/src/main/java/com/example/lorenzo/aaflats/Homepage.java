@@ -481,6 +481,15 @@ public class Homepage extends AppCompatActivity
             }
         });
 
+        final Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                // Do something after 2s = 2000ms
+                stopService(new Intent(Homepage.this, MyService.class));
+                startService(new Intent(Homepage.this, MyService.class));
+            }
+        }, 2000);
     }
 
     private void receiveNtf(final Task tsk) {

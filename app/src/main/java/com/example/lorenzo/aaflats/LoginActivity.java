@@ -254,7 +254,7 @@ public class LoginActivity extends Activity {
         String staffEmail = mSharedPreferences.getString(EMAIL_KEY, "");
         String staffPassword = mSharedPreferences.getString(PASSWORD_KEY, "");
 
-        boolean logout = mSharedPreferences.getBoolean("logout", false);
+        boolean logout = mSharedPreferences.getBoolean("logout", true);
         if(logout){
             mEmailView.setText(staffEmail);
         } else {
@@ -485,7 +485,7 @@ public class LoginActivity extends Activity {
                 if(staffSigningIn.get(i).getPassword().matches(mPassword)){
                     isStaff = true;
                     loggedIn = staffSigningIn.get(i);
-                    accountEditor.putString(loggedIn.getUsername(), loggedIn.getUsername()).commit();
+                    accountEditor.putString(loggedIn.getUsername(), loggedIn.getUsername()).apply();
                 } else{
                     runOnUiThread(new Runnable() {
                         @Override
@@ -547,7 +547,7 @@ public class LoginActivity extends Activity {
                 editor.putBoolean("logout", false);
                 String tmp = loggedIn.getForename() + " " + loggedIn.getSurname();
                 editor.putString(FULL_NAME_KEY, tmp);
-                editor.commit();
+                editor.apply();
 
                 /////////////////////////////////////////////////////
                 Map<String, ?> usedAccounts = mSharedPreferences.getAll();
@@ -557,6 +557,7 @@ public class LoginActivity extends Activity {
                 }
                 System.out.println("My preferences changed: \t" + pa.toString());
                 ////////////////////////////////////////
+
 
 
                 startActivity(new Intent(LoginActivity.this, Homepage.class).putExtra("parceable_staff", loggedIn)); //mine

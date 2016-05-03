@@ -22,20 +22,35 @@ public class SplashActivity extends AppCompatActivity {
 
         Firebase.setAndroidContext(this);
 
-//        SharedPreferences ttt = getSharedPreferences("MyNotifications", MODE_PRIVATE);
-//        SharedPreferences.Editor eee = ttt.edit();
-//        eee.clear().commit();
-
-        SharedPreferences ttt = getSharedPreferences("MyPreferences", MODE_PRIVATE);
-//        SharedPreferences.Editor eee = ttt.edit();
-//        eee.clear().commit();
-
-
-//        final Map<String, ?> notifiedTasks = ttt.getAll();
-//        final ArrayList<String> tt = new ArrayList<>();
-//        for (Map.Entry<String, ?> tEntry : notifiedTasks.entrySet()) {
-//            tt.add(tEntry.getValue().toString());
+//        SharedPreferences mnt = getSharedPreferences("MyNotifications", MODE_PRIVATE);
+//        SharedPreferences.Editor nte = mnt.edit();
+//        nte.clear().apply();
+//
+//        SharedPreferences mpr = getSharedPreferences("MyPreferences", MODE_PRIVATE);
+//        SharedPreferences.Editor pre = mpr.edit();
+//        pre.clear().apply();
+//
+//
+//        final Map<String, ?> ntfs = mnt.getAll();
+//        final ArrayList<String> nt = new ArrayList<>();
+//        for (Map.Entry<String, ?> tEntry : ntfs.entrySet()) {
+//            nt.add(tEntry.getValue().toString());
 //        }
+//
+//
+//
+//        final Map<String, ?> prefs = mpr.getAll();
+//        final ArrayList<String> pr = new ArrayList<>();
+//        for (Map.Entry<String, ?> tEntry : prefs.entrySet()) {
+//            pr.add(tEntry.getValue().toString());
+//        }
+//
+//        System.out.println("Notifications: \t" + nt.toString());
+//        System.out.println("MyPreferences: \t" + pr.toString());
+
+        Intent startServiceIntent = new Intent(this, MyService.class);
+        startServiceIntent.setAction("com.example.lorenzo.aaflats.action.startforeground");
+        this.startService(startServiceIntent);
 
         final Firebase staffRef = new Firebase(getResources().getString(R.string.staff_location));
 //        Query verifyCredentials = staffRef.orderByChild("username").equalTo(mEmailView);
