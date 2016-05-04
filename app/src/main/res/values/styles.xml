@@ -34,4 +34,16 @@
         <item name="android:textColor">#ffffff</item>
     </style>
 
+
+    <style name="CustomShowcaseTheme" parent="ShowcaseView">
+        <item name="sv_backgroundColor">#212121</item>
+        <item name="sv_buttonBackgroundColor">#CF3119</item>
+        <item name="sv_buttonText">OK</item>
+        <item name="sv_detailTextAppearance">@style/CustomDetailText</item>
+    </style>
+
+    <style name="CustomDetailText" parent="TextAppearance.ShowcaseView.Detail">
+        <item name="android:textColor">#ffffff</item>
+    </style>
+
 </resources>

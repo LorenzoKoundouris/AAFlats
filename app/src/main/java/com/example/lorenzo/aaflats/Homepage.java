@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.graphics.Point;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
@@ -38,6 +39,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
+import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
@@ -50,6 +53,10 @@ import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
 import com.firebase.client.Query;
 import com.firebase.client.ValueEventListener;
+import com.github.amlcurran.showcaseview.ShowcaseView;
+import com.github.amlcurran.showcaseview.targets.ActionViewTarget;
+import com.github.amlcurran.showcaseview.targets.Target;
+import com.github.amlcurran.showcaseview.targets.ViewTarget;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -115,10 +122,31 @@ public class Homepage extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_homepage);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         Firebase.setAndroidContext(this);
         taskRef = new Firebase(getResources().getString(R.string.tasks_location));
+
+
+        final Target viewTarget = new Target() {
+            @Override
+            public Point getPoint() {
+                return new ViewTarget(toolbar.findViewById(R.id.scan_qr)).getPoint();
+            }
+        };
+
+
+//        new ViewTarget(toolbar.findViewById(R.id.scan_qr)).getPoint();
+//        ViewTarget target = new ViewTarget(toolbar.findViewById(R.id.scan_qr));
+        new ShowcaseView.Builder(this)
+//                .withHoloShowcase()
+                .setStyle(R.style.CustomShowcaseTheme)
+                .setTarget(viewTarget) //new ActionViewTarget(this, ActionViewTarget.Type.HOME
+                .setContentTitle("QR Scan")
+                .setContentText("Find a Flat quickly by scanning its QR code")
+                .hideOnTouchOutside()
+                .build();
+
 
         snackbarCoordinatorLayout = (CoordinatorLayout) findViewById(R.id.snackbarCoordinatorLayout);
 
@@ -144,8 +172,6 @@ public class Homepage extends AppCompatActivity
                     c.add(Calendar.DAY_OF_MONTH, 1);
                     tempDateHolder = df.format(c.getTime());
                 }
-
-
             }
         }).start();
 
@@ -487,6 +513,7 @@ public class Homepage extends AppCompatActivity
 
 //        manualUpdate();
 
+
     }
 
     private void manualUpdate() {
@@ -495,29 +522,28 @@ public class Homepage extends AppCompatActivity
             @Override
             public void run() {
 //         Do something after 2s = 2000ms
-        Task tUpdater = new Task();
-        tUpdater.setTaskKey("foo");
-        tUpdater.setAssignedStaff("bar");
-        taskRef.push().setValue(tUpdater);
-        Query getUpdTsk = taskRef.orderByChild("taskKey").equalTo("foo");
-        getUpdTsk.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                for(DataSnapshot childSnap : dataSnapshot.getChildren()){
-                    Firebase removeUpdater;
-                    String delUpdURL = taskRef + "/" + childSnap.getKey();
-                    removeUpdater = new Firebase(delUpdURL);
-                    removeUpdater.removeValue();
-                }
+                Task tUpdater = new Task();
+                tUpdater.setTaskKey("foo");
+                tUpdater.setAssignedStaff("bar");
+                taskRef.push().setValue(tUpdater);
+                Query getUpdTsk = taskRef.orderByChild("taskKey").equalTo("foo");
+                getUpdTsk.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        for (DataSnapshot childSnap : dataSnapshot.getChildren()) {
+                            Firebase removeUpdater;
+                            String delUpdURL = taskRef + "/" + childSnap.getKey();
+                            removeUpdater = new Firebase(delUpdURL);
+                            removeUpdater.removeValue();
+                        }
 
-            }
+                    }
 
-            @Override
-            public void onCancelled(FirebaseError firebaseError) {
+                    @Override
+                    public void onCancelled(FirebaseError firebaseError) {
 
-            }
-        });
-
+                    }
+                });
 
 
 //                stopService(new Intent(Homepage.this, MyService.class));
