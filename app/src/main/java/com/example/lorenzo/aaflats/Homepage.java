@@ -113,6 +113,9 @@ public class Homepage extends AppCompatActivity
     public static final String EMAIL_KEY = "StaffEmail";
     public static final String STAFF_KEY = "StaffKey";
     private SharedPreferences mSharedPreferences;
+    private SharedPreferences.Editor editor;
+
+    private Target viewTarget;
 
     Context context;
 
@@ -128,24 +131,21 @@ public class Homepage extends AppCompatActivity
         taskRef = new Firebase(getResources().getString(R.string.tasks_location));
 
 
-        final Target viewTarget = new Target() {
+        viewTarget = new Target() {
             @Override
             public Point getPoint() {
                 return new ViewTarget(toolbar.findViewById(R.id.scan_qr)).getPoint();
             }
         };
-
-
-//        new ViewTarget(toolbar.findViewById(R.id.scan_qr)).getPoint();
-//        ViewTarget target = new ViewTarget(toolbar.findViewById(R.id.scan_qr));
-        new ShowcaseView.Builder(this)
-//                .withHoloShowcase()
-                .setStyle(R.style.CustomShowcaseTheme)
-                .setTarget(viewTarget) //new ActionViewTarget(this, ActionViewTarget.Type.HOME
-                .setContentTitle("QR Scan")
-                .setContentText("Find a Flat quickly by scanning its QR code")
-                .hideOnTouchOutside()
-                .build();
+//
+//        new ShowcaseView.Builder(this)
+////                .withHoloShowcase()
+//                .setStyle(R.style.CustomShowcaseTheme)
+//                .setTarget(viewTarget) //new ActionViewTarget(this, ActionViewTarget.Type.HOME
+//                .setContentTitle("QR Scan")
+//                .setContentText("Find a Flat quickly by scanning its QR code")
+//                .hideOnTouchOutside()
+//                .build();
 
 
         snackbarCoordinatorLayout = (CoordinatorLayout) findViewById(R.id.snackbarCoordinatorLayout);
@@ -156,7 +156,7 @@ public class Homepage extends AppCompatActivity
 
         //Get Shared Preferences
         mSharedPreferences = getSharedPreferences(MY_PREFERENCES, MODE_PRIVATE);
-
+        editor = mSharedPreferences.edit();
 
         new Thread(new Runnable() {
             public void run() {
@@ -426,6 +426,9 @@ public class Homepage extends AppCompatActivity
                     public void run() {
                         // Do something after 2s = 2000ms
                         setRecyclerAdapterContents();
+                        editor.putBoolean("showcaseview-ed", false).apply();
+                        invalidateOptionsMenu();
+
                     }
                 }, 2000);
             }
@@ -1307,6 +1310,7 @@ public class Homepage extends AppCompatActivity
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         int id = item.getItemId();
 
         if (id == R.id.nav_inbox) {
@@ -1341,7 +1345,22 @@ public class Homepage extends AppCompatActivity
         } else if (id == R.id.nav_filter) {
             onOptionsItemSelected(filterByMenuItem);
         } else if (id == R.id.nav_properties) {
-            startActivity(new Intent(Homepage.this, AllProperties.class));
+            if (!mSharedPreferences.getBoolean("showcaseview-ed", false)) {
+                drawer.closeDrawer(GravityCompat.START);
+                new ShowcaseView.Builder(this)
+//                .withHoloShowcase()
+                        .setStyle(R.style.CustomShowcaseTheme)
+                        .setTarget(viewTarget) //new ActionViewTarget(this, ActionViewTarget.Type.HOME
+                        .setContentTitle("QR Scan")
+                        .setContentText("Find a Flat quickly by scanning its QR code")
+                        .hideOnTouchOutside()
+                        .build();
+
+                editor.putBoolean("showcaseview-ed", true).apply();
+            } else{
+                startActivity(new Intent(Homepage.this, AllProperties.class));
+            }
+
         } else if (id == R.id.nav_tenants) {
             startActivity(new Intent(Homepage.this, AllTenants.class));
         } else if (id == R.id.nav_reports) {
@@ -1369,7 +1388,6 @@ public class Homepage extends AppCompatActivity
             startActivity(new Intent(Homepage.this, CreateProperty.class));
         }
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
