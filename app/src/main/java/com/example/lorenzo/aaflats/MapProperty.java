@@ -4,7 +4,6 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.Toast;
 
 import com.firebase.client.DataSnapshot;
@@ -22,13 +21,14 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class MapProperty extends FragmentActivity implements OnMapReadyCallback {
 
+    private ArrayList<Marker> markers = new ArrayList<>();
     private GoogleMap mMap;
+    private Bundle intent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,50 +52,29 @@ public class MapProperty extends FragmentActivity implements OnMapReadyCallback 
      */
     @Override
     public void onMapReady(final GoogleMap googleMap) {
-        Bundle intent = getIntent().getExtras();
-        final ArrayList<String> locaddr = new ArrayList<>();
+        intent = getIntent().getExtras();
+//        final ArrayList<String> locaddr = new ArrayList<>();
+
         mMap = googleMap;
 
+//        new Thread(new Runnable() {
+//            public void run() {
         if (intent != null) {
-            locaddr.add(intent.getString("findProperty") + ", Plymouth, UK");
+//                    locaddr.add(intent.getString("findProperty"));
+            showMarker(intent.getString("findProperty"));//locaddr.get(0)
+            oneScreenToFitAll();
         } else {
             Firebase propertyRef = new Firebase(getResources().getString(R.string.properties_location));
             propertyRef.addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
-                    ArrayList<Marker> markers = new ArrayList<>();
+                    markers.clear();
                     for (DataSnapshot childSnap : dataSnapshot.getChildren()) {
                         Property prt = childSnap.getValue(Property.class);
 //                        locaddr.add(prt.getAddrline1() + ", Plymouth, UK");
-
-                        Geocoder geocoder = new Geocoder(getApplicationContext());
-                        List<Address> addressList;
-                        try{
-                            addressList = geocoder.getFromLocationName(prt.getAddrline1() + ", Plymouth, UK", 1);
-                            if(addressList == null){
-                                return;
-                            }
-                            Address resultAddr = addressList.get(0);
-//                            LatLng latLang = new LatLng(resultAddr.getLatitude(), resultAddr.getLongitude());
-
-                            Marker marker = mMap.addMarker(new MarkerOptions()
-                                    .position(new LatLng(resultAddr.getLatitude(), resultAddr.getLongitude()))
-                                    .title(prt.getAddrline1())
-                                    .icon(BitmapDescriptorFactory.fromResource(R.drawable.custom_house_icon)));
-
-                            markers.add(marker);
-                        } catch (Exception ex){
-                            Toast.makeText(MapProperty.this, "An error occurred: " + prt.getAddrline1(), Toast.LENGTH_LONG).show();
-                        }
+                        showMarker(prt.getAddrline1());
                     }
-
-                    LatLngBounds.Builder builder = new LatLngBounds.Builder();
-                    for(Marker marker : markers){
-                        builder.include(marker.getPosition());
-                    }
-                    LatLngBounds bounds = builder.build();
-                    CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, 50); //2nd parameter is pixels of padding from edges of map
-                    mMap.animateCamera(cu);
+                    oneScreenToFitAll();
                 }
 
                 @Override
@@ -104,6 +83,8 @@ public class MapProperty extends FragmentActivity implements OnMapReadyCallback 
                 }
             });
         }
+//            }
+//        }).start();
 
 
 //        for (int i = 0; i < locaddr.size(); i++) {
@@ -137,5 +118,44 @@ public class MapProperty extends FragmentActivity implements OnMapReadyCallback 
 //        //mMap.moveCamera(CameraUpdateFactory.newLatLng(trematonMarker));
 //        float zoomLevel = (float) 16.0; //This goes up to 21
 //        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(trematonMarker, zoomLevel));
+    }
+
+    private void oneScreenToFitAll() {
+        if (intent == null) {
+            LatLngBounds.Builder builder = new LatLngBounds.Builder();
+            for (Marker marker : markers) {
+                builder.include(marker.getPosition());
+            }
+            LatLngBounds bounds = builder.build();
+            CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, 50); //2nd parameter is pixels of padding from edges of map
+            mMap.animateCamera(cu);
+        } else {
+            mMap.moveCamera(CameraUpdateFactory.newLatLng(markers.get(0).getPosition()));
+            float zoomLevel = (float) 16.0; //This goes up to 21
+            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(markers.get(0).getPosition(), zoomLevel));
+        }
+    }
+
+    private void showMarker(final String prtAddr) {
+
+        Geocoder geocoder = new Geocoder(getApplicationContext());
+        List<Address> addressList;
+        try {
+            addressList = geocoder.getFromLocationName(prtAddr + ", Plymouth, UK", 1);
+            if (addressList == null) {
+                return;
+            }
+            Address resultAddr = addressList.get(0);
+            Marker marker = mMap.addMarker(new MarkerOptions().position(new LatLng(resultAddr.getLatitude(), resultAddr.getLongitude())).title(prtAddr).icon(BitmapDescriptorFactory.fromResource(R.drawable.custom_house_icon)));
+
+            marker.showInfoWindow();
+            markers.add(marker);
+        } catch (Exception ex) {
+            runOnUiThread(new Runnable() {
+                public void run() {
+                    Toast.makeText(MapProperty.this, "An error occurred with: " + prtAddr, Toast.LENGTH_LONG).show();
+                }
+            });
+        }
     }
 }
