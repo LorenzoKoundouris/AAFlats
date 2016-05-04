@@ -481,15 +481,49 @@ public class Homepage extends AppCompatActivity
             }
         });
 
+
+        stopService(new Intent(Homepage.this, MyService.class));
+        sendBroadcast(new Intent("RestartServiceNow"));
+
+//        manualUpdate();
+
+    }
+
+    private void manualUpdate() {
         final Handler handler = new Handler();
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                // Do something after 2s = 2000ms
-                stopService(new Intent(Homepage.this, MyService.class));
-                startService(new Intent(Homepage.this, MyService.class));
+//         Do something after 2s = 2000ms
+        Task tUpdater = new Task();
+        tUpdater.setTaskKey("foo");
+        tUpdater.setAssignedStaff("bar");
+        taskRef.push().setValue(tUpdater);
+        Query getUpdTsk = taskRef.orderByChild("taskKey").equalTo("foo");
+        getUpdTsk.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for(DataSnapshot childSnap : dataSnapshot.getChildren()){
+                    Firebase removeUpdater;
+                    String delUpdURL = taskRef + "/" + childSnap.getKey();
+                    removeUpdater = new Firebase(delUpdURL);
+                    removeUpdater.removeValue();
+                }
+
             }
-        }, 2000);
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+
+            }
+        });
+
+
+
+//                stopService(new Intent(Homepage.this, MyService.class));
+//                startService(new Intent(Homepage.this, MyService.class));
+            }
+        }, 4000);
     }
 
     private void receiveNtf(final Task tsk) {
@@ -610,7 +644,7 @@ public class Homepage extends AppCompatActivity
                         newTaskAddedList.add(tsk);
 //                }
                         if (staffLoggedIn.getStaffKey().matches(tsk.getAssignedStaff())) {
-                            receiveNtf(newTaskAddedList.get(0));
+//                            receiveNtf(newTaskAddedList.get(0));
                         }
                     }
 
@@ -972,7 +1006,9 @@ public class Homepage extends AppCompatActivity
                 });
             }
         }).start();
+
     }
+
 
     @Override
     public void onBackPressed() {

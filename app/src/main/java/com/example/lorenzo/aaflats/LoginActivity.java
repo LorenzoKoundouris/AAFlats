@@ -149,6 +149,7 @@ public class LoginActivity extends Activity {
             @Override
             public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
                 if (id == R.id.login || id == EditorInfo.IME_NULL) {
+                    attemptLogin();
                     return true;
                 }
                 return false;
@@ -255,7 +256,7 @@ public class LoginActivity extends Activity {
         String staffPassword = mSharedPreferences.getString(PASSWORD_KEY, "");
 
         boolean logout = mSharedPreferences.getBoolean("logout", true);
-        if(logout){
+        if (logout) {
             mEmailView.setText(staffEmail);
         } else {
             mEmailView.setText(staffEmail);
@@ -323,7 +324,6 @@ public class LoginActivity extends Activity {
                     @Override
                     public void run() {
 
-//stuff that updates ui
                         mEmailView.setError(null);
                         mPasswordView.setError(null);
 
@@ -340,18 +340,33 @@ public class LoginActivity extends Activity {
 
                 // Check for a valid password, if the user entered one.
                 if (!TextUtils.isEmpty(password) && !isPasswordValid(password)) {
-                    mPasswordView.setError(getString(R.string.error_invalid_password));
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            mPasswordView.setError(getString(R.string.error_invalid_password));
+                        }
+                    });
                     focusView = mPasswordView;
                     cancel = true;
                 }
 
                 // Check for a valid email address.
                 if (TextUtils.isEmpty(email)) {
-                    mEmailView.setError(getString(R.string.error_field_required));
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            mEmailView.setError(getString(R.string.error_field_required));
+                        }
+                    });
                     focusView = mEmailView;
                     cancel = true;
                 } else if (!isEmailValid(email)) {
-                    mEmailView.setError(getString(R.string.error_invalid_email));
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            mEmailView.setError(getString(R.string.error_invalid_email));
+                        }
+                    });
                     focusView = mEmailView;
                     cancel = true;
                 }
@@ -468,7 +483,7 @@ public class LoginActivity extends Activity {
             boolean isStaff = false;
             int i;
             for (i = 0; i < staffSigningIn.size(); i++) {
-                if (staffSigningIn.get(i).getUsername().matches(mEmail)){
+                if (staffSigningIn.get(i).getUsername().matches(mEmail)) {
                     validUsername = true;
                     break;
                 }
@@ -481,12 +496,12 @@ public class LoginActivity extends Activity {
 //                    isStaff = false;
 //                }
             }
-            if(validUsername){
-                if(staffSigningIn.get(i).getPassword().matches(mPassword)){
+            if (validUsername) {
+                if (staffSigningIn.get(i).getPassword().matches(mPassword)) {
                     isStaff = true;
                     loggedIn = staffSigningIn.get(i);
                     accountEditor.putString(loggedIn.getUsername(), loggedIn.getUsername()).apply();
-                } else{
+                } else {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -494,7 +509,7 @@ public class LoginActivity extends Activity {
                         }
                     });
                 }
-            } else{
+            } else {
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -536,10 +551,6 @@ public class LoginActivity extends Activity {
 
             if (success) {
 
-                Intent startServiceIntent = new Intent(context, MyService.class);
-                startServiceIntent.setAction("com.example.lorenzo.aaflats.action.startforeground");
-                context.startService(startServiceIntent);
-
                 SharedPreferences.Editor editor = mSharedPreferences.edit();
                 editor.putString(EMAIL_KEY, loggedIn.getUsername());
                 editor.putString(PASSWORD_KEY, loggedIn.getPassword());
@@ -557,7 +568,6 @@ public class LoginActivity extends Activity {
                 }
                 System.out.println("My preferences changed: \t" + pa.toString());
                 ////////////////////////////////////////
-
 
 
                 startActivity(new Intent(LoginActivity.this, Homepage.class).putExtra("parceable_staff", loggedIn)); //mine

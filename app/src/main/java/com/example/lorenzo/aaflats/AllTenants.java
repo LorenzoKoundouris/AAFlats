@@ -155,7 +155,7 @@ public class AllTenants extends AppCompatActivity {
                             query.toLowerCase().matches(tenantList.get(i).getEmail().toLowerCase())) {
                         exactMatch = true;
                         startActivity(new Intent(AllTenants.this, TenantDetails.class)
-                                .putExtra("parceable_tenant", tenantList.get(i)));
+                                .putExtra("parceable_tenant", tenantList.get(i)).putExtra("staff_access", true));
                         break;
                     } else if (fullName.contains(query) || tenantList.get(i).getProperty().toLowerCase().contains(query.toLowerCase()) ||
                             tenantList.get(i).getEmail().toLowerCase().contains(query.toLowerCase())

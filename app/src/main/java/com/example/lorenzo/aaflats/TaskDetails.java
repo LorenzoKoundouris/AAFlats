@@ -22,6 +22,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
@@ -81,8 +82,8 @@ public class TaskDetails extends AppCompatActivity {
     private Button tomorrow;
     private Button pickDateButton;
     private CheckBox cbTaskStatus;// = (CheckBox) findViewById(R.id.completion_check_box);
-    private EditText mTargetDate; //ToDO
-    private AutoCompleteTextView mStaffAssigned; //ToDo
+    private EditText mTargetDate;
+    private AutoCompleteTextView mStaffAssigned;
     private EditText mTitle;// = (EditText) findViewById(R.id.td_title);
     private AutoCompleteTextView mProperty;// = (EditText) findViewById(R.id.et_property_actv);
     private Spinner mFlat;
@@ -283,6 +284,13 @@ public class TaskDetails extends AppCompatActivity {
         final ArrayAdapter<String> staffAdapter = new ArrayAdapter<>
                 (this, android.R.layout.simple_dropdown_item_1line, staffNames);
         mStaffAssigned.setAdapter(staffAdapter);
+
+        mStaffAssigned.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                mTitle.requestFocus();
+            }
+        });
 
         staffRef.addValueEventListener(new ValueEventListener() {
             @Override

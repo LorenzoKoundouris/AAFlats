@@ -30,25 +30,30 @@
         <service
             android:name=".MyService"
             android:enabled="true"
-            android:exported="true">
-        </service>
+            android:exported="true"
+            android:launchMode="singleTask"></service>
 
         <receiver android:name=".NotificationListener">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
+            <intent-filter>
+                <action android:name="RestartServiceNow" />
+            </intent-filter>
         </receiver>
-
 
 
         <activity
             android:name=".Homepage"
+            android:configChanges="orientation|screenSize"
             android:label="@string/app_name"
             android:launchMode="singleTask"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".TaskDetails"
+            android:configChanges="orientation|screenSize"
             android:label="@string/title_activity_task_details"
+            android:launchMode="singleTask"
             android:parentActivityName=".Homepage"
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
@@ -57,7 +62,9 @@
         </activity>
         <activity
             android:name=".CreateTask"
+            android:configChanges="orientation|screenSize"
             android:label="@string/title_activity_create_task"
+            android:launchMode="singleTask"
             android:parentActivityName=".Homepage"
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
@@ -66,6 +73,7 @@
         </activity>
         <activity
             android:name=".PropertyDetails"
+            android:configChanges="orientation|screenSize"
             android:label="@string/title_activity_property_details"
             android:launchMode="singleTask"
             android:parentActivityName=".AllProperties"
@@ -88,13 +96,15 @@
 
         <activity
             android:name=".MapProperty"
-            android:label="@string/title_activity_map_property">
+            android:label="@string/title_activity_map_property"
+            android:launchMode="singleTask">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".PropertyDetails" />
         </activity>
         <activity
             android:name=".AllProperties"
+            android:configChanges="orientation|screenSize"
             android:label="@string/title_activity_all_properties"
             android:launchMode="singleTop"
             android:parentActivityName=".Homepage"
@@ -110,12 +120,15 @@
         </activity>
         <activity
             android:name=".FlatDetails"
+            android:configChanges="orientation|screenSize"
             android:label="@string/title_activity_flat_details"
             android:launchMode="singleTask"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".CreateProperty"
+            android:configChanges="orientation|screenSize"
             android:label="@string/title_activity_create_property"
+            android:launchMode="singleTask"
             android:parentActivityName=".AllProperties"
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
@@ -124,7 +137,9 @@
         </activity>
         <activity
             android:name=".CreateFlat"
+            android:configChanges="orientation|screenSize"
             android:label="@string/title_activity_create_flat"
+            android:launchMode="singleTask"
             android:parentActivityName=".PropertyDetails"
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
@@ -134,12 +149,15 @@
         <activity
             android:name=".TenantHomepage"
             android:label="@string/title_activity_tenant_homepage"
+            android:launchMode="singleTask"
             android:theme="@style/AppTheme.NoActionBar">
 
         </activity>
         <activity
             android:name=".ComposeNew"
+            android:configChanges="orientation|screenSize"
             android:label="@string/title_activity_compose_new"
+            android:launchMode="singleTask"
             android:parentActivityName=".TenantHomepage"
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
@@ -148,7 +166,9 @@
         </activity>
         <activity
             android:name=".CreateTenant"
+            android:configChanges="orientation|screenSize"
             android:label="@string/title_activity_create_tenant"
+            android:launchMode="singleTask"
             android:parentActivityName=".Homepage"
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
@@ -157,6 +177,7 @@
         </activity>
         <activity
             android:name=".AllTenants"
+            android:configChanges="orientation|screenSize"
             android:label="@string/title_activity_all_tenants"
             android:launchMode="singleTop"
             android:parentActivityName=".Homepage"
@@ -172,7 +193,9 @@
         </activity>
         <activity
             android:name=".TenantDetails"
+            android:configChanges="orientation|screenSize"
             android:label="@string/title_activity_tenant_details"
+            android:launchMode="singleTask"
             android:parentActivityName=".AllTenants"
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
@@ -181,6 +204,7 @@
         </activity>
         <activity
             android:name=".ScanQR"
+            android:configChanges="orientation|screenSize"
             android:label="@string/title_activity_scan_qr"
             android:launchMode="singleTask"
             android:parentActivityName=".Homepage"
@@ -191,6 +215,7 @@
         </activity>
         <activity
             android:name=".AllReports"
+            android:configChanges="orientation|screenSize"
             android:label="@string/title_activity_all_reports"
             android:launchMode="singleTop"
             android:parentActivityName=".Homepage"
@@ -216,7 +241,9 @@
         </activity>
         <activity
             android:name=".ReportDetails"
+            android:configChanges="orientation|screenSize"
             android:label="@string/title_activity_report_details"
+            android:launchMode="singleTask"
             android:parentActivityName=".AllReports"
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
@@ -225,7 +252,9 @@
         </activity>
         <activity
             android:name=".Inbox"
+            android:configChanges="orientation|screenSize"
             android:label="@string/title_activity_inbox"
+            android:launchMode="singleTask"
             android:parentActivityName=".Homepage"
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
@@ -234,6 +263,7 @@
         </activity>
         <activity
             android:name=".LoginActivity"
+            android:configChanges="orientation|screenSize"
             android:label="@string/title_activity_login"
             android:launchMode="singleTask"
             android:windowSoftInputMode="adjustPan"></activity>

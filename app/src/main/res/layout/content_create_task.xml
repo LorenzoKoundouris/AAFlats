@@ -144,7 +144,6 @@
                     android:id="@+id/nt_title_editview"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:digits="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890 "
                     android:hint="Task title"
                     android:inputType="textCapSentences"
                     android:textStyle="italic" />
@@ -177,6 +176,7 @@
                     android:id="@+id/nt_property_actv"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:digits="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890 -"
                     android:hint="Address line 1" />
             </android.support.design.widget.TextInputLayout>
 
