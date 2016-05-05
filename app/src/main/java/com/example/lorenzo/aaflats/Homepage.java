@@ -1368,17 +1368,17 @@ public class Homepage extends AppCompatActivity
         } else if (id == R.id.nav_map) {
             startActivity(new Intent(Homepage.this, MapProperty.class));
         } else if (id == R.id.nav_chat) {
-            new AlertDialog.Builder(this)
-                    .setTitle("Update")
-                    .setMessage("Send and receive messages with our chat service. Coming soon!")
-                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            dialog.dismiss();
-                        }
-                    })
-            ;
-//            startActivity(new Intent(Homepage.this, TenantHomepage.class));
+//            new AlertDialog.Builder(this)
+//                    .setTitle("Update")
+//                    .setMessage("Send and receive messages with our chat service. Coming soon!")
+//                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+//                        @Override
+//                        public void onClick(DialogInterface dialog, int which) {
+//                            dialog.dismiss();
+//                        }
+//                    });
+
+            startActivity(new Intent(Homepage.this, TutorialActivity.class));
 //            startActivity(new Intent(Homepage.this, LoginActivity.class));
         } else if (id == R.id.nav_add_tenant) {
             startActivity(new Intent(Homepage.this, CreateTenant.class));

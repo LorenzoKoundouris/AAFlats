@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/lnrLayout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     >
 
     <android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
@@ -24,8 +24,10 @@
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:layout_alignParentStart="true"
+                android:layout_alignParentLeft="true"
                 android:layout_alignParentTop="true"
                 android:layout_marginEnd="16dp"
+                android:layout_marginRight="16dp"
                 android:layout_marginTop="16dp"/>
 
             <TextView
@@ -35,6 +37,7 @@
                 android:layout_alignParentTop="true"
                 android:text="title"
                 android:layout_toEndOf="@+id/task_photo"
+                android:layout_toRightOf="@+id/task_photo"
                 android:textSize="25sp" />
 
             <TextView
@@ -43,7 +46,8 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/task_title"
                 android:text="property"
-                android:layout_toEndOf="@+id/task_photo" />
+                android:layout_toEndOf="@+id/task_photo"
+                android:layout_toRightOf="@+id/task_photo"/>
 
             <ImageView
                 android:id="@+id/task_check"
@@ -51,7 +55,8 @@
                 android:layout_width="36dp"
                 android:layout_marginTop="3dp"
                 android:layout_centerVertical="true"
-                android:layout_alignParentEnd="true">
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true">
 
             </ImageView>
 

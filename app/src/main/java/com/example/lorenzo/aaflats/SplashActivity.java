@@ -16,36 +16,52 @@ import java.util.Map;
 
 public class SplashActivity extends AppCompatActivity {
     private ArrayList<Staff> staffList = new ArrayList<>();
+    SharedPreferences mpr;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        Firebase.setAndroidContext(this);
-
-        SharedPreferences mnt = getSharedPreferences("MyNotifications", MODE_PRIVATE);
-//        SharedPreferences.Editor nte = mnt.edit();
-//        nte.clear().apply();
-//
-        SharedPreferences mpr = getSharedPreferences("MyPreferences", MODE_PRIVATE);
-//        SharedPreferences.Editor pre = mpr.edit();
+        mpr = getSharedPreferences("MyPreferences", MODE_PRIVATE);
+        SharedPreferences.Editor pre = mpr.edit();
 //        pre.clear().apply();
-//
-//
-        final Map<String, ?> ntfs = mnt.getAll();
-        final ArrayList<String> nt = new ArrayList<>();
-        for (Map.Entry<String, ?> tEntry : ntfs.entrySet()) {
-            nt.add(tEntry.getValue().toString());
+        Bundle intent = getIntent().getExtras();
+
+        super.onCreate(savedInstanceState);
+        if(intent==null && !mpr.getBoolean("tutorial_viewed", false)){
+            startActivity(new Intent(SplashActivity.this, TutorialActivity.class));
+            finish();
+        } else {
+            pre.putBoolean("tutorial_viewed", true).apply();
+            Firebase.setAndroidContext(this);
+            readyGo();
         }
 
 
+//        SharedPreferences mnt = getSharedPreferences("MyNotifications", MODE_PRIVATE);
+//        SharedPreferences.Editor nte = mnt.edit();
+//        nte.clear().apply();
+//
+
+//        final Map<String, ?> ntfs = mnt.getAll();
+//        final ArrayList<String> nt = new ArrayList<>();
+//        for (Map.Entry<String, ?> tEntry : ntfs.entrySet()) {
+//            nt.add(tEntry.getValue().toString());
+//        }
+
+
+
+
+//        System.out.println("Notifications: \t" + nt.toString());
+
+
+    }
+
+
+    public void readyGo(){
 
         final Map<String, ?> prefs = mpr.getAll();
         final ArrayList<String> pr = new ArrayList<>();
         for (Map.Entry<String, ?> tEntry : prefs.entrySet()) {
             pr.add(tEntry.getValue().toString());
         }
-
-        System.out.println("Notifications: \t" + nt.toString());
         System.out.println("MyPreferences: \t" + pr.toString());
 
         Intent startServiceIntent = new Intent(this, MyService.class);
@@ -62,7 +78,9 @@ public class SplashActivity extends AppCompatActivity {
                     stf.setStaffKey(childSnap.getKey());
                     staffList.add(stf);
                 }
-                readyGo();
+                startActivity(new Intent(SplashActivity.this, LoginActivity.class).putExtra("parceable_staff_list", staffList));
+                overridePendingTransition(R.anim.login_animation, R.anim.splash_animation);
+                finish();
             }
 
             @Override
@@ -71,19 +89,4 @@ public class SplashActivity extends AppCompatActivity {
             }
         });
     }
-
-
-    public void readyGo(){
-        final Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                // Do something after 2s = 2000ms
-                startActivity(new Intent(SplashActivity.this, LoginActivity.class).putExtra("parceable_staff_list", staffList));
-                overridePendingTransition(R.anim.login_animation, R.anim.splash_animation);
-                finish();
-            }
-        }, 0000); //4000
-    }
-
 }

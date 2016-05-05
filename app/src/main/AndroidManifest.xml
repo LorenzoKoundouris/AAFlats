@@ -25,13 +25,11 @@
         android:label="A&amp;A Flats"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-
-
         <service
             android:name=".MyService"
             android:enabled="true"
             android:exported="true"
-            android:launchMode="singleTask"></service>
+            android:launchMode="singleTask" />
 
         <receiver android:name=".NotificationListener">
             <intent-filter>
@@ -41,7 +39,6 @@
                 <action android:name="RestartServiceNow" />
             </intent-filter>
         </receiver>
-
 
         <activity
             android:name=".Homepage"
@@ -106,7 +103,7 @@
             android:name=".AllProperties"
             android:configChanges="orientation|screenSize"
             android:label="@string/title_activity_all_properties"
-            android:launchMode="singleTop"
+            android:launchMode="singleTask"
             android:parentActivityName=".Homepage"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
@@ -150,9 +147,7 @@
             android:name=".TenantHomepage"
             android:label="@string/title_activity_tenant_homepage"
             android:launchMode="singleTask"
-            android:theme="@style/AppTheme.NoActionBar">
-
-        </activity>
+            android:theme="@style/AppTheme.NoActionBar"></activity>
         <activity
             android:name=".ComposeNew"
             android:configChanges="orientation|screenSize"
@@ -179,7 +174,7 @@
             android:name=".AllTenants"
             android:configChanges="orientation|screenSize"
             android:label="@string/title_activity_all_tenants"
-            android:launchMode="singleTop"
+            android:launchMode="singleTask"
             android:parentActivityName=".Homepage"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
@@ -217,7 +212,7 @@
             android:name=".AllReports"
             android:configChanges="orientation|screenSize"
             android:label="@string/title_activity_all_reports"
-            android:launchMode="singleTop"
+            android:launchMode="singleTask"
             android:parentActivityName=".Homepage"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
@@ -232,6 +227,7 @@
         <activity
             android:name=".SplashActivity"
             android:screenOrientation="portrait"
+            android:launchMode="singleTask"
             android:theme="@style/SplashTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -266,9 +262,9 @@
             android:configChanges="orientation|screenSize"
             android:label="@string/title_activity_login"
             android:launchMode="singleTask"
-            android:windowSoftInputMode="adjustPan"></activity>
-
-
+            android:windowSoftInputMode="adjustPan" />
+        <activity android:name=".TutorialActivity"
+            android:screenOrientation="portrait"/>
     </application>
 
 </manifest>

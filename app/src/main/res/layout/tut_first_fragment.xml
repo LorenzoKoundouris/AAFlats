@@ -1,0 +1,99 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/holo_blue_light"
+    tools:context=".FirstFragment">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+
+        <TextView
+            android:id="@+id/comment1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/view"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_marginBottom="17dp"
+            android:paddingLeft="42dp"
+            android:paddingRight="40dp"
+            android:text="Receive, approve or reject tenant reports and reply to enquiries."
+            android:textColor="@android:color/white"
+            android:textSize="14sp" />
+
+        <TextView
+            android:id="@+id/title1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/comment1"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:paddingBottom="6dp"
+            android:paddingLeft="40dp"
+            android:paddingRight="40dp"
+            android:text="Instant communication"
+            android:textColor="@android:color/white"
+            android:textSize="25sp" />
+
+
+        <ImageView
+            android:id="@+id/image1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_above="@id/title1"
+            android:paddingTop="12dp"
+            android:src="@drawable/tutorial_page_1_mini_opy"/>
+        <View
+            android:id="@+id/view"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_above="@+id/lnr_btns"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:background="#cccccc" />
+
+        <LinearLayout
+            android:id="@+id/lnr_btns"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:gravity="bottom">
+
+            <Button
+                android:id="@+id/skip1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:background="@android:color/transparent"
+                android:text="SKIP"
+                android:textColor="@android:color/white" />
+
+            <RelativeLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="2">
+
+                <ImageView
+                    android:layout_width="40dp"
+                    android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"
+                    android:layout_centerVertical="true"
+                    android:src="@drawable/i100" />
+            </RelativeLayout>
+
+
+            <Button
+                android:id="@+id/next1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:background="@android:color/transparent"
+                android:text="NEXT"
+                android:textColor="@android:color/white" />
+        </LinearLayout>
+    </RelativeLayout>
+</RelativeLayout><!--FrameLayout-->

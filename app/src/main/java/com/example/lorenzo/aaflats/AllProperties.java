@@ -55,6 +55,8 @@ public class AllProperties extends AppCompatActivity {
         });
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+        setupRecyclerview();
+
         refreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_layout_allproperties);
         refreshLayout.setColorSchemeResources(
                 R.color.refresh_progress_2,
@@ -91,8 +93,8 @@ public class AllProperties extends AppCompatActivity {
                 }
                 for (int i = 0; i < propertyList.size(); i++) {
                     String[] splitter = propertyList.get(i).getAddrline1().split(" ");
-                    if(splitter[0].length() == 1){
-                        splitter[0] = "0"+splitter[0];
+                    if (splitter[0].length() == 1) {
+                        splitter[0] = "0" + splitter[0];
                     }
                     propertyList.get(i).setAddrline1(splitter[1] + " " + splitter[2] + " " + splitter[0]);
                 }
@@ -104,7 +106,7 @@ public class AllProperties extends AppCompatActivity {
                 });
                 for (int i = 0; i < propertyList.size(); i++) {
                     String[] splitter = propertyList.get(i).getAddrline1().split(" ");
-                    if(splitter[2].substring(0,1).matches("0")){
+                    if (splitter[2].substring(0, 1).matches("0")) {
                         splitter[2] = splitter[2].substring(1);
                     }
                     propertyList.get(i).setAddrline1(splitter[2] + " " + splitter[0] + " " + splitter[1]);
@@ -118,7 +120,6 @@ public class AllProperties extends AppCompatActivity {
 
             }
         });
-        setupRecyclerview();
     }//End of onCreate
 
     private void setupRecyclerview() {
