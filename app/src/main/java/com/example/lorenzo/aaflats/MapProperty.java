@@ -1,5 +1,11 @@
 package com.example.lorenzo.aaflats;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.drawable.Drawable;
 import android.location.Address;
 import android.location.Geocoder;
 import android.support.v4.app.FragmentActivity;
@@ -145,8 +151,27 @@ public class MapProperty extends FragmentActivity implements OnMapReadyCallback 
             if (addressList == null) {
                 return;
             }
+
+//            Drawable drawable = getResources().getDrawable(R.drawable.green);
+//            Bitmap.Config conf = Bitmap.Config.ARGB_8888;
+//            Bitmap bmp = Bitmap.createBitmap(100, 151, conf);
+//            Canvas canvas1 = new Canvas(bmp);
+//            drawable.setBounds(0, 0, 100, 151);
+//            drawable.draw(canvas1);
+
+            Drawable drawable = getResources().getDrawable(R.drawable.green); //Bitmap.Config conf
+            Bitmap bmp = Bitmap.createBitmap(100, 151, Bitmap.Config.ARGB_8888); //drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight()
+            Canvas canvas1 = new Canvas(bmp);
+            drawable.setBounds(0, 0, 100, 151); //canvas.getWidth(), canvas.getHeight()
+            drawable.draw(canvas1);
+
+
             Address resultAddr = addressList.get(0);
-            Marker marker = mMap.addMarker(new MarkerOptions().position(new LatLng(resultAddr.getLatitude(), resultAddr.getLongitude())).title(prtAddr).icon(BitmapDescriptorFactory.fromResource(R.drawable.custom_house_icon)));
+            Marker marker = mMap.addMarker(new MarkerOptions()
+                    .position(new LatLng(resultAddr.getLatitude(), resultAddr.getLongitude()))
+                    .title(prtAddr)
+                    .icon(BitmapDescriptorFactory.fromBitmap(bmp)));//BitmapDescriptorFactory.fromResource(R.drawable.custom_house_icon))
+
 
             marker.showInfoWindow();
             markers.add(marker);

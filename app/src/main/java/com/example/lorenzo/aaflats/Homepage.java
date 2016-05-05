@@ -130,6 +130,36 @@ public class Homepage extends AppCompatActivity
         Firebase.setAndroidContext(this);
         taskRef = new Firebase(getResources().getString(R.string.tasks_location));
 
+        //Get Shared Preferences
+        mSharedPreferences = getSharedPreferences(MY_PREFERENCES, MODE_PRIVATE);
+        editor = mSharedPreferences.edit();
+
+        navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
+
+        navigationView.getMenu().getItem(2).setChecked(true);
+
+
+        if (!mSharedPreferences.getBoolean("showcaseview-ed_home", false)) {
+            Target homeTarget = new Target() {
+                @Override
+                public Point getPoint() {
+                    // Get approximate position of home icon's center
+                    int actionBarSize = toolbar.getHeight();
+                    int x = actionBarSize / 2;
+                    int y = actionBarSize / 2;
+                    return new Point(x, y);
+                }
+            };
+            new ShowcaseView.Builder(this)
+                    .setStyle(R.style.CustomShowcaseTheme)
+                    .setTarget(homeTarget) //new ActionViewTarget(this, ActionViewTarget.Type.HOME
+                    .setContentTitle("Start here")
+                    .setContentText("Navigate through the app by selecting the desired page.")
+                    .hideOnTouchOutside()
+                    .build();
+            editor.putBoolean("showcaseview-ed_home", true).apply();
+        }
 
         viewTarget = new Target() {
             @Override
@@ -137,16 +167,6 @@ public class Homepage extends AppCompatActivity
                 return new ViewTarget(toolbar.findViewById(R.id.scan_qr)).getPoint();
             }
         };
-//
-//        new ShowcaseView.Builder(this)
-////                .withHoloShowcase()
-//                .setStyle(R.style.CustomShowcaseTheme)
-//                .setTarget(viewTarget) //new ActionViewTarget(this, ActionViewTarget.Type.HOME
-//                .setContentTitle("QR Scan")
-//                .setContentText("Find a Flat quickly by scanning its QR code")
-//                .hideOnTouchOutside()
-//                .build();
-
 
         snackbarCoordinatorLayout = (CoordinatorLayout) findViewById(R.id.snackbarCoordinatorLayout);
 
@@ -154,9 +174,6 @@ public class Homepage extends AppCompatActivity
 
         notificationBuilder = new NotificationCompat.Builder(this);
 
-        //Get Shared Preferences
-        mSharedPreferences = getSharedPreferences(MY_PREFERENCES, MODE_PRIVATE);
-        editor = mSharedPreferences.edit();
 
         new Thread(new Runnable() {
             public void run() {
@@ -406,10 +423,6 @@ public class Homepage extends AppCompatActivity
 
         dateTasks = (TextView) findViewById(R.id.text_view_today);
 
-        navigationView = (NavigationView) findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
-
-        navigationView.getMenu().getItem(2).setChecked(true);
 
         refreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_layout_homepage);
         //refreshLayout.setColorSchemeColors(android.R.color.holo_green_dark, android.R.color.holo_green_light, android.R.color.holo_blue_dark, android.R.color.holo_blue_bright, android.R.color.holo_blue_light, android.R.color.holo_orange_dark, android.R.color.holo_orange_light, android.R.color.holo_purple);
@@ -427,6 +440,7 @@ public class Homepage extends AppCompatActivity
                         // Do something after 2s = 2000ms
                         setRecyclerAdapterContents();
                         editor.putBoolean("showcaseview-ed", false).apply();
+                        editor.putBoolean("showcaseview-ed_home", false).apply();
                         invalidateOptionsMenu();
 
                     }
@@ -1348,7 +1362,6 @@ public class Homepage extends AppCompatActivity
             if (!mSharedPreferences.getBoolean("showcaseview-ed", false)) {
                 drawer.closeDrawer(GravityCompat.START);
                 new ShowcaseView.Builder(this)
-//                .withHoloShowcase()
                         .setStyle(R.style.CustomShowcaseTheme)
                         .setTarget(viewTarget) //new ActionViewTarget(this, ActionViewTarget.Type.HOME
                         .setContentTitle("QR Scan")
@@ -1357,7 +1370,7 @@ public class Homepage extends AppCompatActivity
                         .build();
 
                 editor.putBoolean("showcaseview-ed", true).apply();
-            } else{
+            } else {
                 startActivity(new Intent(Homepage.this, AllProperties.class));
             }
 
@@ -1368,17 +1381,18 @@ public class Homepage extends AppCompatActivity
         } else if (id == R.id.nav_map) {
             startActivity(new Intent(Homepage.this, MapProperty.class));
         } else if (id == R.id.nav_chat) {
-//            new AlertDialog.Builder(this)
-//                    .setTitle("Update")
-//                    .setMessage("Send and receive messages with our chat service. Coming soon!")
-//                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-//                        @Override
-//                        public void onClick(DialogInterface dialog, int which) {
-//                            dialog.dismiss();
-//                        }
-//                    });
+            drawer.closeDrawer(GravityCompat.START);
+            new AlertDialog.Builder(Homepage.this)
+                    .setTitle("Update coming soon")
+                    .setMessage("Send and receive messages with our chat service!")
+                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                        }
+                    }).show();
 
-            startActivity(new Intent(Homepage.this, TutorialActivity.class));
+//            startActivity(new Intent(Homepage.this, TutorialActivity.class));
 //            startActivity(new Intent(Homepage.this, LoginActivity.class));
         } else if (id == R.id.nav_add_tenant) {
             startActivity(new Intent(Homepage.this, CreateTenant.class));

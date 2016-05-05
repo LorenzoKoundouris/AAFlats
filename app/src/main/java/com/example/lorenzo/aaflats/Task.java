@@ -22,7 +22,6 @@ public class Task implements Parcelable {
     private String creator;
     private String assignedStaff;
     private String completedBy;
-    private boolean staffNotified;
 
 
     public Task() {
@@ -131,14 +130,6 @@ public class Task implements Parcelable {
 
     public void setCompletedBy(String completedBy) {
         this.completedBy = completedBy;
-    }
-
-    public boolean isStaffNotified() {
-        return staffNotified;
-    }
-
-    public void setStaffNotified(boolean staffNotified) {
-        this.staffNotified = staffNotified;
     }
 
     public Task(Parcel in) {

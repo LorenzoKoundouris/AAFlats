@@ -159,6 +159,12 @@ public class PropertyDetails extends AppCompatActivity {
                 String numFlatsCast = Integer.toString(flatList.size());
                 if(!edittedProperty.getNoOfFlats().matches(numFlatsCast)){
                     edittedProperty.setNoOfFlats(numFlatsCast);
+
+                    Firebase updNumFlats = propertyRef.child(edittedProperty.getPropertyKey());
+                    Map<String, Object> rmKeyMap = new HashMap<>();
+                    rmKeyMap.put("noOfFlats", numFlatsCast);
+                    updNumFlats.updateChildren(rmKeyMap);
+
                 }
                 etPropertyFlats.setText("(" + edittedProperty.getNoOfFlats() + ")");
             }

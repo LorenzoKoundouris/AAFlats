@@ -37,13 +37,18 @@
 
     <style name="CustomShowcaseTheme" parent="ShowcaseView">
         <item name="sv_backgroundColor">#212121</item>
-        <item name="sv_buttonBackgroundColor">#CF3119</item>
+        <item name="sv_showcaseColor">@color/colorAccent</item>
+        <item name="sv_buttonBackgroundColor">@color/colorPrimary</item>
         <item name="sv_buttonText">OK</item>
         <item name="sv_detailTextAppearance">@style/CustomDetailText</item>
+        <item name="sv_titleTextAppearance">@style/CustomTitleText</item>
     </style>
 
     <style name="CustomDetailText" parent="TextAppearance.ShowcaseView.Detail">
         <item name="android:textColor">#ffffff</item>
+    </style>
+    <style name="CustomTitleText" parent="TextAppearance.ShowcaseView.Title">
+        <item name="android:textColor">@color/colorPrimary</item>
     </style>
 
 </resources>

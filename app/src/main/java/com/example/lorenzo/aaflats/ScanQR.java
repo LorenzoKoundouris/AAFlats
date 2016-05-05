@@ -150,8 +150,10 @@ public class ScanQR extends AppCompatActivity implements ZBarScannerView.ResultH
 
         if (fromHome) {
             startActivity(new Intent(ScanQR.this, Homepage.class));
+            finish();
         } else {
             startActivity(new Intent(ScanQR.this, LoginActivity.class));
+            finish();
         }
     }
 }

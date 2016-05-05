@@ -138,6 +138,7 @@ public class CreateFlat extends AppCompatActivity {
                 for (DataSnapshot childSnapShot : dataSnapshot.getChildren()) {
                     Property prt = childSnapShot.getValue(Property.class);
                     propertyAddrLine1s.add(prt.getAddrline1());
+                    prt.setPropertyKey(childSnapShot.getKey());
                     propertyList.add(prt);
                 }
             }
