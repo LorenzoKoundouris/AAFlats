@@ -176,14 +176,14 @@ public class AllProperties extends AppCompatActivity {
                 searchQuery.clear();
                 boolean exactMatch = false;
                 for (int i = 0; i < propertyList.size(); i++) {
-                    if (query.toLowerCase().matches(propertyList.get(i).getAddrline1().toLowerCase()) ||
-                            query.toLowerCase().matches(propertyList.get(i).getPostcode().toLowerCase())) {
+                    if (query.toLowerCase().trim().matches(propertyList.get(i).getAddrline1().toLowerCase()) ||
+                            query.toLowerCase().trim().matches(propertyList.get(i).getPostcode().toLowerCase())) {
                         exactMatch = true;
                         startActivity(new Intent(AllProperties.this, PropertyDetails.class)
                                 .putExtra("parceable_property", propertyList.get(i)));
                         break;
-                    } else if (propertyList.get(i).getAddrline1().toLowerCase().contains(query.toLowerCase()) ||
-                            propertyList.get(i).getPostcode().toLowerCase().contains(query.toLowerCase())) {
+                    } else if (propertyList.get(i).getAddrline1().toLowerCase().contains(query.toLowerCase().trim()) ||
+                            propertyList.get(i).getPostcode().toLowerCase().contains(query.toLowerCase().trim())) {
                         searchQuery.add(propertyList.get(i));
                     }
                 }
@@ -222,8 +222,8 @@ public class AllProperties extends AppCompatActivity {
     private void loadResults(String newText) {
         searchQuery.clear();
         for (int i = 0; i < propertyList.size(); i++) {
-            if (propertyList.get(i).getAddrline1().toLowerCase().contains(newText.toLowerCase()) ||
-                    propertyList.get(i).getPostcode().toLowerCase().contains(newText.toLowerCase())) {
+            if (propertyList.get(i).getAddrline1().toLowerCase().contains(newText.toLowerCase().trim()) ||
+                    propertyList.get(i).getPostcode().toLowerCase().contains(newText.toLowerCase().trim())) {
                 searchQuery.add(propertyList.get(i));
             }
         }

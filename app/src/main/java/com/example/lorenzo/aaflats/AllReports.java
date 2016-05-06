@@ -192,14 +192,14 @@ public class AllReports extends AppCompatActivity {
                 searchQuery.clear();
                 boolean exactMatch = false;
                 for (int i = 0; i < reportList.size(); i++) {
-                    if (query.matches(reportList.get(i).getReportKey())) {
+                    if (query.trim().matches(reportList.get(i).getReportKey())) {
                         exactMatch = true;
                         startActivity(new Intent(AllReports.this, ReportDetails.class)
                                 .putExtra("parceable_report", reportList.get(i)));
                         break;
-                    } else if (reportList.get(i).getReportKey().contains(query) || reportList.get(i).getProperty().toLowerCase().contains(query.toLowerCase()) ||
+                    } else if (reportList.get(i).getReportKey().contains(query.trim()) || reportList.get(i).getProperty().toLowerCase().contains(query.toLowerCase().trim()) ||
                             reportList.get(i).getSender().toLowerCase().contains(query.toLowerCase())
-                            || reportList.get(i).getContent().toLowerCase().contains(query.toLowerCase())) {
+                            || reportList.get(i).getContent().toLowerCase().contains(query.toLowerCase().trim())) {
                         searchQuery.add(reportList.get(i));
                     }
                 }
@@ -222,10 +222,10 @@ public class AllReports extends AppCompatActivity {
     private void loadResults(String newText) {
         searchQuery.clear();
         for (int i = 0; i < reportList.size(); i++) {
-            if (reportList.get(i).getReportKey().contains(newText) ||
-                    reportList.get(i).getProperty().toLowerCase().contains(newText.toLowerCase()) ||
-                    reportList.get(i).getSender().toLowerCase().contains(newText.toLowerCase()) ||
-                    reportList.get(i).getContent().toLowerCase().contains(newText.toLowerCase())) {
+            if (reportList.get(i).getReportKey().contains(newText.trim()) ||
+                    reportList.get(i).getProperty().toLowerCase().contains(newText.toLowerCase().trim()) ||
+                    reportList.get(i).getSender().toLowerCase().contains(newText.toLowerCase().trim()) ||
+                    reportList.get(i).getContent().toLowerCase().contains(newText.toLowerCase().trim())) {
                 searchQuery.add(reportList.get(i));
             }
         }

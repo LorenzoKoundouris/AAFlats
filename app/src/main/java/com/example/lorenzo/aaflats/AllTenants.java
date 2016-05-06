@@ -151,15 +151,15 @@ public class AllTenants extends AppCompatActivity {
                 boolean exactMatch = false;
                 for (int i = 0; i < tenantList.size(); i++) {
                     String fullName = tenantList.get(i).getForename() + " " + tenantList.get(i).getSurname();
-                    if (query.toLowerCase().matches(fullName.toLowerCase()) ||
-                            query.toLowerCase().matches(tenantList.get(i).getEmail().toLowerCase())) {
+                    if (query.toLowerCase().trim().matches(fullName.toLowerCase()) ||
+                            query.toLowerCase().trim().matches(tenantList.get(i).getEmail().toLowerCase())) {
                         exactMatch = true;
                         startActivity(new Intent(AllTenants.this, TenantDetails.class)
                                 .putExtra("parceable_tenant", tenantList.get(i)).putExtra("staff_access", true));
                         break;
-                    } else if (fullName.contains(query) || tenantList.get(i).getProperty().toLowerCase().contains(query.toLowerCase()) ||
-                            tenantList.get(i).getEmail().toLowerCase().contains(query.toLowerCase())
-                            || tenantList.get(i).getTelephone().toLowerCase().contains(query.toLowerCase())) {
+                    } else if (fullName.contains(query.trim()) || tenantList.get(i).getProperty().toLowerCase().contains(query.toLowerCase().trim()) ||
+                            tenantList.get(i).getEmail().toLowerCase().contains(query.toLowerCase().trim())
+                            || tenantList.get(i).getTelephone().toLowerCase().contains(query.toLowerCase().trim())) {
                         searchQuery.add(tenantList.get(i));
                     }
                 }
@@ -183,10 +183,10 @@ public class AllTenants extends AppCompatActivity {
         searchQuery.clear();
         for (int i = 0; i < tenantList.size(); i++) {
             String fullName = tenantList.get(i).getForename() + " " + tenantList.get(i).getSurname();
-            if (fullName.toLowerCase().contains(newText.toLowerCase()) ||
-                    tenantList.get(i).getProperty().toLowerCase().contains(newText.toLowerCase()) ||
-                    tenantList.get(i).getEmail().toLowerCase().contains(newText.toLowerCase()) ||
-                    tenantList.get(i).getTelephone().toLowerCase().contains(newText.toLowerCase())) {
+            if (fullName.toLowerCase().contains(newText.toLowerCase().trim()) ||
+                    tenantList.get(i).getProperty().toLowerCase().contains(newText.toLowerCase().trim()) ||
+                    tenantList.get(i).getEmail().toLowerCase().contains(newText.toLowerCase().trim()) ||
+                    tenantList.get(i).getTelephone().toLowerCase().contains(newText.toLowerCase().trim())) {
                 searchQuery.add(tenantList.get(i));
             }
         }
