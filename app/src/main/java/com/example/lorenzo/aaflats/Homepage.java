@@ -97,6 +97,8 @@ public class Homepage extends AppCompatActivity
     private String tempDateHolder;
     private ArrayList<String> next7Dates = new ArrayList<>();
 
+    private RelativeLayout done4today;
+    private RelativeLayout homeLayout;
     private NavigationView navigationView;
     private MenuItem filterByMenuItem;
     private TextView dateTasks;
@@ -171,6 +173,9 @@ public class Homepage extends AppCompatActivity
         snackbarCoordinatorLayout = (CoordinatorLayout) findViewById(R.id.snackbarCoordinatorLayout);
 
         context = this;
+
+        done4today = (RelativeLayout) findViewById(R.id.done_today_rel_layout);
+        homeLayout = (RelativeLayout) findViewById(R.id.home_parent_view);
 
         notificationBuilder = new NotificationCompat.Builder(this);
 
@@ -660,6 +665,7 @@ public class Homepage extends AppCompatActivity
                                 }
                             }
                         }
+                        listIsEmpty(mTaskList);
                         Collections.sort(mTaskList, new Comparator<Task>() {
                             @Override
                             public int compare(Task lhs, Task rhs) {
@@ -799,6 +805,8 @@ public class Homepage extends AppCompatActivity
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
+
+                                listIsEmpty(pendingAndPrioritised);
                                 taskRecyclerView.setAdapter(new TaskAdapter(pendingAndPrioritised));
                                 Snackbar snackbar = Snackbar
                                         .make(snackbarCoordinatorLayout, "Showing today's prioritised tasks that are pending", Snackbar.LENGTH_LONG);
@@ -824,6 +832,7 @@ public class Homepage extends AppCompatActivity
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
+                                listIsEmpty(pendingFT);
                                 taskRecyclerView.setAdapter(new TaskAdapter(pendingFT));
                                 Snackbar snackbar = Snackbar
                                         .make(snackbarCoordinatorLayout, "Showing today's tasks that are pending", Snackbar.LENGTH_LONG);
@@ -844,6 +853,7 @@ public class Homepage extends AppCompatActivity
 //                                toast = Toast.makeText(Homepage.this, "Showing today's prioritised tasks", Toast.LENGTH_SHORT);
 //                                toast.setGravity(Gravity.CENTER, 0, 0);
 //                                toast.show();
+                                listIsEmpty(justPrioritised);
                                 taskRecyclerView.setAdapter(new TaskAdapter(justPrioritised));
                                 Snackbar snackbar = Snackbar
                                         .make(snackbarCoordinatorLayout, "Showing today's prioritised tasks", Snackbar.LENGTH_LONG);
@@ -858,6 +868,7 @@ public class Homepage extends AppCompatActivity
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
+                                listIsEmpty(onlyTodayTasks);
                                 taskRecyclerView.setAdapter(new TaskAdapter(onlyTodayTasks));
 
                                 Snackbar snackbar = Snackbar
@@ -934,6 +945,7 @@ public class Homepage extends AppCompatActivity
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
+                                listIsEmpty(pendingAndPrioritised);
                                 taskRecyclerView.setAdapter(new TaskAdapter(pendingAndPrioritised));
                                 Snackbar snackbar = Snackbar
                                         .make(snackbarCoordinatorLayout, "Showing next 7 days prioritised tasks that are pending", Snackbar.LENGTH_LONG);
@@ -955,6 +967,7 @@ public class Homepage extends AppCompatActivity
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
+                                listIsEmpty(pendingFT);
                                 taskRecyclerView.setAdapter(new TaskAdapter(pendingFT));
                                 Snackbar snackbar = Snackbar
                                         .make(snackbarCoordinatorLayout, "Showing next 7 days tasks that are pending", Snackbar.LENGTH_LONG);
@@ -971,6 +984,7 @@ public class Homepage extends AppCompatActivity
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
+                                listIsEmpty(justPrioritised);
                                 taskRecyclerView.setAdapter(new TaskAdapter(justPrioritised));
                                 Snackbar snackbar = Snackbar
                                         .make(snackbarCoordinatorLayout, "Showing next 7 days prioritised tasks", Snackbar.LENGTH_LONG);
@@ -987,6 +1001,7 @@ public class Homepage extends AppCompatActivity
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
+                                listIsEmpty(onlyNext7Tasks);
                                 taskRecyclerView.setAdapter(new TaskAdapter(onlyNext7Tasks));
                                 Snackbar snackbar = Snackbar
                                         .make(snackbarCoordinatorLayout, "Showing next 7 days tasks", Snackbar.LENGTH_SHORT);
@@ -1002,6 +1017,7 @@ public class Homepage extends AppCompatActivity
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
+                            listIsEmpty(mTaskList);
                             taskRecyclerView.setAdapter(new TaskAdapter(mTaskList));
                             Snackbar snackbar = Snackbar
                                     .make(snackbarCoordinatorLayout, "Showing newest first", Snackbar.LENGTH_LONG);
@@ -1050,6 +1066,16 @@ public class Homepage extends AppCompatActivity
             }
         }).start();
 
+    }
+
+    private void listIsEmpty(ArrayList<Task> tskLst) {
+        if(tskLst.isEmpty()){
+            homeLayout.setBackgroundColor(getResources().getColor(R.color.colorBackground));
+            done4today.setVisibility(View.VISIBLE);
+        } else{
+            homeLayout.setBackgroundColor(getResources().getColor(R.color.backgroundGrey));
+            done4today.setVisibility(View.INVISIBLE);
+        }
     }
 
 
