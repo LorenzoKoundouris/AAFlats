@@ -47,7 +47,7 @@
                     android:layout_marginStart="12dp"
                     android:clickable="false"
                     android:enabled="false"
-                    android:hint="Name Surname"
+                    android:hint="Surname Forename"
                     android:inputType="textPersonName|textMultiLine"
                     android:textColor="@drawable/disabled_text" />
             </android.support.design.widget.TextInputLayout>

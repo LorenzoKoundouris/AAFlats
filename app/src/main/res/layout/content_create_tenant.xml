@@ -46,7 +46,7 @@
                     android:layout_marginLeft="6dp"
                     android:layout_marginStart="6dp"
                     android:layout_marginTop="5dp"
-                    android:digits="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ "
+                    android:digits="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ- "
                     android:hint="First name"
                     android:inputType="textCapWords|text"
                     android:textStyle="italic" />
@@ -82,7 +82,7 @@
                     android:layout_marginLeft="6dp"
                     android:layout_marginStart="6dp"
                     android:layout_marginTop="5dp"
-                    android:digits="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ "
+                    android:digits="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ- "
                     android:hint="Middle name"
                     android:inputType="textCapWords|text"
                     android:textStyle="italic" />
@@ -118,7 +118,7 @@
                     android:layout_marginLeft="6dp"
                     android:layout_marginStart="6dp"
                     android:layout_marginTop="5dp"
-                    android:digits="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ "
+                    android:digits="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ- "
                     android:hint="Last name"
                     android:inputType="textCapWords|text"
                     android:textStyle="italic" />

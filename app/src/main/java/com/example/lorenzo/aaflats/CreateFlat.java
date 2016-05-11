@@ -27,6 +27,8 @@ import com.firebase.client.Query;
 import com.firebase.client.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -369,6 +371,7 @@ public class CreateFlat extends AppCompatActivity {
                 flatTenant.setVisibility(View.VISIBLE);
                 cancelTenantBtn.setVisibility(View.VISIBLE);
                 addTenantBtn.setVisibility(View.INVISIBLE);
+                flatTenant.requestFocus();
             }
         });
 
@@ -491,6 +494,8 @@ public class CreateFlat extends AppCompatActivity {
             if (focusView == null) {
                 focusView = etFlatNum;
             }
+
+            Collections.sort(flatNums);
 
             new AlertDialog.Builder(this)
                     .setIcon(android.R.drawable.ic_dialog_alert)

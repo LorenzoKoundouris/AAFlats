@@ -4,21 +4,18 @@ import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.telephony.PhoneNumberUtils;
-import android.text.Editable;
 import android.text.InputType;
 import android.text.TextUtils;
-import android.text.TextWatcher;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -31,6 +28,7 @@ import android.widget.Toast;
 import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
+import com.firebase.client.Query;
 import com.firebase.client.ValueEventListener;
 
 import java.text.DecimalFormat;
@@ -41,7 +39,9 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 
 public class CreateTenant extends AppCompatActivity {
 
@@ -51,9 +51,12 @@ public class CreateTenant extends AppCompatActivity {
     static final int DIALOG_ID = 0;
     private int year_x, month_x, day_x;
     private Tenant newTenant;
+    private Flat chosenflt;
+    private ArrayList<Tenant> tenantList = new ArrayList<>();
 
     Firebase propertyRef;
     Firebase flatRef;
+    Firebase tenantRef;
     ArrayList<Flat> flatList = new ArrayList<>();
     ArrayList<String> flatKeys = new ArrayList<>();
     ArrayList<String> propertyFlatsAddrline1 = new ArrayList<>();
@@ -87,6 +90,22 @@ public class CreateTenant extends AppCompatActivity {
         etTel = (EditText) findViewById(R.id.nt_telephone_editview);
         ImageView btCalen = (ImageView) findViewById(R.id.nt_calendar_button);
 
+        tenantRef = new Firebase(getResources().getString(R.string.tenants_location));
+        tenantRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                tenantList.clear();
+                for(DataSnapshot childSnap : dataSnapshot.getChildren()){
+                    Tenant tnt = childSnap.getValue(Tenant.class);
+                    tenantList.add(tnt);
+                }
+            }
+
+            @Override
+            public void onCancelled(FirebaseError firebaseError) {
+
+            }
+        });
 
 //        etForename.setOnFocusChangeListener(new View.OnFocusChangeListener() {
 //            @Override
@@ -338,7 +357,7 @@ public class CreateTenant extends AppCompatActivity {
             cancel = true;
             focusView = etDob;
         } else if (!isDobValid(etDob.getText().toString())) {
-            etDob.setError("This address is invalid.");
+            etDob.setError("This date is invalid.");
             cancel = true;
             focusView = etDob;
         }
@@ -346,6 +365,12 @@ public class CreateTenant extends AppCompatActivity {
         //Check for a valid email, if the user entered one
         if (!validateEmail(etEmail.getText().toString())) {
             etEmail.setError("This email is invalid");
+            if (focusView == null) {
+                focusView = etEmail;
+            }
+            cancel = true;
+        } else if(!isUniqueEmail(etEmail.getText().toString())){
+            etEmail.setError("This email belongs to another tenant");
             if (focusView == null) {
                 focusView = etEmail;
             }
@@ -365,6 +390,12 @@ public class CreateTenant extends AppCompatActivity {
                 focusView = etTel;
             }
             cancel = true;
+        } else if(!isUniqueTel(etTel.getText().toString().trim())){
+            etTel.setError("This tel. number belongs to another tenant");
+            if (focusView == null) {
+                focusView = etTel;
+            }
+            cancel = true;
         }
 
         if (cancel) {
@@ -378,6 +409,23 @@ public class CreateTenant extends AppCompatActivity {
             saveNewTenant();
         }
 
+    }
+
+    private boolean isUniqueEmail(String s) {
+        for(Tenant tn : tenantList){
+            if(tn.getEmail().matches(etEmail.getText().toString())){
+                return false;
+            }
+        }
+        return true;
+    }
+    private boolean isUniqueTel(String s) {
+        for(Tenant tn : tenantList){
+            if(tn.getTelephone().matches(etTel.getText().toString())){
+                return false;
+            }
+        }
+        return true;
     }
 
     private boolean isDobValid(String s) {
@@ -413,8 +461,8 @@ public class CreateTenant extends AppCompatActivity {
             newTenant.setProperty("");
             newTenant.setSurname(etSurname.getText().toString().trim());
             newTenant.setTelephone(etTel.getText().toString().trim());
+            newTenant.setTenantKey("23");
 
-            Firebase tenantRef = new Firebase(getResources().getString(R.string.tenants_location));
             tenantRef.push().setValue(newTenant);
 
             String initi = newTenant.getForename().substring(0, 1) + ". " + newTenant.getSurname()
@@ -437,12 +485,13 @@ public class CreateTenant extends AppCompatActivity {
                                     new android.support.v7.app.AlertDialog.Builder(alertBuilder.getContext());
                             final AutoCompleteTextView actvProperty = new AutoCompleteTextView(alertBuilder.getContext());
                             actvProperty.setInputType(InputType.TYPE_TEXT_FLAG_CAP_WORDS);
-                            alertBuilder2.setMessage("*i.e. 12 Trematon Terrace - Tlat 1");
+                            alertBuilder2.setMessage("*i.e. 12 Trematon Terrace - Flat 1");
                             alertBuilder2.setTitle("Enter an address");
                             alertBuilder2.setView(actvProperty);
                             alertBuilder2.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
+                                    removeTempKey();
                                     startActivity(new Intent(CreateTenant.this, AllTenants.class));
                                 }
                             });
@@ -475,8 +524,10 @@ public class CreateTenant extends AppCompatActivity {
                                     System.out.println("Property: " + "The read failed: " + firebaseError.getMessage());
                                 }
                             });
-
-                            alertBuilder2.show();
+                            AlertDialog dg = alertBuilder2.create();
+                            dg.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+                            dg.show();
+//                            alertBuilder2.show();
 
                             final ArrayAdapter<String> propertyAdapter = new ArrayAdapter<>
                                     (alertBuilder.getContext(), android.R.layout.simple_dropdown_item_1line, propertyAddrLine1s);
@@ -485,14 +536,24 @@ public class CreateTenant extends AppCompatActivity {
                             actvProperty.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                                 @Override
                                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                                    Flat chosenflt = new Flat();
+
+                                    chosenflt = new Flat();
                                     for (Flat flt : flatList) {
                                         String tmp = flt.getAddressLine1() + " - " + flt.getFlatNum();
-                                        if (tmp.matches(propertyAddrLine1s.get(position))) {
+                                        if (actvProperty.getText().toString().matches(tmp)) {
                                             chosenflt = flt;
                                             break;
                                         }
                                     }
+
+
+//                                    for (Flat flt : flatList) {
+//                                        String tmp = flt.getAddressLine1() + " - " + flt.getFlatNum();
+//                                        if (tmp.matches(propertyAddrLine1s.get(position))) {
+//                                            chosenflt = flt;
+//                                            break;
+//                                        }
+//                                    }
                                     if (!chosenflt.getTenant().matches("")) {
                                         new AlertDialog.Builder(view.getContext())
                                                 .setIcon(android.R.drawable.ic_dialog_alert)
@@ -507,12 +568,31 @@ public class CreateTenant extends AppCompatActivity {
                                                 })
                                                 .show();
                                     } else {
-                                        newTenant.setProperty(propertyAddrLine1s.get(position));
+//                                        newTenant.setProperty(propertyAddrLine1s.get(position));
 
-                                        Intent intent = new Intent(CreateTenant.this, TenantDetails.class);
-                                        intent.putExtra("parceable_tenant", newTenant);
 
-                                        startActivity(intent);
+                                        final Firebase addToFlat = flatRef.child(chosenflt.getFlatKey());
+                                        final Map<String, Object> flatMap = new HashMap<>();
+
+                                        Query getTenantFirebase = tenantRef.orderByChild("tenantKey").equalTo("23");
+                                        getTenantFirebase.addListenerForSingleValueEvent(new ValueEventListener() {
+                                            @Override
+                                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                                for (DataSnapshot childSnap : dataSnapshot.getChildren()) {
+                                                    newTenant.setTenantKey(childSnap.getKey());
+                                                }
+                                                flatMap.put("tenant", newTenant.getTenantKey());
+                                                addToFlat.updateChildren(flatMap);
+                                                updateTenantProperty();
+                                            }
+
+                                            @Override
+                                            public void onCancelled(FirebaseError firebaseError) {
+
+                                            }
+                                        });
+
+
                                     }
 
 
@@ -530,6 +610,32 @@ public class CreateTenant extends AppCompatActivity {
             toast.setGravity(Gravity.CENTER, 0, 0);
             toast.show();
         }
+    }
+
+    private void updateTenantProperty(){
+
+        Firebase addToTenant = tenantRef.child(newTenant.getTenantKey());
+        Map<String, Object> tenantMap = new HashMap<>();
+        tenantMap.put("currentTenant", true);
+        tenantMap.put("tenantKey", null);
+        tenantMap.put("property", chosenflt.getAddressLine1() + " - " + chosenflt.getFlatNum());
+        addToTenant.updateChildren(tenantMap);
+
+        newTenant.setProperty(chosenflt.getAddressLine1() + " - " + chosenflt.getFlatNum());
+        newTenant.setCurrentTenant(true);
+
+        Intent intent = new Intent(CreateTenant.this, TenantDetails.class);
+        intent.putExtra("parceable_tenant", newTenant).putExtra("staff_access", true);
+
+        startActivity(intent);
+        finish();
+    }
+
+    private void removeTempKey(){
+        Firebase rmKey = tenantRef.child(newTenant.getTenantKey());
+        Map<String, Object> tenantMap = new HashMap<>();
+        tenantMap.put("tenantKey", null);
+        rmKey.updateChildren(tenantMap);
     }
 
     public final static boolean validateEmail(CharSequence target) {

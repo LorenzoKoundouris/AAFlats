@@ -140,7 +140,7 @@ public class AllTenants extends AppCompatActivity {
         getMenuInflater().inflate(R.menu.search_view, menu);
         SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
         MenuItem searchItem = menu.findItem(R.id.action_search);
-        SearchView searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
+        SearchView searchView = (SearchView) searchItem.getActionView(); //(SearchView) MenuItemCompat.getActionView(searchItem);
         searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
 
@@ -151,7 +151,8 @@ public class AllTenants extends AppCompatActivity {
                 boolean exactMatch = false;
                 for (int i = 0; i < tenantList.size(); i++) {
                     String fullName = tenantList.get(i).getForename() + " " + tenantList.get(i).getSurname();
-                    if (query.toLowerCase().trim().matches(fullName.toLowerCase()) ||
+                    String revName = tenantList.get(i).getSurname() + " " + tenantList.get(i).getForename();
+                    if (query.toLowerCase().trim().matches(fullName.toLowerCase()) || query.toLowerCase().trim().matches(revName.toLowerCase()) ||
                             query.toLowerCase().trim().matches(tenantList.get(i).getEmail().toLowerCase())) {
                         exactMatch = true;
                         startActivity(new Intent(AllTenants.this, TenantDetails.class)
