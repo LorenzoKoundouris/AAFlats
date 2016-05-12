@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/home_parent_view"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/home_parent_view"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="#E0E0E0"
@@ -33,10 +33,10 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@+id/text_view_today"
+        android:paddingEnd="12dp"
         android:paddingLeft="12dp"
-        android:paddingStart="12dp"
         android:paddingRight="12dp"
-        android:paddingEnd="12dp">
+        android:paddingStart="12dp">
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/task_recycler_view"
@@ -58,29 +58,32 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true">
+        android:layout_centerVertical="true"
+        android:visibility="invisible">
 
         <ImageView
             android:id="@+id/no_tasks_icon"
-            android:src="@drawable/ic_event_available_white_48dp"
             android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
-            android:layout_height="wrap_content"/>
+            android:src="@drawable/ic_event_available_white_48dp" />
+
         <TextView
             android:id="@+id/done_for_today"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_below="@id/no_tasks_icon"
             android:text="You're done for the day!"
-            android:textSize="25sp"
             android:textColor="@android:color/white"
-            android:layout_below="@id/no_tasks_icon"/>
+            android:textSize="25sp" />
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Enjoy your afternoon"
-            android:textSize="18sp"
-            android:textColor="@android:color/white"
+            android:layout_below="@id/done_for_today"
             android:layout_centerHorizontal="true"
-            android:layout_below="@id/done_for_today"/>
+            android:text="Enjoy your afternoon"
+            android:textColor="@android:color/white"
+            android:textSize="18sp" />
     </RelativeLayout>
 </RelativeLayout>

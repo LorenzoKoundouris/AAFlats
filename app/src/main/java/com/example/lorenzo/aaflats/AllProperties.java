@@ -55,8 +55,10 @@ public class AllProperties extends AppCompatActivity {
         });
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+        // Define recycler-view component
         setupRecyclerview();
 
+        // Initialise manual refresh component
         refreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_layout_allproperties);
         refreshLayout.setColorSchemeResources(
                 R.color.refresh_progress_2,
@@ -69,7 +71,7 @@ public class AllProperties extends AppCompatActivity {
                 handler.postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        // Do something after 2s = 2000ms
+                        // Delay filling recycler-view to demo manual refresh for 2s = 2000ms
                         setRecyclerAdapterContents(propertyList);
                     }
                 }, 2000);
@@ -77,11 +79,8 @@ public class AllProperties extends AppCompatActivity {
             }
         });
 
-//        propertyRecyclerView = (RecyclerView) findViewById(R.id.properties_recycler_view);
-//        propertyRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-
+        //Get all property objects and order then alphabetically
         Firebase propertiesRef = new Firebase(getResources().getString(R.string.properties_location));
-
         propertiesRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -122,11 +121,20 @@ public class AllProperties extends AppCompatActivity {
         });
     }//End of onCreate
 
+    /**
+     * Initialise recycler-view
+     */
     private void setupRecyclerview() {
         propertyRecyclerView = (RecyclerView) findViewById(R.id.properties_recycler_view);
         propertyRecyclerView.setLayoutManager(new LinearLayoutManager(this));
     }
 
+
+    /**
+     * Load recycler-view with the extracted list of Properties
+     *
+     * @param propertyList list of Property objects extracted from Firebase
+     */
     private void setRecyclerAdapterContents(ArrayList<Property> propertyList) {
         propertyRecyclerView.setAdapter(new PropertyAdapter(propertyList));
         if (!notFirstLoad) {
@@ -134,7 +142,7 @@ public class AllProperties extends AppCompatActivity {
             handler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    // Do something after 2s = 2000ms
+                    // During first app launch, demo refresh animation
                     propertyRecyclerView.setVisibility(View.VISIBLE);
                     ProgressBar mProgressBar = (ProgressBar) findViewById(R.id.progressBar_allproperties);
                     mProgressBar.setVisibility(View.INVISIBLE);
@@ -145,6 +153,9 @@ public class AllProperties extends AppCompatActivity {
         refreshLayout.setRefreshing(false);
     }
 
+    /**
+     * Clear activity from memory when user presses back
+     */
     @Override
     public void onBackPressed() {
         finish();
@@ -154,13 +165,18 @@ public class AllProperties extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                //Toast.makeText(getApplicationContext(), "Back button clicked", Toast.LENGTH_SHORT).show();
                 onBackPressed();
                 break;
         }
         return true;
     }
 
+    /**
+     * Search through Properties by Address-Line-1 or Postcode
+     *
+     * @param menu is the toolbar menu containing the search icon
+     * @return inflated menu
+     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.search_view, menu);
@@ -172,7 +188,7 @@ public class AllProperties extends AppCompatActivity {
 
             @Override
             public boolean onQueryTextSubmit(String query) {
-                //Perform final search
+                // Query properties
                 searchQuery.clear();
                 boolean exactMatch = false;
                 for (int i = 0; i < propertyList.size(); i++) {
@@ -201,24 +217,14 @@ public class AllProperties extends AppCompatActivity {
             }
         });
 
-
-//        MenuInflater menuInflater = getMenuInflater();
-//        menuInflater.inflate(R.menu.search_view, menu);
-//
-//        MenuItem searchItem = menu.findItem(R.id.action_search);
-//
-//        SearchManager searchManager = (SearchManager) AllProperties.this.getSystemService(Context.SEARCH_SERVICE);
-//
-//        SearchView searchView = null;
-//        if (searchItem != null) {
-//            searchView = (SearchView) searchItem.getActionView();
-//        }
-//        if (searchView != null) {
-//            searchView.setSearchableInfo(searchManager.getSearchableInfo(AllProperties.this.getComponentName()));
-//        }
         return super.onCreateOptionsMenu(menu);
     }
 
+    /**
+     * Re-populate the recycler-view with the search results only
+     *
+     * @param newText is the search query entered by the user
+     */
     private void loadResults(String newText) {
         searchQuery.clear();
         for (int i = 0; i < propertyList.size(); i++) {

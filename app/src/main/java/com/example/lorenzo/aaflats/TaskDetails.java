@@ -227,7 +227,6 @@ public class TaskDetails extends AppCompatActivity {
         mDescription.setText(edittedTask.getDescription());
         mNotes.setText(edittedTask.getNotes());
 
-
 //        editor.putString("taskTitle", parceableTask.getTitle());
 //        editor.putString("taskProperty", splitAddress[0].trim());
 //        editor.putString("taskFlat", splitAddress[1].trim());
@@ -337,9 +336,9 @@ public class TaskDetails extends AppCompatActivity {
                 try {
                     String lc = associatedTaskReport.getContent();
                     if (associatedTaskReport.getContent().length() > 23) {
-                        mCardText.setText("\"" + lc.substring(0, 20) + "..." + "\"");
+                        mCardText.setText("\"" + lc.substring(0, 20) + "...\"");
                     } else {
-                        mCardText.setText("\"" + lc + "\"");
+                        mCardText.setText("\"" + lc + "...\"");
                     }
                     mReportTimestamp.setText(associatedTaskReport.getTimestamp());
                     mReportSender.setText(associatedTaskReport.getSender());
@@ -379,9 +378,9 @@ public class TaskDetails extends AppCompatActivity {
                     reportList.add(firebaseReport);
 //                    reportKeys.add(childSnap.getKey()); //list of keys of each report
                     if (firebaseReport.getContent().length() > 23) {
-                        reportTitles.add(firebaseReport.getContent().substring(0, 20) + "...");
+                        reportTitles.add("\"" + firebaseReport.getContent().substring(0, 20) + "...\"");
                     } else {
-                        reportTitles.add(firebaseReport.getContent());
+                        reportTitles.add("\"" + firebaseReport.getContent() + "...\"");
                     }
                 }
                 String[] arrayReportTitles = new String[reportTitles.size()];
@@ -418,6 +417,7 @@ public class TaskDetails extends AppCompatActivity {
                         mCardText.setText("ATTACH A REPORT");
                         mCardText.setTypeface(null, Typeface.NORMAL);
                         mReportView.setVisibility(View.GONE);
+                        edittedTask.setReport("");
                     }
                 });
                 final AlertDialog alertDialog = alertBuilder.create();
@@ -440,7 +440,7 @@ public class TaskDetails extends AppCompatActivity {
         seenNotif.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                for(DataSnapshot childSnap : dataSnapshot.getChildren()){
+                for (DataSnapshot childSnap : dataSnapshot.getChildren()) {
                     Notification ntf = childSnap.getValue(Notification.class);
                     String delNotifURL = notifRef + "/" + childSnap.getKey();
                     deleteNotif = new Firebase(delNotifURL);
@@ -668,7 +668,7 @@ public class TaskDetails extends AppCompatActivity {
 
     private void attachReport(Report attachedReport) {
         edittedReport = attachedReport;
-        edittedTask.setReport(attachedReport.getReportKey());
+        edittedTask.setReport(edittedReport.getReportKey());
     }
 
     @Override
@@ -775,15 +775,15 @@ public class TaskDetails extends AppCompatActivity {
         mFlat.setSelection(flatAdapter.getPosition(splitAddress[1]));
         mDescription.setText(parceableTask.getDescription());
         mPriority.setSelection(priorityAdapter.getPosition(parceableTask.getPriority()));
-        try{
+        try {
             mCardText.setText("\"" + associatedTaskReport.getContent().substring(0, 20) + "...\"");
-        } catch(Exception ignored){
-            mCardText.setText(null);
+        } catch (Exception ignored) {
+            mCardText.setText("ATTACH A REPORT");
         }
-        try{
+        try {
             mNotes.setText(parceableTask.getNotes());
-        } catch(Exception ignored){
-            mNotes.setText("ATTACH A REPORT");
+        } catch (Exception ignored) {
+            mNotes.setText(null);
         }
 
         disableComponents();
@@ -890,14 +890,18 @@ public class TaskDetails extends AppCompatActivity {
 //        String priority = mPriority.getSelectedItem().toString();
         edittedTask.setPriority(mPriority.getSelectedItem().toString());
 //        String report = mReport;
-        try{
-            edittedTask.setReport(edittedReport.getReportKey());
-        }catch (Exception e){
-            edittedTask.setReport(null);
-        }
-        try{
+
+
+
+
+//        try {
+//            edittedTask.setReport(edittedReport.getReportKey());
+//        } catch (Exception e) {
+//            edittedTask.setReport(null);
+//        }
+        try {
             edittedTask.setNotes(mNotes.getText().toString().trim());
-        }catch (Exception e){
+        } catch (Exception e) {
             edittedTask.setNotes(null);
         }
 
@@ -1106,7 +1110,7 @@ public class TaskDetails extends AppCompatActivity {
         }
     }
 
-    public void disableComponents(){
+    public void disableComponents() {
         mTargetDate.setEnabled(false);
         mStaffAssigned.setEnabled(false);
         mTitle.setEnabled(false);
@@ -1114,7 +1118,7 @@ public class TaskDetails extends AppCompatActivity {
         mFlat.setEnabled(false);
         mDescription.setEnabled(false);
         mPriority.setEnabled(false);
-        mCardText.setClickable(false);
+        mCardText.setEnabled(false);
         mNotes.setEnabled(false);
 
         mTargetDate.setTextColor(getResources().getColor(R.color.grey_color));
@@ -1140,7 +1144,7 @@ public class TaskDetails extends AppCompatActivity {
             mDescription.setEnabled(true);
             mNotes.setEnabled(true);
             mPriority.setEnabled(true);
-            mCardText.setClickable(true);
+            mCardText.setEnabled(true);
 
             mTargetDate.addTextChangedListener(new TextWatcher() {
                 @Override
@@ -1155,7 +1159,7 @@ public class TaskDetails extends AppCompatActivity {
 
                 @Override
                 public void afterTextChanged(Editable s) {
-                    if (mTargetDate.getText().toString().matches(mSharedPreferences.getString("taskTargetDate", "crashDate"))) {
+                    if (mTargetDate.getText().toString().matches(parceableTask.getTargetDate())) {//mSharedPreferences.getString("taskTargetDate", "crashDate")
                         mTargetDate.setTextColor(getResources().getColor(R.color.black_color));
                     } else {
                         mTargetDate.setTextColor(Color.parseColor("#FF5722"));
@@ -1176,7 +1180,7 @@ public class TaskDetails extends AppCompatActivity {
 
                 @Override
                 public void afterTextChanged(Editable s) {
-                    if (mStaffAssigned.getText().toString().matches(mSharedPreferences.getString("taskStaff", "crashStaff"))) {
+                    if (mStaffAssigned.getText().toString().matches(parceableTask.getAssignedStaff())) {//mSharedPreferences.getString("taskStaff", "crashStaff")
                         mStaffAssigned.setTextColor(getResources().getColor(R.color.black_color));
                     } else {
                         mStaffAssigned.setTextColor(Color.parseColor("#FF5722"));
@@ -1197,7 +1201,7 @@ public class TaskDetails extends AppCompatActivity {
 
                 @Override
                 public void afterTextChanged(Editable s) {
-                    if (mTitle.getText().toString().matches(mSharedPreferences.getString("taskTitle", "crashTitle"))) {
+                    if (mTitle.getText().toString().matches(parceableTask.getTitle())) {//mSharedPreferences.getString("taskTitle", "crashTitle")
                         mTitle.setTextColor(getResources().getColor(R.color.black_color));
                     } else {
                         mTitle.setTextColor(Color.parseColor("#FF5722"));
@@ -1218,7 +1222,7 @@ public class TaskDetails extends AppCompatActivity {
 
                 @Override
                 public void afterTextChanged(Editable s) {
-                    if (mProperty.getText().toString().matches(mSharedPreferences.getString("taskProperty", "crashProperty"))) {
+                    if (mProperty.getText().toString().matches(parceableTask.getProperty())) {//mSharedPreferences.getString("taskProperty", "crashProperty")
                         mProperty.setTextColor(getResources().getColor(R.color.black_color));
                     } else {
                         mProperty.setTextColor(Color.parseColor("#FF5722"));
@@ -1240,7 +1244,7 @@ public class TaskDetails extends AppCompatActivity {
 
                 @Override
                 public void afterTextChanged(Editable s) {
-                    if (mDescription.getText().toString().matches(mSharedPreferences.getString("taskDescription", "crashDescription"))) {
+                    if (mDescription.getText().toString().matches(parceableTask.getDescription())) {//mSharedPreferences.getString("taskDescription", "crashDescription")
                         mDescription.setTextColor(getResources().getColor(R.color.black_color));
                     } else {
                         mDescription.setTextColor(Color.parseColor("#FF5722"));
@@ -1262,7 +1266,7 @@ public class TaskDetails extends AppCompatActivity {
 
                 @Override
                 public void afterTextChanged(Editable s) {
-                    if (mNotes.getText().toString().matches(mSharedPreferences.getString("taskNotes", "crashNotes"))) {
+                    if (mNotes.getText().toString().matches(parceableTask.getNotes())) {//mSharedPreferences.getString("taskNotes", "crashNotes")
                         mNotes.setTextColor(getResources().getColor(R.color.black_color));
                     } else {
                         mNotes.setTextColor(Color.parseColor("#FF5722"));
@@ -1284,12 +1288,13 @@ public class TaskDetails extends AppCompatActivity {
 
                 @Override
                 public void afterTextChanged(Editable s) {
-                    if (mCardText.getText().toString().matches(mSharedPreferences.getString("btReportText", "crashbtReportText"))) {
-                        mCardText.setTextColor(getResources().getColor(R.color.black_color));
-                    } else {
-                        mCardText.setTextColor(Color.parseColor("#FF5722"));
+                    if(associatedTaskReport != null){
+                        if (mCardText.getText().toString().matches("\"" + associatedTaskReport.getContent().substring(0, 20) + "...\"")) {//mSharedPreferences.getString("btReportText", "crashbtReportText")
+                            mCardText.setTextColor(Color.parseColor("#FFFFFF"));
+                        } else {
+                            mCardText.setTextColor(Color.parseColor("#FF5722"));
+                        }
                     }
-
                 }
             });
 

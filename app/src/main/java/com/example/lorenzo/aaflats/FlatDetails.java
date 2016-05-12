@@ -31,7 +31,7 @@ public class FlatDetails extends AppCompatActivity {
 //    private String parceablePropertyKey;
 //    private String parceableFlatKey;
     ArrayList<Property> propertyList = new ArrayList<>();
-
+    Bundle intent;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -51,8 +51,9 @@ public class FlatDetails extends AppCompatActivity {
             }
         });
 
-        Bundle intent = getIntent().getExtras();
+        intent = getIntent().getExtras();
         final Flat parceableFlat = intent.getParcelable("parceable_flat");
+
 //        parceableFlatKey = intent.getString("parceable_flat_key");
 //        parceableProperty = intent.getParcelable("parceable_property");
 //        parceablePropertyKey = intent.getString("parceable_property_key");
@@ -158,11 +159,17 @@ public class FlatDetails extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        Intent intent = new Intent(this, PropertyDetails.class);
-        intent.putExtra("parceable_property", propertyList.get(0));
+
+        boolean fromScanner = intent.getBoolean("from_scanner", false);
+        if(fromScanner){
+            startActivity(new Intent(this, ScanQR.class));
+        } else {
+            Intent propIntent = new Intent(this, PropertyDetails.class);
+            propIntent.putExtra("parceable_property", propertyList.get(0));
 //        intent.putExtra("parceable_property_key", parceablePropertyKey);
 //        System.out.println(parceableProperty.getAddrline1() + "  -  " + parceablePropertyKey);
-        this.startActivity(intent);
+            this.startActivity(propIntent);
+        }
         finish();
     }
 

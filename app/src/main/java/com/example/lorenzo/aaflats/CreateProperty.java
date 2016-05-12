@@ -44,10 +44,12 @@ public class CreateProperty extends AppCompatActivity {
 
         Firebase propertyRef = new Firebase(getString(R.string.properties_location));
 
+        // Initialise components
         etNewPropertyPostcode = (EditText) findViewById(R.id.np_postcode_editview);
         etNewPropertyAddressLine1 = (EditText) findViewById(R.id.np_address_editview);
         etNewPropertyNotes = (EditText) findViewById(R.id.np_notes_editview);
 
+        // Retrieve all properties
         propertyRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -68,11 +70,12 @@ public class CreateProperty extends AppCompatActivity {
             }
         });
 
+        // Warn user of missing postcode
         etNewPropertyPostcode.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if (hasFocus) {
-                    etNewPropertyPostcode.setBackgroundColor(Color.parseColor("#ffffff"));
+                    etNewPropertyPostcode.setBackgroundColor(Color.parseColor("#FAFAFA"));
                 }
                 if (!hasFocus && etNewPropertyPostcode.getText().toString().matches("")) {
                     Toast toast = Toast.makeText(CreateProperty.this, "No postcode ?", Toast.LENGTH_SHORT);
@@ -82,12 +85,12 @@ public class CreateProperty extends AppCompatActivity {
             }
         });
 
-
+        // Warn user of missing address line 1
         etNewPropertyAddressLine1.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if (hasFocus) {
-                    etNewPropertyAddressLine1.setBackgroundColor(Color.parseColor("#ffffff"));
+                    etNewPropertyAddressLine1.setBackgroundColor(Color.parseColor("#FAFAFA"));
                 }
                 if (!hasFocus && etNewPropertyAddressLine1.getText().toString().matches("")) {
                     Toast toast = Toast.makeText(CreateProperty.this, "No address ?", Toast.LENGTH_SHORT);
@@ -97,6 +100,7 @@ public class CreateProperty extends AppCompatActivity {
             }
         });
 
+        // Warn user of missing notes
         etNewPropertyNotes.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
@@ -109,6 +113,11 @@ public class CreateProperty extends AppCompatActivity {
         });
     }
 
+    /**
+     * Verify is postcode is valid UK format
+     * @param pc is postcode entered
+     * @return boolean
+     */
     public boolean isValidPostcodeFormat(String pc) {
         validPostcode = false;
         String pcRegex = "^[A-Z]{1,2}[0-9R][0-9A-Z]? [0-9][ABD-HJLNP-UW-Z]{2}$";
@@ -135,6 +144,9 @@ public class CreateProperty extends AppCompatActivity {
         return true;
     }
 
+    /**
+     * Handle leaving activity early
+     */
     @Override
     public void onBackPressed() {
         new AlertDialog.Builder(this)
@@ -170,6 +182,9 @@ public class CreateProperty extends AppCompatActivity {
         return true;
     }
 
+    /**
+     * Since data is valid, create new property and push to Firebase
+     */
     private void saveNewProperty() {
         validateData();
 
@@ -183,9 +198,7 @@ public class CreateProperty extends AppCompatActivity {
             Firebase newPropertyRef = new Firebase(getString(R.string.properties_location));
             newPropertyRef.push().setValue(newProperty);
 
-//            propertyList.add(newProperty);
-//            propertyAddrLine1s.add(newProperty.getAddrline1());
-
+            // Alert user of success and prompt to add flats to new property
             new AlertDialog.Builder(this)
                     .setIcon(android.R.drawable.ic_dialog_alert)
                     .setTitle("Success")
@@ -212,16 +225,11 @@ public class CreateProperty extends AppCompatActivity {
                     .show();
 
         }
-//        else {
-//            new AlertDialog.Builder(this)
-//                    .setIcon(android.R.drawable.ic_dialog_alert)
-//                    .setTitle("Error")
-//                    .setMessage("All fields must contain valid data before saving.")
-//                    .setPositiveButton(android.R.string.ok, null)
-//                    .show();
-//        }
     }
 
+    /**
+     * Verify all data entered is valid
+     */
     private void validateData() {
 
         if (etNewPropertyPostcode.getText().toString().matches("")) {

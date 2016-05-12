@@ -42,7 +42,6 @@ public class AllReports extends AppCompatActivity {
     private RecyclerView reportRecyclerView;
     private boolean notFirstLoad = false;
     private ArrayList<Report> searchQuery = new ArrayList<>();
-
     private ArrayList<Report> reportList = new ArrayList<>();
 
     @Override
@@ -56,8 +55,8 @@ public class AllReports extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+//                        .setAction("Action", null).show();
                 startActivity(new Intent(AllReports.this, Inbox.class));
             }
         });
@@ -65,7 +64,7 @@ public class AllReports extends AppCompatActivity {
 
         setTitle("All reports");
 
-
+        // Initialise manual refresh component
         refreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_layout_allreports);
         refreshLayout.setColorSchemeResources(
                 R.color.refresh_progress_2,
@@ -78,14 +77,14 @@ public class AllReports extends AppCompatActivity {
                 handler.postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        // Do something after 2s = 2000ms
+                        // Delay filling recycler-view to demo manual refresh for 2s = 2000ms
                         setRecyclerAdapterContents(reportList);
                     }
                 }, 2000);
             }
         });
 
-
+        //Get report-type tenant correspondence only
         Firebase reportRef = new Firebase(getResources().getString(R.string.reports_location));
         Query reportsOnly = reportRef.orderByChild("type").equalTo("Report");
         reportsOnly.addValueEventListener(new ValueEventListener() {
@@ -98,24 +97,12 @@ public class AllReports extends AppCompatActivity {
                     reportList.add(rpt);
                 }
 
-//                getTMDate(reportList);
-
                 Collections.sort(reportList, new Comparator<Report>() {
                     @Override
                     public int compare(Report lhs, Report rhs) {
-//                        Timestamp tm = new Timestamp(Long.valueOf(rhs.getTimestamp()).longValue());
-//                        Timestamp tm2 = new Timestamp(Long.valueOf(lhs.getTimestamp()).longValue());
-
                         return getTMDate(rhs.getTimestamp()).compareTo(getTMDate(lhs.getTimestamp()));
-//                        rhs.getTimestamp().compareTo(lhs.getTimestamp());
                     }
                 });
-//                Collections.sort(reportList, new Comparator<Report>() {
-//                    @Override
-//                    public int compare(Report lhs, Report rhs) {
-//                        return rhs.getTimestamp().compareTo(lhs.getTimestamp());
-//                    }
-//                });
 
                 setRecyclerAdapterContents(reportList);
             }
@@ -128,6 +115,13 @@ public class AllReports extends AppCompatActivity {
         setupRecyclerview();
     }//End of onCreate
 
+    /**
+     * Convert timestamp attribute to Date object format
+     * ddMMyyyyHHmmss -> dd/MM/yyyy
+     * @param timestamp is an attribute of Report object signifying
+     * millisecond moment it was sent by tenant
+     * @return Date variable
+     */
     private Date getTMDate(String timestamp) {
         DateFormat dFormat = new SimpleDateFormat("ddMMyyyyHHmmss", Locale.ENGLISH);
         Date tsDate = null;//timestamp.getTime()
@@ -136,26 +130,30 @@ public class AllReports extends AppCompatActivity {
         } catch (ParseException e) {
             e.printStackTrace();
         }
-//        Date thisD = new Date();
-//        Timestamp timestamp1 = new Timestamp(thisD.getTime());
         return tsDate;
     }
 
-
-    private void setupRecyclerview(){
+    /**
+     * Initialise recycler-view
+     */
+    private void setupRecyclerview() {
         reportRecyclerView = (RecyclerView) findViewById(R.id.reports_recycler_view);
         reportRecyclerView.setLayoutManager(new LinearLayoutManager(this));
     }
 
-
-    private void setRecyclerAdapterContents(ArrayList<Report> reportList){
+    /**
+     * Load recycler-view with the extracted list of Reports
+     *
+     * @param reportList list of Report objects extracted from Firebase
+     */
+    private void setRecyclerAdapterContents(ArrayList<Report> reportList) {
         reportRecyclerView.setAdapter(new ReportAdapter(reportList));
-        if(!notFirstLoad){
+        if (!notFirstLoad) {
             final Handler handler = new Handler();
             handler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    // Do something after 2s = 2000ms
+                    // During first app launch, demo refresh animation
                     reportRecyclerView.setVisibility(View.VISIBLE);
                     ProgressBar mProgressBar = (ProgressBar) findViewById(R.id.progressBar_allreports);
                     mProgressBar.setVisibility(View.INVISIBLE);
@@ -166,6 +164,11 @@ public class AllReports extends AppCompatActivity {
         refreshLayout.setRefreshing(false);
     }
 
+    /**
+     * Handle menu item selection
+     * @param item is a menu item in toolbar menu that has been selected by user
+     * @return true
+     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -177,6 +180,11 @@ public class AllReports extends AppCompatActivity {
         return true;
     }
 
+    /**
+     * Search through Reports by report-key or sender or content
+     * @param menu inflated toolbar menu
+     * @return inflated menu
+     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.search_view, menu);
@@ -188,7 +196,7 @@ public class AllReports extends AppCompatActivity {
 
             @Override
             public boolean onQueryTextSubmit(String query) {
-                //Perform final search
+                //Query reports
                 searchQuery.clear();
                 boolean exactMatch = false;
                 for (int i = 0; i < reportList.size(); i++) {
@@ -219,6 +227,10 @@ public class AllReports extends AppCompatActivity {
         return super.onCreateOptionsMenu(menu);
     }
 
+    /**
+     * Re-populate the recycler-view with the search results only
+     * @param newText is the search query entered by the user
+     */
     private void loadResults(String newText) {
         searchQuery.clear();
         for (int i = 0; i < reportList.size(); i++) {
@@ -231,7 +243,6 @@ public class AllReports extends AppCompatActivity {
         }
         setRecyclerAdapterContents(searchQuery);
     }
-
 
 
 }

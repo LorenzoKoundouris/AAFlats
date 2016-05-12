@@ -45,6 +45,7 @@ public class EnquiryFragment extends Fragment {
         onlyEnquiries.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+                enquiryList.clear();
                 for (DataSnapshot childSnap : dataSnapshot.getChildren()) {
                     Report rpt = childSnap.getValue(Report.class);
                     rpt.setReportKey(childSnap.getKey());

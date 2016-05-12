@@ -28,6 +28,7 @@ public class ScanQR extends AppCompatActivity implements ZBarScannerView.ResultH
 
     private boolean fromHome;
     private int attempts = 0;
+    private Context context;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +42,8 @@ public class ScanQR extends AppCompatActivity implements ZBarScannerView.ResultH
 
         Bundle intent = getIntent().getExtras();
         fromHome = intent.getBoolean("fromHome");
+
+        context = this;
 
         Firebase flatRef = new Firebase(getResources().getString(R.string.flats_location));
         flatRef.addValueEventListener(new ValueEventListener() {
@@ -76,7 +79,7 @@ public class ScanQR extends AppCompatActivity implements ZBarScannerView.ResultH
     }
 
     @Override
-    public void handleResult(Result result) {
+    public void handleResult(final Result result) {
         // Do something with the result here
 //        Log.v(TAG, result.getContents()); // Prints scan results
 //        Log.v(TAG, result.getBarcodeFormat().getName()); // Prints the scan format (qrcode, pdf417 etc.)
@@ -89,13 +92,14 @@ public class ScanQR extends AppCompatActivity implements ZBarScannerView.ResultH
         boolean foundFlat = false;
         Flat tempF;
         String tempS;
-        if(fromHome){
+        if (fromHome) {
             for (int i = 0; i < flatList.size(); i++) {
                 tempF = flatList.get(i);
                 tempS = tempF.getAddressLine1() + " - " + tempF.getFlatNum();
                 if (tempS.matches(result.getContents()) && fromHome) {
                     mScannerView.stopCamera();
-                    startActivity(new Intent(ScanQR.this, FlatDetails.class).putExtra("parceable_flat", tempF));
+
+                    startActivity(new Intent(ScanQR.this, FlatDetails.class).putExtra("parceable_flat", tempF).putExtra("from_scanner", true));
                     foundFlat = true;
                     break;
                 }
@@ -117,32 +121,35 @@ public class ScanQR extends AppCompatActivity implements ZBarScannerView.ResultH
         if (!foundFlat) {
             attempts++;
             if (attempts > 3) {
-                mScannerView.stopCamera();
-                new AlertDialog.Builder(this)
-                        .setTitle("Error")
-                        .setMessage("There seems to be a problem with this QR. Would you like to try again?")
-                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                attempts = 0;
-                            }
-                        })
-                        .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                if (fromHome) {
-                                    startActivity(new Intent(ScanQR.this, Homepage.class));
-                                } else {
-                                    startActivity(new Intent(ScanQR.this, LoginActivity.class));
-                                }
-                            }
-                        })
-                        .setIcon(android.R.drawable.ic_dialog_alert)
-                        .show();
-
+                onPause();
+                flatNotFound();
             }
         }
 
-        // If you would like to resume scanning, call this method below:
         mScannerView.resumeCameraPreview(this);
+    }
+
+    private void flatNotFound() {
+        new AlertDialog.Builder(this)
+                .setTitle("Error")
+                .setMessage("There seems to be a problem with this QR. Would you like to try again?")
+                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        attempts = 0;
+                        onResume();
+                    }
+                })
+                .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        if (fromHome) {
+                            startActivity(new Intent(ScanQR.this, Homepage.class));
+                        } else {
+                            startActivity(new Intent(ScanQR.this, LoginActivity.class));
+                        }
+                    }
+                })
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .show();
     }
 
     @Override
@@ -152,7 +159,7 @@ public class ScanQR extends AppCompatActivity implements ZBarScannerView.ResultH
             startActivity(new Intent(ScanQR.this, Homepage.class));
             finish();
         } else {
-            startActivity(new Intent(ScanQR.this, LoginActivity.class));
+            startActivity(new Intent(ScanQR.this, SplashActivity.class));
             finish();
         }
     }

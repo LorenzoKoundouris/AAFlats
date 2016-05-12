@@ -47,6 +47,7 @@ public class ReportFragment extends Fragment {
         onlyReports.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+                reportList.clear();
                 for (DataSnapshot childSnap : dataSnapshot.getChildren()) {
                     Report rpt = childSnap.getValue(Report.class);
                     rpt.setReportKey(childSnap.getKey());

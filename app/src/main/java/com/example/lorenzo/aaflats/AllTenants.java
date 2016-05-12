@@ -47,6 +47,7 @@ public class AllTenants extends AppCompatActivity {
 
         setTitle("All tenants");
 
+        // Define recycler-view component
         setupRecyclerview();
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -58,9 +59,11 @@ public class AllTenants extends AppCompatActivity {
         });
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+        // Initialise recycler-view component
         tenantRecyclerView = (RecyclerView) findViewById(R.id.tenants_recycler_view);
         tenantRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 
+        // Initialise manual refresh component
         refreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_layout_alltenants);
         refreshLayout.setColorSchemeResources(
                 R.color.refresh_progress_2,
@@ -73,7 +76,7 @@ public class AllTenants extends AppCompatActivity {
                 handler.postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                        // Do something after 2s = 2000ms
+                        // Delay filling recycler-view to demo manual refresh for 2s = 2000ms
                         setRecyclerAdapterContents(tenantList);
                     }
                 }, 2000);
@@ -81,14 +84,12 @@ public class AllTenants extends AppCompatActivity {
             }
         });
 
-
+        // Get all tenants and sort them alphabetically by surname
         Firebase tenantsRef = new Firebase(getResources().getString(R.string.tenants_location));
-
         tenantsRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 tenantList.clear();
-
                 for(DataSnapshot childSnap : dataSnapshot.getChildren()){
                     Tenant tnt = childSnap.getValue(Tenant.class);
                     tnt.setTenantKey(childSnap.getKey());
@@ -109,13 +110,21 @@ public class AllTenants extends AppCompatActivity {
 
             }
         });
-    }
+    } // End of onCreate
 
+    /**
+     * Initialise recycler-view
+     */
     private void setupRecyclerview() {
         tenantRecyclerView = (RecyclerView) findViewById(R.id.tenants_recycler_view);
         tenantRecyclerView.setLayoutManager(new LinearLayoutManager(this));
     }
 
+    /**
+     * Load recycler-view with the extracted list of Properties
+     *
+     * @param tenantList list of Tenant objects extracted from Firebase
+     */
     private void setRecyclerAdapterContents(ArrayList<Tenant> tenantList) {
         tenantRecyclerView.setAdapter(new TenantAdapter(tenantList, this));
         if (!notFirstLoad) {
@@ -123,7 +132,7 @@ public class AllTenants extends AppCompatActivity {
             handler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    // Do something after 2s = 2000ms
+                    // During first app launch, demo refresh animation
                     tenantRecyclerView.setVisibility(View.VISIBLE);
                     ProgressBar mProgressBar = (ProgressBar) findViewById(R.id.progressBar_alltenants);
                     mProgressBar.setVisibility(View.INVISIBLE);
@@ -134,7 +143,13 @@ public class AllTenants extends AppCompatActivity {
         refreshLayout.setRefreshing(false);
     }
 
-
+    /**
+     * Search through Tenants by full name ((name surname) or (surname name))
+     * or Postcode or email address or telephone number
+     *
+     * @param menu is the toolbar menu containing the search icon
+     * @return inflated menu
+     */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.search_view, menu);
@@ -146,7 +161,7 @@ public class AllTenants extends AppCompatActivity {
 
             @Override
             public boolean onQueryTextSubmit(String query) {
-                //Perform final search
+                //Query tenants
                 searchQuery.clear();
                 boolean exactMatch = false;
                 for (int i = 0; i < tenantList.size(); i++) {
@@ -180,6 +195,12 @@ public class AllTenants extends AppCompatActivity {
         return super.onCreateOptionsMenu(menu);
     }
 
+
+    /**
+     * Re-populate the recycler-view with the search results only
+     *
+     * @param newText is the search query entered by the user
+     */
     private void loadResults(String newText) {
         searchQuery.clear();
         for (int i = 0; i < tenantList.size(); i++) {

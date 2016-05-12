@@ -50,17 +50,18 @@ public class ComposeNew extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
+        //Get extras
         Bundle extras = getIntent().getExtras();
         int parceableComposeType = Integer.parseInt(extras.getString("composeType"));
         final Tenant parceableTenant = extras.getParcelable("parceable_tenant");
         final Flat parceableFlat = extras.getParcelable("parceable_flat");
 
-
         reportRef = new Firebase(getResources().getString(R.string.reports_location));
 
+        // Initialise correspondence type: Report - Enquiry
         typeSpinner = (Spinner) findViewById(R.id.type_spinner);
         SpinnerAdapter typeAdapter = ArrayAdapter.createFromResource(this, R.array.report_enquiry,
-                        R.layout.spinner_dropdown_item2);
+                R.layout.spinner_dropdown_item2);
         typeSpinner.setAdapter(typeAdapter);
         typeSpinner.setSelection(parceableComposeType);
 
@@ -74,6 +75,7 @@ public class ComposeNew extends AppCompatActivity {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
+                // Display count of characters tenant has typed
                 charsTyped.setText(Html.fromHtml(String.valueOf(composition.length()) +
                         "<font color = '#FF5722'><big><b> /250</b></big></font>"));
             }
@@ -84,7 +86,7 @@ public class ComposeNew extends AppCompatActivity {
             }
         });
 
-
+        // Send tenant report or enquiry
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.send_composition_fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -94,8 +96,8 @@ public class ComposeNew extends AppCompatActivity {
 
                 Report newReport = new Report();
 
-                if(composition.length() > 0){ //Maybe enforce additional requirements?
-                    try{
+                if (composition.length() > 0) { //ToDo: Maybe enforce additional requirements?
+                    try {
                         SimpleDateFormat s = new SimpleDateFormat("ddMMyyyyHHmmss");
                         String format = s.format(new Date());
                         newReport.setTimestamp(format);
@@ -106,10 +108,13 @@ public class ComposeNew extends AppCompatActivity {
                         newReport.setStatus("pending");
                         newReport.setReportKey("23");
 
+                        // Send to Firebase
                         reportRef.push().setValue(newReport);
 
+                        // Notify all staff
                         sendNotification(newReport);
 
+                        // Inform user of success
                         Toast toast = Toast.makeText(ComposeNew.this, newReport.getType() + " sent. SUCCESS!", Toast.LENGTH_SHORT);
                         toast.setGravity(Gravity.CENTER, 0, 0);
                         toast.show();
@@ -117,13 +122,13 @@ public class ComposeNew extends AppCompatActivity {
                         finish();
                         startActivity(new Intent(ComposeNew.this, TenantHomepage.class).putExtra("parceable_flat", parceableFlat));
 
-                    } catch(Exception ex){
+                    } catch (Exception ex) {
                         Toast toast = Toast.makeText(ComposeNew.this, newReport.getType() + " NOT sent. Failure!", Toast.LENGTH_SHORT);
                         toast.setGravity(Gravity.CENTER, 0, 0);
                         toast.show();
                     }
-                } else{
-
+                } else {
+                    // Handle attempt to send empty message
                     AlertDialog.Builder builder = new AlertDialog.Builder(view.getContext());
                     builder.setMessage("You have not typed anything in the message box.\"")
                             .setCancelable(false)
@@ -141,6 +146,11 @@ public class ComposeNew extends AppCompatActivity {
         });
     }
 
+    /**
+     * Sends a Notification object to Firebase
+     *
+     * @param newReport is the created report or enquiry
+     */
     private void sendNotification(final Report newReport) {
         final Firebase notifRef = new Firebase(getResources().getString(R.string.notifications_location));
         final Notification newNoti = new Notification();
@@ -149,7 +159,7 @@ public class ComposeNew extends AppCompatActivity {
         getReportKey.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                for(DataSnapshot childSnap : dataSnapshot.getChildren()){
+                for (DataSnapshot childSnap : dataSnapshot.getChildren()) {
                     newNoti.setObjectID(childSnap.getKey());
                 }
                 notifRef.push().setValue(newNoti);
@@ -177,6 +187,10 @@ public class ComposeNew extends AppCompatActivity {
         }
         return true;
     }
+
+    /**
+     * Handle early page-leaving
+     */
     @Override
     public void onBackPressed() {
         new AlertDialog.Builder(this)
@@ -193,5 +207,4 @@ public class ComposeNew extends AppCompatActivity {
                 .setNegativeButton("No", null)
                 .show();
     }
-
 }

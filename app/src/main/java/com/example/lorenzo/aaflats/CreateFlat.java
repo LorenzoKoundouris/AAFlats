@@ -36,14 +36,10 @@ import java.util.Set;
 
 public class CreateFlat extends AppCompatActivity {
 
-    private Flat newFlat;
-
     private InputMethodManager inputMethodManager;
-    private ArrayList<String> unassignedTenants = new ArrayList<>();
-    private boolean nonExistentTenant = false;
     Firebase tenantRef;
-    Tenant addedTenant;
-
+    private Tenant addedTenant;
+    private Flat newFlat = new Flat();
     private ArrayAdapter<String> propertyAdapter;
     private ArrayList<Property> propertyList = new ArrayList<>();
     private ArrayList<Flat> flatList = new ArrayList<>();
@@ -52,6 +48,7 @@ public class CreateFlat extends AppCompatActivity {
     private ArrayList<String> flatNums = new ArrayList<>();
     private ArrayList<String> nullFields = new ArrayList<>();
     private ArrayList<String> tenantFullNames = new ArrayList<>();
+    private ArrayList<String> unassignedTenants = new ArrayList<>();
     private AutoCompleteTextView actvProperty;
     private Property createdProperty;
     private EditText etFlatNum;
@@ -72,41 +69,42 @@ public class CreateFlat extends AppCompatActivity {
         setTitle("Create new Flat");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        //Define inputMethodService to hide keyboard
+        // Define inputMethodService to hide keyboard
         inputMethodManager = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
 
+        // Retrieve extras
         Bundle myIntent = getIntent().getExtras();
         etFlatNum = (EditText) findViewById(R.id.nf_number_edittext);
         etFlatNotes = (EditText) findViewById(R.id.nf_notes_editext);
         flatTenant = (AutoCompleteTextView) findViewById(R.id.actv_nf_tenant);
 
-//        getProperties();
+        // Initialise AutoCompleteTextView component and fill with property address line 1's
         actvProperty = (AutoCompleteTextView) findViewById(R.id.actv_recipient_property);
         propertyAdapter = new ArrayAdapter<>
                 (this, android.R.layout.simple_dropdown_item_1line, propertyAddrLine1s);
         actvProperty.setAdapter(propertyAdapter);
 
+        // If activity started from CreateProperty then Property object passed as extras
         if (myIntent != null) {
             createdProperty = myIntent.getParcelable("created_property");
-//            propertyList = myIntent.getParcelableArrayList("propertyList");
-//            propertyAddrLine1s = myIntent.getStringArrayList("propertyAddrLine1s");
             actvProperty.setText(createdProperty.getAddrline1());
-            newFlat.setAddressLine1(createdProperty.getAddrline1());
             loadCorrespondingFlats(createdProperty.getAddrline1());
         }
 
+        // On Property selection load corresponding flats i.e Flat 1, Flat 2, etc.
         actvProperty.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 loadCorrespondingFlats(actvProperty.getText().toString());
-//                getTenants();
             }
         });
 
+        // Load all tenants that are not currently living in a flat and have moved out.
         ArrayAdapter<String> tenantAdapter = new ArrayAdapter<>
                 (this, android.R.layout.simple_dropdown_item_1line, unassignedTenants); //tenantFullNames
         flatTenant.setAdapter(tenantAdapter);
 
+        // Get all flats from Firebase
         Firebase flatRef = new Firebase(getResources().getString(R.string.flats_location));
         flatRef.addValueEventListener(new ValueEventListener() {
             @Override
@@ -116,7 +114,7 @@ public class CreateFlat extends AppCompatActivity {
                 for (DataSnapshot childSnapShot : dataSnapshot.getChildren()) {
                     Flat flt = childSnapShot.getValue(Flat.class);
                     flatList.add(flt);
-                    flatNums.add(flt.getFlatNum());
+//                    flatNums.add(flt.getFlatNum());
 //                    propertyAddrLine1s.add(flt.getAddressLine1());
                 }
 //                Set<String> removeDuplicates = new HashSet<>();
@@ -131,6 +129,7 @@ public class CreateFlat extends AppCompatActivity {
             }
         });
 
+        // Get all properties in case activity started Homepage
         Firebase propertyRef = new Firebase(getResources().getString(R.string.properties_location));
         propertyRef.addValueEventListener(new ValueEventListener() {
             @Override
@@ -151,7 +150,7 @@ public class CreateFlat extends AppCompatActivity {
             }
         });
 
-        //Need this
+        // Retrieve all tenants from Firebase
         tenantRef = new Firebase(getResources().getString(R.string.tenants_location));
         tenantRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -187,181 +186,8 @@ public class CreateFlat extends AppCompatActivity {
             }
         });
 
-//        actvProperty.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-//            @Override
-//            public void onFocusChange(View v, boolean hasFocus) {
-//                boolean isProperty = false;
-//                if (!actvProperty.getText().toString().matches("")) {
-//                    for (int i = 0; i < propertyAddrLine1s.size(); i++) {
-//                        if (propertyAddrLine1s.get(i).matches(actvProperty.getText().toString().trim())) {
-//                            isProperty = true;
-//                            createdProperty = propertyList.get(i);
-//                            break;
-//                        }
-//                    }
-//                    if (!isProperty) {
-//                        new AlertDialog.Builder(v.getContext())
-//                                .setTitle("Wrong address")
-//                                .setMessage("You must enter an existing property")
-//                                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-//                                    public void onClick(DialogInterface dialog, int which) {
-//                                        actvProperty.setText("");
-//                                        actvProperty.requestFocus();
-//                                    }
-//                                })
-//                                .setIcon(android.R.drawable.ic_dialog_alert)
-//                                .show();
-//                        isValidAddress = false;
-//                    } else {
-//                        isValidAddress = true;
-//                    }
-//                }
-//            }
-//        });
 
-
-//        Firebase propertyRef = new Firebase(getResources().getString(R.string.properties_location));
-//        propertyRef.addValueEventListener(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(DataSnapshot dataSnapshot) {
-//                propertyList.clear();
-//                propertyAddrLine1s.clear();
-//                for (DataSnapshot prtSnapshot : dataSnapshot.getChildren()) {
-//                    Property prt = prtSnapshot.getValue(Property.class);
-//                    propertyList.add(prt);
-//                    propertyAddrLine1s.add(prt.getAddrline1());
-//                }
-////                System.out.print("I FOUND THIS : " + propertyAddrLine1s.get(0).toString());
-//            }
-//
-//            @Override
-//            public void onCancelled(FirebaseError firebaseError) {
-//                System.out.println("Property: " + "The read failed: " + firebaseError.getMessage());
-//            }
-//        });
-
-//        actvProperty.addTextChangedListener(new TextWatcher() {
-//            @Override
-//            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-//
-//            }
-//
-//            @Override
-//            public void onTextChanged(CharSequence s, int start, int before, int count) {
-//
-//            }
-//
-//            @Override
-//            public void afterTextChanged(Editable s) {
-//                if (actvProperty.getText().toString().matches("")) {
-//                    etFlatNum.setEnabled(false);
-//                    flatTenant.setEnabled(false);
-//                    addTenantBtn.setEnabled(false);
-//                    etFlatNotes.setEnabled(false);
-//                } else {
-//                    etFlatNum.setEnabled(true);
-//                    flatTenant.setEnabled(true);
-//                    addTenantBtn.setEnabled(true);
-//                    etFlatNotes.setEnabled(true);
-//                }
-//            }
-//        });
-
-//        flatTenant.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-//            @Override
-//            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-//                getTenants();
-//            }
-//        });
-
-//        flatTenant.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-//            @Override
-//            public void onFocusChange(View v, boolean hasFocus) {
-//                boolean isTenant = false;
-//                if (!hasFocus && !Objects.equals(flatTenant.getText().toString(), "")) {
-//                    int j = 0;
-//                    for (int i = 0; i < tenantFullNames.size(); i++) {
-//                        j++;
-//                        if (Objects.equals(tenantFullNames.get(i), flatTenant.getText().toString().trim())) {
-//                            isTenant = true;
-//                            break;
-//                        }
-//                    }
-//                    if (!isTenant) {
-//                        new AlertDialog.Builder(v.getContext())
-//                                .setTitle("Missing tenant")
-//                                .setMessage("That tenant was not found in records. Select one " +
-//                                        "from the list or create a new one.")
-//                                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-//                                    public void onClick(DialogInterface dialog, int which) {
-//                                        flatTenant.setText("");
-//                                    }
-//                                })
-//                                .setIcon(android.R.drawable.ic_dialog_alert)
-//                                .show();
-//                    } else {
-//                        if (Objects.equals(tenantList.get(j).isCurrentTenant(), true)) {
-//                            new AlertDialog.Builder(v.getContext())
-//                                    .setTitle("Wrong tenant")
-//                                    .setMessage("That tenant is already registered to a flat.")
-//                                    .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-//                                        public void onClick(DialogInterface dialog, int which) {
-//                                            flatTenant.setText("");
-//                                        }
-//                                    })
-//                                    .setIcon(android.R.drawable.ic_dialog_alert)
-//                                    .show();
-//                        }
-//
-//                    }
-//                } else {
-//
-//                    flatTenant.setBackgroundColor(Color.parseColor("#EF9A9A"));
-//                    isValidTenant = false;
-//                    nullFields.add("- Tenant");
-//                }
-//            }
-//        });
-
-
-//        etFlatNum.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-//            @Override
-//            public void onFocusChange(View v, boolean hasFocus) {
-//                if (!hasFocus && etFlatNum.getText().toString().matches("")) {
-//                    Toast toast = Toast.makeText(CreateFlat.this, "No flat number ?", Toast.LENGTH_SHORT);
-//                    toast.setGravity(Gravity.CENTER, 0, 0);
-//                    toast.show();
-//                }
-//            }
-//        });
-//
-//        etFlatNotes.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-//            @Override
-//            public void onFocusChange(View v, boolean hasFocus) {
-//                if (!hasFocus && etFlatNotes.getText().toString().matches("")) {
-//                    Toast toast = Toast.makeText(CreateFlat.this, "No notes ?", Toast.LENGTH_SHORT);
-//                    toast.setGravity(Gravity.CENTER, 0, 0);
-//                    toast.show();
-//                    etFlatNotes.setText("No notes yet. You can add some later.");
-//                    isValidNotes = true;
-//                }
-//            }
-//        });
-//
-//        flatTenant.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-//            @Override
-//            public void onFocusChange(View v, boolean hasFocus) {
-//                if (!hasFocus && flatTenant.getText().toString().matches("")) {
-//                    Toast toast = Toast.makeText(CreateFlat.this, "No tenant ?", Toast.LENGTH_SHORT);
-//                    toast.setGravity(Gravity.CENTER, 0, 0);
-//                    toast.show();
-//                }
-//                if (hasFocus && !actvProperty.getText().toString().matches("")) {
-//                    getTenants();
-//                }
-//            }
-//        });
-
+        // Initialise toggle buttons when attempting to add/remove a tenant to new flat
         cancelTenantBtn = (ImageView) findViewById(R.id.cancel_tenant_iv);
         addTenantBtn = (CardView) findViewById(R.id.nf_card);
         addTenantBtn.setOnClickListener(new View.OnClickListener() {
@@ -387,6 +213,7 @@ public class CreateFlat extends AppCompatActivity {
 
     }//END onCreate()
 
+    // Get corresponding flats from chosen property
     private void loadCorrespondingFlats(String prop) {
         Firebase flatRef = new Firebase(getResources().getString(R.string.flats_location));
         Query flatsOfPropertyQuery = flatRef.orderByChild("addressLine1").equalTo(prop);
@@ -416,6 +243,7 @@ public class CreateFlat extends AppCompatActivity {
         return true;
     }
 
+    // Handle leaving activity early
     @Override
     public void onBackPressed() {
         new AlertDialog.Builder(this)
@@ -437,14 +265,9 @@ public class CreateFlat extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
-                //Toast.makeText(getApplicationContext(), "Back button clicked", Toast.LENGTH_SHORT).show();
                 onBackPressed();
-//                startActivity(new Intent(CreateFlat.this, Homepage.class));
-//                finish();
                 break;
             case R.id.save_new_task:
-                //Toast.makeText(getApplicationContext(), "Save button clicked", Toast.LENGTH_SHORT).show();
-//                saveNewFlat();
                 attemptCreation();
                 break;
             case R.id.action_settings:
@@ -454,14 +277,17 @@ public class CreateFlat extends AppCompatActivity {
         return true;
     }
 
+    /**
+     * When menu item Edit is selected attempt to create new flat from inserted values
+     */
     private void attemptCreation() {
-        newFlat = new Flat();
         newFlat.setAddressLine1("");
         newFlat.setPostcode("");
         newFlat.setNotes("");
         newFlat.setFlatNum("");
         newFlat.setTenant("");
 
+        // Reset errors
         actvProperty.setError(null);
         etFlatNum.setError(null);
         etFlatNotes.setError(null);
@@ -470,7 +296,7 @@ public class CreateFlat extends AppCompatActivity {
         boolean cancel = false;
         View focusView = null;
 
-        //Check for valid address, if the user entered one
+        // Check for valid address, if the user entered one
         if (TextUtils.isEmpty(actvProperty.getText().toString())) {
             actvProperty.setError("This field is required");
             cancel = true;
@@ -481,7 +307,7 @@ public class CreateFlat extends AppCompatActivity {
             focusView = actvProperty;
         }
 
-        //Check for a valid flat number, if the user entered one
+        // Check for a valid flat number, if the user entered one
         if (TextUtils.isEmpty(etFlatNum.getText().toString())) {
             etFlatNum.setError("This field is required");
             cancel = true;
@@ -511,9 +337,9 @@ public class CreateFlat extends AppCompatActivity {
                     .show();
         }
 
-        //Check for valid tenant, if the user entered one
+        // Check for valid tenant, if the user entered one
         if (TextUtils.isEmpty(flatTenant.getText().toString())) {
-            //No need to add a tenant
+            // No need to add a tenant
         } else if (!isTenantValid(flatTenant.getText().toString())) {
             flatTenant.setError("This tenant does not exist in the system");
             cancel = true;
@@ -528,11 +354,10 @@ public class CreateFlat extends AppCompatActivity {
             }
         }
 
-        //notes
+        // Check for notes and add default notes if null
         if (TextUtils.isEmpty(etFlatNotes.getText().toString())) {
             etFlatNotes.setText("No notes yet. That's okay, you can add some later..");
         }
-
 
         if (cancel) {
             // There was an error; don't attempt creation and focus the first
@@ -544,9 +369,13 @@ public class CreateFlat extends AppCompatActivity {
             inputMethodManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
             saveNewFlat();
         }
-
     }
 
+    /**
+     * Verify tenant is not currently active tenant
+     * @param s is the tenant's name to be potentially assigned to new Flat
+     * @return boolean if tenant is not currently living in other flat
+     */
     private boolean isTenantFree(String s) {
 
         for (String t : unassignedTenants) {
@@ -563,6 +392,11 @@ public class CreateFlat extends AppCompatActivity {
         return false;
     }
 
+    /**
+     * Verify tenant exists as a Tenant object in system
+     * @param s is the tenant name
+     * @return boolean if tenant exists in system
+     */
     private boolean isTenantValid(String s) {
 
         for (int i = 0; i < tenantFullNames.size(); i++) {
@@ -574,6 +408,11 @@ public class CreateFlat extends AppCompatActivity {
         return false;
     }
 
+    /**
+     * Verify if flat num being created already exists
+     * @param s is flat number to be created
+     * @return if flat num exists or not
+     */
     private boolean isFlatNumValid(String s) {
         for (String f : flatNums) {
             if (f.matches(s)) {
@@ -583,6 +422,11 @@ public class CreateFlat extends AppCompatActivity {
         return true;
     }
 
+    /**
+     * Verify if property exists in system
+     * @param s is address line 1 of a property
+     * @return if it exists or not
+     */
     private boolean isAddressValid(String s) {
         for (Property prt : propertyList) { //(String t : propertyAddrLine1s)
             if (prt.getAddrline1().matches(s)) {
@@ -593,7 +437,9 @@ public class CreateFlat extends AppCompatActivity {
         return false;
     }
 
-
+    /**
+     * Since all data entered is valid, create new flat and push to Firebase
+     */
     private void saveNewFlat() {
 //        validateData();
         try {
@@ -652,7 +498,7 @@ public class CreateFlat extends AppCompatActivity {
             Firebase newFlatRef = new Firebase(getString(R.string.flats_location));
             newFlatRef.push().setValue(newFlat);
 
-
+            // Inform user of success
             new AlertDialog.Builder(this)
                     .setTitle("Success")
                     .setMessage(newFlat.getFlatNum() + " has been added to " + newFlat.getAddressLine1())
@@ -672,6 +518,9 @@ public class CreateFlat extends AppCompatActivity {
 
     }
 
+    /**
+     * Not used
+     */
     private void validateData() {
         String nullVals = "";
 
