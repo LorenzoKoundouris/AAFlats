@@ -205,7 +205,9 @@ public class AllTenants extends AppCompatActivity {
         searchQuery.clear();
         for (int i = 0; i < tenantList.size(); i++) {
             String fullName = tenantList.get(i).getForename() + " " + tenantList.get(i).getSurname();
+            String revName = tenantList.get(i).getSurname() + " " + tenantList.get(i).getForename();
             if (fullName.toLowerCase().contains(newText.toLowerCase().trim()) ||
+                    revName.toLowerCase().contains(newText.toLowerCase().trim()) ||
                     tenantList.get(i).getProperty().toLowerCase().contains(newText.toLowerCase().trim()) ||
                     tenantList.get(i).getEmail().toLowerCase().contains(newText.toLowerCase().trim()) ||
                     tenantList.get(i).getTelephone().toLowerCase().contains(newText.toLowerCase().trim())) {

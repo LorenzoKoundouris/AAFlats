@@ -21,8 +21,22 @@ public class Tenant implements Parcelable{
     private String telephone;
     private String tenantKey;
 
-
     public Tenant() {
+    }
+
+    public Tenant(Tenant cloneTenant) {
+        this.contractEnd = cloneTenant.getContractEnd();
+        this.contractStart = cloneTenant.getContractStart();
+        this.currentTenant = cloneTenant.isCurrentTenant();
+        this.dob = cloneTenant.getDob();
+        this.email = cloneTenant.getEmail();
+        this.forename = cloneTenant.getForename();
+        this.middlename = cloneTenant.getMiddlename();
+        this.notes = cloneTenant.getNotes();
+        this.property = cloneTenant.getProperty();
+        this.surname = cloneTenant.getSurname();
+        this.telephone = cloneTenant.getTelephone();
+        this.tenantKey = cloneTenant.getTenantKey();
     }
 
     public String getForename() {

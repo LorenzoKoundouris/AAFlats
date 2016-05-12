@@ -89,12 +89,12 @@ public class MyService extends Service {
         String loggedUsn = mSharedPreferences.getString(EMAIL_KEY, "");
 
         NotificationManager mgr = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        if (!logout) {
+        if (!mSharedPreferences.getBoolean("logout", true)) { //!logout
             Toast.makeText(MyService.this, "A&A Flats running in background.\nSigned-in: "
                             + mSharedPreferences.getString(EMAIL_KEY, ""),
                     Toast.LENGTH_SHORT).show();
 
-            notificationBuilder.setSmallIcon(R.drawable.notification_icon);//notification_icon
+            notificationBuilder.setSmallIcon(R.drawable.notification_mini);//notification_icon
             notificationBuilder.setTicker("A&A Flats service running");
             notificationBuilder.setWhen(System.currentTimeMillis());
             notificationBuilder.setContentTitle("A&A Flats service running");
@@ -219,7 +219,7 @@ public class MyService extends Service {
         final Context c = this;
 //        new Thread(new Runnable() {
 //            public void run() {
-        if (logout) {
+        if (mSharedPreferences.getBoolean("logout", true)) {
             saveOfflineReports.add(newRpt);
             savedReportsExist = true;
             System.out.println("Offline report: " + newRpt.getContent());
@@ -231,8 +231,8 @@ public class MyService extends Service {
             notificationBuilder.setTicker("New report received by " + newRpt.getSender());
             notificationBuilder.setWhen(System.currentTimeMillis());
             notificationBuilder.setContentTitle("New " + newRpt.getType() + "\nFrom " + newRpt.getSender());
-            if (newRpt.getContent().length() > 20) {
-                notificationBuilder.setContentText(newRpt.getContent().substring(20)); //newTask.getTitle()
+            if (newRpt.getContent().length() > 35) {
+                notificationBuilder.setContentText(newRpt.getContent().substring(0, 35)); //newTask.getTitle()
             } else {
                 notificationBuilder.setContentText(newRpt.getContent());
             }
@@ -328,7 +328,7 @@ public class MyService extends Service {
 
 //        new Thread(new Runnable() {
 //            public void run() {
-        if (logout) {
+        if (mSharedPreferences.getBoolean("logout", true)) {
             saveOfflineTasks.add(tsk);
             savedTasksExist = true;
             System.out.println("Offline task: " + tsk.getTitle());
@@ -450,14 +450,14 @@ public class MyService extends Service {
 //                        public void run() {
             notificationBuilder.setAutoCancel(true);
             notificationBuilder.setOngoing(false);
-            notificationBuilder.setSmallIcon(R.drawable.ic_send_white_48dp);//notification_icon
+            notificationBuilder.setSmallIcon(R.drawable.ic_new_mail);//notification_icon
             Bitmap bm = BitmapFactory.decodeResource(getResources(), R.drawable.app_icon3);
             notificationBuilder.setLargeIcon(bm);
             notificationBuilder.setTicker("New report received by " + offRpt.getSender());
             notificationBuilder.setWhen(System.currentTimeMillis());
             notificationBuilder.setContentTitle("New " + offRpt.getType() + "\nFrom " + offRpt.getSender());
-            if (offRpt.getContent().length() > 20) {
-                notificationBuilder.setContentText(offRpt.getContent().substring(20)); //newTask.getTitle()
+            if (offRpt.getContent().length() > 35) {
+                notificationBuilder.setContentText(offRpt.getContent().substring(0, 35)); //newTask.getTitle()
             } else {
                 notificationBuilder.setContentText(offRpt.getContent()); //newTask.getTitle()
             }

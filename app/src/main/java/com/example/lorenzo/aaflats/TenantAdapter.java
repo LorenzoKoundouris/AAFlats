@@ -47,6 +47,8 @@ public class TenantAdapter extends RecyclerView.Adapter<TenantViewHolder> {
         tenantViewHolder.tenantSurname.setText(mTenant.getSurname());
         if (!mTenant.getMiddlename().matches("")) {
             tenantViewHolder.tenantMiddlename.setText(mTenant.getMiddlename().substring(0, 1) + ".");
+        } else {
+            tenantViewHolder.tenantMiddlename.setText("");
         }
 
         tenantViewHolder.tenantAddress.setText(mTenant.getProperty());

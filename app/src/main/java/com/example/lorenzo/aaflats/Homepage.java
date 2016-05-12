@@ -444,8 +444,8 @@ public class Homepage extends AppCompatActivity
                     public void run() {
                         // Do something after 2s = 2000ms
                         setRecyclerAdapterContents();
-                        editor.putBoolean("showcaseview-ed", false).apply();
-                        editor.putBoolean("showcaseview-ed_home", false).apply();
+//                        editor.putBoolean("showcaseview-ed", false).apply();
+//                        editor.putBoolean("showcaseview-ed_home", false).apply();
                         invalidateOptionsMenu();
 
                     }
@@ -498,7 +498,7 @@ public class Homepage extends AppCompatActivity
                                 }
                                 System.out.println(aa.toString());
                                 ////////////////////////////////////////
-                                editor.putBoolean("logout", true).commit();
+                                editor.putBoolean("logout", true).apply();
 
                                 /////////////////////////////////////////////////////
                                 Map<String, ?> usedAccounts2 = settings.getAll();

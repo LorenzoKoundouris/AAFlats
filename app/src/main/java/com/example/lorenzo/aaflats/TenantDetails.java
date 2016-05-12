@@ -58,8 +58,8 @@ public class TenantDetails extends AppCompatActivity {
     static final int DIALOG_ID = 0;
     private int year_x, month_x, day_x;
 
-    Tenant parceableTenant;
-    Tenant edittedTenant;
+    Tenant parceableTenant = new Tenant();
+    Tenant edittedTenant = new Tenant();
     ArrayList<Flat> flatList = new ArrayList<>();
     String edittedFullName;
     String fullName;
@@ -133,13 +133,12 @@ public class TenantDetails extends AppCompatActivity {
         staffAccess = intent.getBoolean("staff_access");
 
         //copy
-        edittedTenant = parceableTenant;
+//        edittedTenant = parceableTenant;
+        edittedTenant = new Tenant(parceableTenant);
         if (staffAccess) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
 
-//        pref = getApplicationContext().getSharedPreferences("MyPrefs", MODE_PRIVATE);
-//        prefEditor = pref.edit();
 
         parentLayout = (LinearLayout) findViewById(R.id.parent_layout);
         mFullName = (EditText) findViewById(R.id.et_fullname_edittext);
@@ -184,22 +183,6 @@ public class TenantDetails extends AppCompatActivity {
         mTelephone.setText(edittedTenant.getTelephone());
         mEmail.setText(edittedTenant.getEmail());
 
-//        prefEditor.putString("tForename", parceableTenant.getForename());
-//        if(!parceableTenant.getMiddlename().matches("")){
-//            prefEditor.putString("tMiddlename", parceableTenant.getMiddlename());
-//        }
-//        prefEditor.putString("tSurname", parceableTenant.getSurname());
-//        prefEditor.putString("tFullName", mFullName.getText().toString());
-//        prefEditor.putBoolean("tIsCurrentTenant", parceableTenant.isCurrentTenant());
-//        prefEditor.putString("tAddress", parceableTenant.getProperty());
-//        prefEditor.putString("tDob", parceableTenant.getDob());
-//        prefEditor.putString("tTelephone", parceableTenant.getTelephone());
-//        prefEditor.putString("tEmail", parceableTenant.getEmail());
-//        prefEditor.putString("tNotes", parceableTenant.getNotes());
-//        prefEditor.putString("tContractStart", parceableTenant.getContractStart());
-//        prefEditor.putString("tContractEnd", parceableTenant.getContractEnd());
-//        prefEditor.commit();
-
 
         //Get tenant FLAT key, propertyAddrLine1s for actv adapter and FlatList
         flatRef.addValueEventListener(new ValueEventListener() {
@@ -211,12 +194,6 @@ public class TenantDetails extends AppCompatActivity {
                     flatList.add(flt);
                     propertyAddrLine1s.add(flt.getAddressLine1().trim() +
                             " - " + flt.getFlatNum().trim());
-//                    if(splitter.length > 0){
-//                        if (flt.getAddressLine1().matches(splitter[0]) && flt.getFlatNum().matches(splitter[1])) {
-//                            flatKey = fltSnapshot.getKey();
-//                        }
-//                    }
-
                 }
 
                 Set<String> removeDuplicates = new HashSet<>();
@@ -238,28 +215,6 @@ public class TenantDetails extends AppCompatActivity {
             }
         });
 
-////        final String[] splitter = pref.getString("tAddress", "crashAddress").split(" - ");
-//        final String[] splitter = edittedTenant.getProperty().split(" - ");
-//        Query getFKey = flatRef.orderByChild("addressLine1").equalTo(splitter[0].trim());
-//        getFKey.addListenerForSingleValueEvent(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(DataSnapshot dataSnapshot) {
-//                for (DataSnapshot childSnap : dataSnapshot.getChildren()) {
-//                    Flat flt = childSnap.getValue(Flat.class);
-//                    if (flt.getFlatNum().matches(splitter[1])){
-//                        flatKey = childSnap.getKey();
-//                        break;
-//                    }
-//
-//                }
-//            }
-//
-//            @Override
-//            public void onCancelled(FirebaseError firebaseError) {
-//
-//            }
-//        });
-
         ArrayAdapter<String> propertyAdapter = new ArrayAdapter<>
                 (this, android.R.layout.simple_dropdown_item_1line, propertyAddrLine1s);
         mAddress.setAdapter(propertyAdapter);
@@ -271,37 +226,6 @@ public class TenantDetails extends AppCompatActivity {
             }
         });
 
-//        mAddress.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-//            @Override
-//            public void onFocusChange(View v, boolean hasFocus) {
-//                if (hasFocus && mAddress.getText().toString().matches("No flat assigned")) {
-//                    mAddress.setText("");
-//                } else if (!hasFocus && mAddress.getText().toString().matches("")) {
-//                    mAddress.setText("No flat assigned");
-//                }
-//            }
-//        });
-
-
-//        Query getTKey = tenantRef.orderByChild("surname").equalTo(edittedTenant.getSurname());
-////        Query getTKey = tenantRef.orderByChild("surname").equalTo(pref.getString("tSurname", "crashSurname"));
-//        getTKey.addListenerForSingleValueEvent(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(DataSnapshot dataSnapshot) {
-//                for(DataSnapshot childSnap : dataSnapshot.getChildren()){
-//                    Tenant tnt = childSnap.getValue(Tenant.class);
-//                    if(tnt.getForename().matches(pref.getString("tForename", "crashForename"))){
-//                        tenantKey = childSnap.getKey();
-//                        break;
-//                    }
-//                }
-//            }
-//
-//            @Override
-//            public void onCancelled(FirebaseError firebaseError) {
-//
-//            }
-//        });
 
 
     } //End of OnCreate
@@ -410,27 +334,6 @@ public class TenantDetails extends AppCompatActivity {
             }
         }
     };
-//    private void createGroupList() {
-//        groupList = new ArrayList<String>();
-//        groupList.add(" Contract details");
-//    }
-//
-//    private void createCollection() {
-//        // preparing contract details collection(child)
-//
-//        String[] contractDetails = {"Start date: " + parceableTenant.getContractStart(),
-//                "End date: " + parceableTenant.getContractEnd(),
-//                "Download contract"};
-//
-//        contractDetailsCollection = new LinkedHashMap<String, List<String>>();
-//
-//
-//        for (String conDet : groupList) {
-//            loadChild(contractDetails);
-//            contractDetailsCollection.put(conDet, childList);
-//        }
-//    }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -518,12 +421,16 @@ public class TenantDetails extends AppCompatActivity {
 
     private void cancelAndRestore() {
         mFullName.setText(fullName);
+//        if (parceableTenant.isCurrentTenant()) {
         mCurrentTenantCB.setChecked(parceableTenant.isCurrentTenant());//parceableTask.getAssignedStaff()
+//        }
         mAddress.setText(parceableTenant.getProperty());
         mDob.setText(parceableTenant.getDob());
         mTelephone.setText(parceableTenant.getTelephone());
         mEmail.setText(parceableTenant.getEmail());
         mNotes.setText(parceableTenant.getNotes());
+
+        edittedTenant = new Tenant(parceableTenant);
 
         parentLayout.requestFocus();
 
@@ -552,156 +459,6 @@ public class TenantDetails extends AppCompatActivity {
         editAttempted = false;
         invalidateOptionsMenu();
     }
-
-//    private void validateData() {
-//
-//        //////////////////////////////////////////////////////////////////////////////
-//
-//        if (mDob.getText().toString().matches("")) {
-//            mDob.setBackgroundColor(Color.parseColor("#EF9A9A"));
-//            validDob = false;
-//        } else {
-//            validDob = true;
-//        }
-//
-//        //////////////////////////////////////////////////////////////////////////////
-//        if (mEmail.getText().toString().matches("")) {
-//            mEmail.setBackgroundColor(Color.parseColor("#EF9A9A"));
-//            validEmail = false;
-//        } else {
-//            if (validateEmail(mEmail.getText().toString())) {
-//                validEmail = true;
-//            } else {
-//                new AlertDialog.Builder(this)
-//                        .setIcon(android.R.drawable.ic_dialog_alert)
-//                        .setTitle("Error")
-//                        .setMessage("Please enter a valid email address")
-//                        .setPositiveButton("OK", null)
-//                        .show();
-//                validEmail = false;
-//                mEmail.setBackgroundColor(Color.parseColor("#EF9A9A"));
-//            }
-//        }
-//
-//        //////////////////////////////////////////////////////////////////////////////
-//
-//        if (mTelephone.getText().toString().matches("")) {
-//            mTelephone.setBackgroundColor(Color.parseColor("#EF9A9A"));
-//            validTelephone = false;
-//        } else {
-//            validTelephone = true;
-//        }
-//
-//        //////////////////////////////////////////////////////////////////////////////
-//
-//        String nullVitalVals = "";
-//        String nullVals = "";
-//        if (!validDob) {
-//            nullVitalVals += "\n- Date of Birth";
-//        }
-//        if (!validEmail) {
-//            nullVals += "\n- Email";
-//        }
-//        if (!validTelephone) {
-//            nullVals += "\n- Telephone";
-//        }
-//
-//        if (!nullVitalVals.matches("")) {
-//            new AlertDialog.Builder(this)
-//                    .setTitle("Invalid data")
-//                    .setMessage("Whoops! Looks like these fields contain wrong information or none at all:" +
-//                            "\n\n" + nullVitalVals)
-//                    .setPositiveButton(android.R.string.ok, null)
-//                    .setIcon(android.R.drawable.ic_dialog_alert)
-//                    .show();
-//        } else if (nullVitalVals.matches("") && !nullVals.matches("")) {
-//            new AlertDialog.Builder(this)
-//                    .setTitle("Warning")
-//                    .setMessage("Are you sure you want to create a Tenant without the following?" +
-//                            "\n\n" + nullVals)
-//                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-//                        @Override
-//                        public void onClick(DialogInterface dialog, int which) {
-//                            saveChangesToTenant();
-//                        }
-//                    })
-//                    .setNegativeButton("No", null)
-//                    .setIcon(android.R.drawable.ic_dialog_alert)
-//                    .show();
-//        } else {
-//            saveChangesToTenant();
-//        }
-//
-//
-//    }
-
-//    private void saveChangesToTenant() {
-//
-//        if (!editsCancelled) {
-//            try {
-//                setTitle(parceableTenant.getForename() + "'s details");
-//                parceableTenant.setDob(mDob.getText().toString().trim());
-//                parceableTenant.setTelephone(mTelephone.getText().toString().trim());
-//                parceableTenant.setEmail(mEmail.getText().toString().trim());
-//                parceableTenant.setNotes(mNotes.getText().toString().trim());
-//
-//                String sss = "\n";
-//                sss += parceableTenant.getForename() + "\n";
-//                sss += parceableTenant.getMiddlename() + "\n";
-//                sss += parceableTenant.getSurname() + "\n";
-//                sss += parceableTenant.getProperty() + "\n";
-//                sss += parceableTenant.getDob() + "\n";
-//                sss += parceableTenant.getEmail() + "\n";
-//                sss += parceableTenant.getTelephone() + "\n";
-//                sss += parceableTenant.getNotes() + "\n";
-//
-//                new AlertDialog.Builder(this)
-//                        .setTitle("tenant")
-//                        .setMessage(sss)
-//                        .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-//                            public void onClick(DialogInterface dialog, int which) {
-//
-//                            }
-//                        })
-//                        .setIcon(android.R.drawable.ic_dialog_alert)
-//                        .show();
-//
-//
-////                tenantRef.child(tenantKey).setValue(parceableTenant);
-//                Toast toast = Toast.makeText(TenantDetails.this, "Tenant edited! SUCCESS!", Toast.LENGTH_SHORT);
-//                toast.setGravity(Gravity.CENTER, 0, 0);
-//                toast.show();
-//            } catch (Exception ex) {
-//                Toast toast = Toast.makeText(TenantDetails.this, "Tenant not edited. FAIL", Toast.LENGTH_SHORT);
-//                toast.setGravity(Gravity.CENTER, 0, 0);
-//                toast.show();
-//            }
-//        } else {
-//            setTitle(pref.getString("tForename", "crashForename"));
-//            parceableTenant.setForename(pref.getString("tForename", "crashForename"));
-//            parceableTenant.setMiddlename(pref.getString("tMiddlename", "crashMiddlename"));
-//            parceableTenant.setSurname(pref.getString("tSurname", "crashSurname"));
-//            parceableTenant.setDob(pref.getString("tDob", "crashDob"));
-//            parceableTenant.setTelephone(pref.getString("tTelephone", "crashTelephone"));
-//            parceableTenant.setEmail(pref.getString("tEmail", "crashEmail"));
-//            parceableTenant.setNotes(pref.getString("tNotes", "crashNotes"));
-//        }
-//
-//        mFullName.setEnabled(false);
-//        mFullName.setClickable(false);
-//        mCurrentTenantCB.setEnabled(false);
-//        mAddress.setEnabled(false);
-//        mDob.setEnabled(false);
-//        btCalen.setEnabled(true);
-//        mTelephone.setEnabled(false);
-//        mEmail.setEnabled(false);
-//        mNotes.setEnabled(false);
-//
-//
-//        editAttempted = false;
-//        invalidateOptionsMenu();
-//    }
-
 
     private void attemptEdit() {
         mFullName.setEnabled(true);
@@ -778,7 +535,7 @@ public class TenantDetails extends AppCompatActivity {
     }
 
     private void saveEdittedTenant() {
-        if(edittedTenant.isCurrentTenant()){
+//        if (edittedTenant.isCurrentTenant()) {//
             for (Flat flt : flatList) {
                 if (mAddress.getText().toString().matches(flt.getAddressLine1() + " - " + flt.getFlatNum())) {
                     flatKey = flt.getFlatKey();
@@ -789,17 +546,20 @@ public class TenantDetails extends AppCompatActivity {
             final Map<String, Object> flatHasTenantMap = new HashMap<>();
 
             if (mCurrentTenantCB.isChecked()) {
-
+                edittedTenant.setCurrentTenant(true);
                 flatHasTenantMap.put("tenant", edittedTenant.getTenantKey());
                 changeTenant.updateChildren(flatHasTenantMap);
                 edittedTenant.setProperty(mAddress.getText().toString());
             } else {
+                edittedTenant.setCurrentTenant(false);
+                edittedTenant.setProperty("");
                 flatHasTenantMap.put("tenant", "");
                 changeTenant.updateChildren(flatHasTenantMap);
 //            edittedTenant.setProperty(mAddress.getText().toString());
             }
-        }
+//        }
 
+        fullName = edittedFullName;
 
         edittedTenant.setDob(mDob.getText().toString().trim());
         edittedTenant.setTelephone(mTelephone.getText().toString());
@@ -808,6 +568,7 @@ public class TenantDetails extends AppCompatActivity {
 
         tenantRef.child(edittedTenant.getTenantKey()).setValue(edittedTenant);
 
+        parceableTenant = new Tenant(edittedTenant);
         disableComponents();
 
         parentLayout.requestFocus();
@@ -882,7 +643,7 @@ public class TenantDetails extends AppCompatActivity {
 
                 @Override
                 public void afterTextChanged(Editable s) {
-                    if (mFullName.getText().toString().matches(edittedFullName)) {
+                    if (mFullName.getText().toString().matches(fullName)) {
                         mFullName.setTextColor(getResources().getColor(R.color.black_color));
                     } else {
                         mFullName.setTextColor(Color.parseColor("#FF5722"));
@@ -1027,18 +788,18 @@ public class TenantDetails extends AppCompatActivity {
                         alertBuilder.setPositiveButton("Done", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                String editFullName = "";
+//                                String editFullName = "";
 
                                 if (!middlenameET.getText().toString().matches("")) {
-                                    editFullName = surnameET.getText().toString().trim() + " " +
+                                    edittedFullName = surnameET.getText().toString().trim() + " " +
                                             forenameET.getText().toString().trim() + " " +
                                             middlenameET.getText().toString().trim();
                                 } else {
-                                    editFullName = surnameET.getText().toString().trim() + " " +
+                                    edittedFullName = surnameET.getText().toString().trim() + " " +
                                             forenameET.getText().toString().trim();
                                 }
 
-                                mFullName.setText(editFullName);
+                                mFullName.setText(edittedFullName);
                                 edittedTenant.setForename(forenameET.getText().toString());
                                 edittedTenant.setMiddlename(middlenameET.getText().toString());
                                 edittedTenant.setSurname(surnameET.getText().toString());
@@ -1112,22 +873,9 @@ public class TenantDetails extends AppCompatActivity {
             mCurrentTenantCB.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-//                    Firebase changeIsCurrentTenant = tenantRef.child(edittedTenant.getTenantKey());
-//                    Firebase changeTenant = flatRef.child(flatKey);
-//                    final Map<String, Object> isCurrentTenantMap = new HashMap<>();
-//                    final Map<String, Object> flatHasTenantMap = new HashMap<>();
-
                     if (isChecked) {
                         addressLayout.setVisibility(View.VISIBLE);
                         edittedTenant.setCurrentTenant(true);
-//                        isCurrentTenantMap.put("currentTenant", true);
-//                        if (!edittedTenant.getMiddlename().matches("")) {
-//                            flatHasTenantMap.put("tenant", edittedTenant.getForename().trim() + " "
-//                                    + edittedTenant.getMiddlename().trim() + " " + edittedTenant.getSurname().trim());
-//                        } else {
-//                            flatHasTenantMap.put("tenant", edittedTenant.getForename().trim() + " "
-//                                    + edittedTenant.getSurname().trim());
-//                        }
                         mCurrentTenant.setText("Current tenant status: Yes");
 
                         mAddress.requestFocus();
@@ -1137,9 +885,7 @@ public class TenantDetails extends AppCompatActivity {
                         toast.show();
 
                     } else {
-                        mCurrentTenant.setText("Current tenant status: No");
-                        addressLayout.setVisibility(View.GONE);
-                        edittedTenant.setCurrentTenant(false);
+                        ///////edittedTenant.setCurrentTenant(false);
                         if (!edittedTenant.getProperty().matches("")) {
                             new AlertDialog.Builder(buttonView.getContext())
                                     .setIcon(android.R.drawable.ic_dialog_alert)
@@ -1148,10 +894,10 @@ public class TenantDetails extends AppCompatActivity {
                                     .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                                         @Override
                                         public void onClick(DialogInterface dialog, int which) {
-                                            edittedTenant.setProperty("");
-                                            edittedTenant.setCurrentTenant(false);
-//                                            isCurrentTenantMap.put("currentTenant", false);
-//                                            flatHasTenantMap.put("tenant", "");
+//                                            edittedTenant.setProperty("");
+//                                            edittedTenant.setCurrentTenant(false);
+                                            mCurrentTenant.setText("Current tenant status: No");
+                                            addressLayout.setVisibility(View.GONE);
                                             mCurrentTenant.requestFocus();
                                         }
 
@@ -1159,6 +905,10 @@ public class TenantDetails extends AppCompatActivity {
                                     .setNegativeButton("No", new DialogInterface.OnClickListener() {
                                         @Override
                                         public void onClick(DialogInterface dialog, int which) {
+//                                            edittedTenant.setProperty(parceableTenant.getProperty());
+//                                            edittedTenant.setCurrentTenant(true);
+                                            mCurrentTenant.setText("Current tenant status: Yes");
+                                            addressLayout.setVisibility(View.VISIBLE);
                                             dialog.dismiss();
                                         }
                                     })
@@ -1178,65 +928,12 @@ public class TenantDetails extends AppCompatActivity {
                                     .show();
                         }
                     }
-//                    changeIsCurrentTenant.updateChildren(isCurrentTenantMap);
                     mCurrentTenant.setTextColor(Color.parseColor("#FF5722"));
                 }
             });
 
-//            mTelephone.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-//                @Override
-//                public void onFocusChange(View v, boolean hasFocus) {
-//                    if (mTelephone.getText().toString().matches("")) {
-//                        new AlertDialog.Builder(v.getContext())
-//                                .setTitle("Null telephone")
-//                                .setMessage("Whoops! Looks like you forgot to set a telephone number!")
-//                                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-//                                    public void onClick(DialogInterface dialog, int which) {
-//                                        mTelephone.setText(pref.getString("pTelephone", "crashTelephone"));
-//                                        mTelephone.requestFocus();
-//                                    }
-//                                })
-//                                .setIcon(android.R.drawable.ic_dialog_alert)
-//                                .show();
-//
-//                        validTelephone = false;
-//                    } else if (mTelephone.getText().length() < 10) {
-//                        new AlertDialog.Builder(v.getContext())
-//                                .setTitle("Missing digits")
-//                                .setMessage("The telephone number must be 10 characters long.")
-//                                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-//                                    public void onClick(DialogInterface dialog, int which) {
-//                                        mTelephone.setText(pref.getString("pTelephone", "crashTelephone"));
-//                                        mTelephone.requestFocus();
-//                                    }
-//                                })
-//                                .setIcon(android.R.drawable.ic_dialog_alert)
-//                                .show();
-//
-//                        validTelephone = false;
-//                    } else {
-//                        validTelephone = true;
-//                    }
-//                }
-//            });
-
-
-//            if (mAddress.getText().toString().matches("")) {
-//                validAddress = false;
-//            } else {
-//                for (String str : propertyAddrLine1s) {
-//                    if (mAddress.getText().toString().matches(str)) {
-//                        validAddress = true;
-//                        break;
-//                    }
-//                }
-//            }
-
-
-//            if (validAddress && validEmail && validTelephone && validDob && validNotes) {
             editAttempted = true;
             invalidateOptionsMenu();
-//            }
 
         } catch (Exception ex) {
             Toast toast = Toast.makeText(TenantDetails.this, "Components not enabled.", Toast.LENGTH_SHORT);

@@ -105,7 +105,7 @@ public class ComposeNew extends AppCompatActivity {
                         newReport.setType(typeSpinner.getSelectedItem().toString());
                         newReport.setSender(parceableTenant.getForename() + " " + parceableTenant.getSurname());
                         newReport.setProperty(parceableTenant.getProperty());
-                        newReport.setStatus("pending");
+                        newReport.setStatus("Pending");
                         newReport.setReportKey("23");
 
                         // Send to Firebase
