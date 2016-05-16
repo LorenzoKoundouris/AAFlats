@@ -200,6 +200,9 @@ public class PropertyDetails extends AppCompatActivity {
 
     }
 
+    /**
+     * Save any changes made to a task
+     */
     private void saveAllChanges() {
         LinearLayout parent = (LinearLayout) findViewById(R.id.parent_layout);
         InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
@@ -269,6 +272,9 @@ public class PropertyDetails extends AppCompatActivity {
         invalidateOptionsMenu();
     }
 
+    /**
+     * Enable components and catch errors and changes
+     */
     private void editPropertyDetails() {
         editsCancelled = false;
 
@@ -360,6 +366,12 @@ public class PropertyDetails extends AppCompatActivity {
                 if(focusView == null){
                     focusView = etPropertyPostcode;
                 }
+            } else if(isValidPostcodeFormat(etPropertyPostcode.getText().toString().trim())){
+                etPropertyPostcode.setError("This is an invalid postcode");
+                cancel = true;
+                if(focusView == null){
+                    focusView = etPropertyPostcode;
+                }
             }
 
             if(cancel){
@@ -445,6 +457,11 @@ public class PropertyDetails extends AppCompatActivity {
         }
     }
 
+    /**
+     * Validate postcode with regex
+     * @param pc
+     * @return
+     */
     public boolean isValidPostcodeFormat(String pc) {
         validPostcode = false;
         String pcRegex = "^[A-Z]{1,2}[0-9R][0-9A-Z]? [0-9][ABD-HJLNP-UW-Z]{2}$";

@@ -138,10 +138,9 @@ public class Homepage extends AppCompatActivity
 
         navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-
         navigationView.getMenu().getItem(2).setChecked(true);
 
-
+        // Check if tutorial is viewed
         if (!mSharedPreferences.getBoolean("showcaseview-ed_home", false)) {
             Target homeTarget = new Target() {
                 @Override
@@ -179,7 +178,7 @@ public class Homepage extends AppCompatActivity
 
         notificationBuilder = new NotificationCompat.Builder(this);
 
-
+        // Get today's date and the next 7 days
         new Thread(new Runnable() {
             public void run() {
                 Calendar c = Calendar.getInstance();
@@ -197,6 +196,7 @@ public class Homepage extends AppCompatActivity
             }
         }).start();
 
+        // Get extras
         Bundle intent = getIntent().getExtras();
         staffLoggedIn = intent.getParcelable("parceable_staff");
 
@@ -460,6 +460,8 @@ public class Homepage extends AppCompatActivity
 //        });
 
 
+
+        // Display logged in staff nane and email in navigation drawer
         View myHeader = navigationView.getHeaderView(0);
         Spinner staffName = (Spinner) myHeader.findViewById(R.id.staff_name);
         staffEmail = (TextView) myHeader.findViewById(R.id.staff_email);
@@ -478,6 +480,7 @@ public class Homepage extends AppCompatActivity
 
         staffName.setOnTouchListener(Spinner_OnTouch);
 
+        // Logout user
         logoutText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(final View v) {
@@ -538,6 +541,9 @@ public class Homepage extends AppCompatActivity
 
     }
 
+    /**
+     * Not used
+     */
     private void manualUpdate() {
         final Handler handler = new Handler();
         handler.postDelayed(new Runnable() {
@@ -574,6 +580,10 @@ public class Homepage extends AppCompatActivity
         }, 4000);
     }
 
+    /**
+     * Not used
+     * @param tsk
+     */
     private void receiveNtf(final Task tsk) {
         final Context c = this;
         new Thread(new Runnable() {
@@ -609,6 +619,7 @@ public class Homepage extends AppCompatActivity
         }).start();
     }
 
+    // Display Logout button or hide it
     private View.OnTouchListener Spinner_OnTouch = new View.OnTouchListener() {
         public boolean onTouch(View v, MotionEvent event) {
             if (event.getAction() == MotionEvent.ACTION_UP) {
@@ -625,6 +636,9 @@ public class Homepage extends AppCompatActivity
         }
     };
 
+    /**
+     * Initialise recycler view
+     */
     private void setupRecyclerview() {
         taskRecyclerView = (RecyclerView) findViewById(R.id.task_recycler_view);
         taskRecyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -633,6 +647,9 @@ public class Homepage extends AppCompatActivity
 //        System.out.println("TIMESTAMP: " + format);
     }
 
+    /**
+     * Get tasks assigned to logged in staff
+     */
     private void setupFirebase() {
         new Thread(new Runnable() {
             public void run() {
@@ -725,6 +742,9 @@ public class Homepage extends AppCompatActivity
 //        notifyFromNowOn = true;
     }
 
+    /**
+     * Display all assigned tasks and filter them by pending or newest first or today or next 7 days
+     */
     public void setRecyclerAdapterContents() {
         new Thread(new Runnable() {
             public void run() {
@@ -1068,6 +1088,10 @@ public class Homepage extends AppCompatActivity
 
     }
 
+    /**
+     * Change background is no tasks pending
+     * @param tskLst
+     */
     private void listIsEmpty(ArrayList<Task> tskLst) {
         if(tskLst.isEmpty()){
             homeLayout.setBackgroundColor(getResources().getColor(R.color.colorBackground));

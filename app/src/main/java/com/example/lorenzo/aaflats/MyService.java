@@ -88,6 +88,7 @@ public class MyService extends Service {
         logout = mSharedPreferences.getBoolean("logout", true);
         String loggedUsn = mSharedPreferences.getString(EMAIL_KEY, "");
 
+        // Check if staff is logged in right now
         NotificationManager mgr = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         if (!mSharedPreferences.getBoolean("logout", true)) { //!logout
             Toast.makeText(MyService.this, "A&A Flats running in background.\nSigned-in: "
@@ -123,7 +124,9 @@ public class MyService extends Service {
         }
     }
 
-
+    /**
+     * Receive notifications
+     */
     private void enableNotificationListener() {
 
 
@@ -172,6 +175,10 @@ public class MyService extends Service {
 
     }
 
+    /**
+     * Get each report's details
+     * @param oID
+     */
     private void getReportDetails(String oID) {
 
 
@@ -215,6 +222,10 @@ public class MyService extends Service {
         });
     }
 
+    /**
+     * Display each report as notification
+     * @param newRpt
+     */
     private void displayReportNotification(final Report newRpt) {
         final Context c = this;
 //        new Thread(new Runnable() {
@@ -268,6 +279,10 @@ public class MyService extends Service {
 //        }).start();
     }
 
+    /**
+     * Get each task's details
+     * @param tID
+     */
     private void getTaskDetails(String tID) {
 
 
@@ -321,6 +336,10 @@ public class MyService extends Service {
         });
     }
 
+    /**
+     * Display each task as notification
+     * @param tsk
+     */
     private void displayTaskNotification(final Task tsk) {
 
         final Context c = this;
@@ -380,7 +399,9 @@ public class MyService extends Service {
 //        }).start();
     }
 
-
+    /**
+     * If signed in and there were notifications received while offline, then display them now
+     */
     private void displayOfflineTasks() {
         final Context c = this;
 //        new Thread(new Runnable() {
@@ -436,6 +457,9 @@ public class MyService extends Service {
 
     }
 
+    /**
+     * If signed in and there were notifications received while offline, then display them now
+     */
     private void displayOfflineReports() {
 
         final Context c = this;

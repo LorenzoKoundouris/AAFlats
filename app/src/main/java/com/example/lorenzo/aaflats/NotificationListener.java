@@ -12,6 +12,7 @@ public class NotificationListener extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
 
+        // If device reboots call service
         Intent startServiceIntent = new Intent(context, MyService.class);
         startServiceIntent.setAction("com.example.lorenzo.aaflats.action.startforeground");
         context.startService(startServiceIntent);

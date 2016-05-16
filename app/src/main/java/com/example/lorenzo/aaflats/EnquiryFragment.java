@@ -36,7 +36,7 @@ public class EnquiryFragment extends Fragment {
     public View onCreateView (LayoutInflater inflater, ViewGroup container, Bundle savedInstance){
         View v = inflater.inflate(R.layout.enquiry_fragment, null);
 
-        //RecyclerCiew
+        // Create RecyclerView
         final RecyclerView enquiryRV = (RecyclerView) v.findViewById(R.id.inboxEnquiryRecyclerView);
         enquiryRV.setLayoutManager(new LinearLayoutManager(v.getContext()));
 
@@ -52,6 +52,7 @@ public class EnquiryFragment extends Fragment {
                     enquiryList.add(rpt);
                 }
 
+                // Sort by newest first
                 Collections.sort(enquiryList, new Comparator<Report>() {
                     @Override
                     public int compare(Report lhs, Report rhs) {
@@ -72,6 +73,11 @@ public class EnquiryFragment extends Fragment {
         return v;
     }
 
+    /**
+     * Convert timestap to Date format
+     * @param timestamp
+     * @return
+     */
     private Date getTMDate(String timestamp) {
         DateFormat dFormat = new SimpleDateFormat("ddMMyyyyHHmmss", Locale.ENGLISH);
         Date tsDate = null;//timestamp.getTime()

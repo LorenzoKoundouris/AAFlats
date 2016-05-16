@@ -106,6 +106,7 @@ public class ReportDetails extends AppCompatActivity {
         reportTimestamp.setText(ts);
     }
 
+
     private void changeEnquiryStatus(boolean replyNow) {
         Firebase changeEnquiryStatusRef = reportRef.child(parceableReport.getReportKey());
         Map<String, Object> statusChangeMap = new HashMap<>();

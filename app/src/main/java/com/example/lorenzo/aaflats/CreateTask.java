@@ -117,16 +117,17 @@ public class CreateTask extends AppCompatActivity implements AdapterView.OnItemS
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        //Get Shared Preferences
+        // Get Shared Preferences
         mSharedPreferences = getSharedPreferences(MY_PREFERENCES, MODE_PRIVATE);
 //        editor = mSharedPreferences.edit();
 
-        //Define inputMethodService to hide keyboard
+        // Define inputMethodService to hide keyboard
         inputMethodManager = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
 
-        //Notifications
+        // Notifications
         notificationBuilder = new NotificationCompat.Builder(this);
 
+        // Initiate components
         mTargetDateButtonsLayout = (LinearLayout) findViewById(R.id.nt_target_date_lnr_layout);
         mTargetDateTextEditLayout = (LinearLayout) findViewById(R.id.nt_date_text_lnr_layout);
         cancelDate = (ImageView) findViewById(R.id.cancel_date_pick);
@@ -146,10 +147,11 @@ public class CreateTask extends AppCompatActivity implements AdapterView.OnItemS
 
         builder = new AlertDialog.Builder(this);
 
-        //Calendar components
+        // Calendar components
         todayDate = Calendar.getInstance().getTime();
         formatDate = new SimpleDateFormat("dd/MM/yyyy");
 
+        // Firebase references
         Firebase.setAndroidContext(this);
         taskRef = new Firebase(getString(R.string.tasks_location));
         reportRef = new Firebase(getString(R.string.reports_location));
@@ -312,6 +314,9 @@ public class CreateTask extends AppCompatActivity implements AdapterView.OnItemS
 
     } //END OF onCreate METHOD
 
+    /**
+     * Load and display only approved reports to be attached to new task
+     */
     private void loadApprovedReports() {
 
         //This fills the alert dialog with a list of approved reports
@@ -364,6 +369,11 @@ public class CreateTask extends AppCompatActivity implements AdapterView.OnItemS
         });
     }
 
+
+    /**
+     * Upon selecting a property, load the corresponging flats
+     * @param property is the Property object selected from AutoCompleteTextView
+     */
     private void loadCorrespondingFlats(String property) {
         Query flatQuery = flatRef.orderByChild("addressLine1").equalTo(property); //
         flatQuery.addValueEventListener(new ValueEventListener() {
@@ -410,6 +420,11 @@ public class CreateTask extends AppCompatActivity implements AdapterView.OnItemS
 //        });
     }
 
+    /**
+     *
+     * @param id is the datepicker being called
+     * @return valid date greater than yesterday date
+     */
     @Override
     protected Dialog onCreateDialog(int id) {
         if (id == DIALOG_ID) {
@@ -428,6 +443,9 @@ public class CreateTask extends AppCompatActivity implements AdapterView.OnItemS
     }
 
 
+    /**
+     * Convert selected date and display
+     */
     private DatePickerDialog.OnDateSetListener dpickerListener = new DatePickerDialog.OnDateSetListener() {
         @Override
         public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
@@ -475,7 +493,10 @@ public class CreateTask extends AppCompatActivity implements AdapterView.OnItemS
         }
     };
 
-
+    /**
+     * constructor for local variable to be assigned to global since inner method demanded a final variable
+     * @param attachedReport
+     */
     private void attachReport(Report attachedReport) {
         this.attachedReport = attachedReport;
         mReport = attachedReport.getReportKey();
@@ -488,6 +509,9 @@ public class CreateTask extends AppCompatActivity implements AdapterView.OnItemS
         return true;
     }
 
+    /**
+     * Handle leaving activity early
+     */
     @Override
     public void onBackPressed() {
         new AlertDialog.Builder(this)
@@ -524,7 +548,9 @@ public class CreateTask extends AppCompatActivity implements AdapterView.OnItemS
         return true;
     }
 
-
+    /**
+     * Once Save is clicked, Check for errors in entered data
+     */
     private void attemptCreation() {
         if (mTaskDetails != null) {
             return;
@@ -656,6 +682,11 @@ public class CreateTask extends AppCompatActivity implements AdapterView.OnItemS
         }
     }
 
+    /**
+     * Validate property
+     * @param property
+     * @return
+     */
     private boolean isPropertyValid(String property) {
         Boolean isProperty = false;
         for (int i = 0; i < propertyAddrLine1s.size(); i++) {
@@ -667,6 +698,11 @@ public class CreateTask extends AppCompatActivity implements AdapterView.OnItemS
         return isProperty;
     }
 
+    /**
+     * Validate staff member
+     * @param staff
+     * @return
+     */
     private boolean isStaffValid(String staff) {
         Boolean isStaff = false;
         for (int i = 0; i < staffNames.size(); i++) {
@@ -679,146 +715,23 @@ public class CreateTask extends AppCompatActivity implements AdapterView.OnItemS
         return isStaff;
     }
 
+    /**
+     * Validate description
+     * @param description
+     * @return
+     */
     private boolean isDescriptionValid(String description) {
         return description.length() > 4;
     }
 
+    /**
+     * Validate title
+     * @param title
+     * @return
+     */
     private boolean isTitleValid(String title) {
         return title.length() > 4;
     }
-
-
-//    public void saveNewTask() {
-//
-//        final Date thisDate = Calendar.getInstance().getTime();
-//        final SimpleDateFormat formatt = new SimpleDateFormat("dd/MM/yyyy");
-//
-//        String chosenDat = mSharedPreferences.getString("chosenDate", formatt.format(thisDate));
-//        Date chosenDate = new Date();
-//        try {
-//            chosenDate = new SimpleDateFormat("dd/MM/yyyy", Locale.ENGLISH).parse(chosenDat);
-//        } catch (ParseException e) {
-//            e.printStackTrace();
-//        }
-//        if (chosenDate.before(thisDate)) {
-//            mTargetDateValue.setText(formatt.format(thisDate));
-//        }
-//        LinearLayout llTitle = (LinearLayout) findViewById(R.id.nt_title_lnr_layout);
-//        LinearLayout llProperty = (LinearLayout) findViewById(R.id.nt_property_lnr_layout);
-//        LinearLayout llFlat = (LinearLayout) findViewById(R.id.nt_flat_lnr_layout);
-//        LinearLayout llDescription = (LinearLayout) findViewById(R.id.nt_description_lnr_layout);
-//        LinearLayout llNotes = (LinearLayout) findViewById(R.id.nt_notes_lnr_layout);
-//        LinearLayout llPriority = (LinearLayout) findViewById(R.id.nt_priority_lnr_layout);
-//        LinearLayout llReport = (LinearLayout) findViewById(R.id.nt_report_lnr_layout);
-//
-////        mTitle = (EditText) findViewById(R.id.nt_title_editview);
-//        AutoCompleteTextView actvProperty = (AutoCompleteTextView) findViewById(R.id.nt_property_actv);
-//        //Notes
-//
-//        TextView cardTV = (TextView) findViewById(R.id.nt_card_text_view);
-//        boolean validTitle = false;
-//        boolean validProperty = false;
-//        boolean validDescription = false;
-//        boolean validReport = false;
-//        boolean validNotes = false;
-//
-//
-//        mErrorLayout.setVisibility(mErrorLayout.VISIBLE);
-//        if (mTitle.getText().toString().matches("")) {
-//            llTitle.setBackgroundColor(Color.parseColor("#EF9A9A"));
-//            mTitle.setHint(Html.fromHtml("Any meaningful " + "<b><u>" + "title" + "</u></b>"));
-//        } else {
-//            llTitle.setBackgroundColor(Color.parseColor("#eeeeee"));
-//            validTitle = true;
-//        }
-//        if (actvProperty.getText().toString().matches("")) {
-//            llProperty.setBackgroundColor(Color.parseColor("#EF9A9A"));
-//            actvProperty.setHint(Html.fromHtml("<b>" + "i.e" + "</b>" + "<i>" +
-//                    "\"  12 Trematon Terrace\"" + "</i>"));
-//            llFlat.setBackgroundColor(Color.parseColor("#EF9A9A"));
-//        } else {
-//            llProperty.setBackgroundColor(Color.parseColor("#eeeeee"));
-//            validProperty = true;
-//        }
-//        if (mDescription.getText().toString().matches("")) {
-//            llDescription.setBackgroundColor(Color.parseColor("#EF9A9A"));
-//            mDescription.setHint(Html.fromHtml("<b>Details about task..</b>\n<i>\"What, how, why..\"</i>"));
-//            mDescription.setTypeface(Typeface.DEFAULT_BOLD);
-//        } else {
-//            llDescription.setBackgroundColor(Color.parseColor("#eeeeee"));
-//            validDescription = true;
-//        }
-//        if (mNotes.getText().toString().matches("")) {
-//            llNotes.setBackgroundColor(Color.parseColor("#EF9A9A"));
-//            mNotes.setHint(Html.fromHtml("<b>Extra notes..</b>\n<i>\"Special tools?..\"</i>"));
-//            mNotes.setTypeface(Typeface.DEFAULT_BOLD);
-//        } else {
-//            llNotes.setBackgroundColor(Color.parseColor("#eeeeee"));
-//            validNotes = true;
-//        }
-//
-//        if (mPriority.getSelectedItem() == null) {
-//            llPriority.setBackgroundColor(Color.parseColor("#EF9A9A"));
-//        } else {
-//            llPriority.setBackgroundColor(Color.parseColor("#eeeeee"));
-//        }
-//        if (cardTV.getText().toString().matches("ATTACH A REPORT")) {
-//            llReport.setBackgroundColor(Color.parseColor("#EF9A9A"));
-//        } else {
-//            llReport.setBackgroundColor(Color.parseColor("#eeeeee"));
-//            validReport = true;
-//        }
-//
-//        if (validTitle && validProperty && validDescription && validReport && validNotes) {
-//            try {
-//                newTask = new Task();
-//
-//                newTask.setTargetDate(mSharedPreferences.getString("chosenDate", formatt.format(thisDate)));
-//
-//                newTask.setCompletionTimestamp("pending");
-//
-//                newTask.setTitle(mTitle.getText().toString().trim());
-//
-//
-//                //AutoCompleteTextView actvFlat = (AutoCompleteTextView) findViewById(R.id.nt_flat_spinner);
-//                newTask.setProperty(actvProperty.getText().toString().toLowerCase() + " - " +
-//                        mFlat.getSelectedItem().toString().toLowerCase());
-//
-//
-//                newTask.setDescription(mDescription.getText().toString().trim());
-//
-//                //newTask.setPriority(Integer.parseInt(mPriority.getSelectedItem().toString()));
-//                newTask.setPriority(mPriority.getSelectedItem().toString().toLowerCase());
-//
-//                newTask.setStatus(false);
-//
-//                newTask.setReport(attachedReport.getReportKey());
-//
-//                newTask.setNotes(mNotes.getText().toString().trim());
-//
-//                Firebase newTaskRef = new Firebase(getString(R.string.tasks_location));
-//                //newTaskRef.child(newTask.getTitle()).setValue(newTask);
-//                newTaskRef.push().setValue(newTask);
-//                sendNotification();
-////                    System.out.println("Task created. SUCCESS!Title: " + newTask.getTitle() +
-////                            "\n Description: " + newTask.getDescription() +
-////                            "\n Property: " + newTask.getProperty() +
-////                            "\n Priority: " + newTask.getPriority() +
-////                            "\n Status: " + newTask.getStatus() +
-////                            "\n Report: " + newTask.getReport());
-//                Toast toast = Toast.makeText(CreateTask.this, "Task created. SUCCESS!", Toast.LENGTH_SHORT);
-//                toast.setGravity(Gravity.CENTER, 0, 0);
-//                toast.show();
-//                startActivity(new Intent(CreateTask.this, Homepage.class));
-//            } catch (Exception e) {
-//
-//                Toast toast = Toast.makeText(CreateTask.this, "Task not created. FAIL", Toast.LENGTH_SHORT);
-//                toast.setGravity(Gravity.CENTER, 0, 0);
-//                toast.show();
-//            }
-//        }
-//
-//    }
 
 
     @Override
@@ -831,7 +744,9 @@ public class CreateTask extends AppCompatActivity implements AdapterView.OnItemS
         //Another interface callback
     }
 
-
+    /**
+     * since all data is valid, save new task
+     */
     public class TaskCreationProcess extends AsyncTask<Void, Void, Boolean> {
         private final String mTargetDate;
         private final String mStaff;
@@ -905,6 +820,10 @@ public class CreateTask extends AppCompatActivity implements AdapterView.OnItemS
         }
     }
 
+    /**
+     * Send notification to assigned staff only
+     * @param tk
+     */
     private void sendNotification(final Task tk) {
 //        final Context c = this;
 //        new Thread(new Runnable() {

@@ -51,6 +51,7 @@ public class FlatDetails extends AppCompatActivity {
             }
         });
 
+        // Get extras
         intent = getIntent().getExtras();
         final Flat parceableFlat = intent.getParcelable("parceable_flat");
 
@@ -83,7 +84,7 @@ public class FlatDetails extends AppCompatActivity {
         //Query tasksOfThisFlatQ = taskRef.orderByChild("property").equalTo(parceableFlatKey);// .orderByChild("status").equalTo("false");
 
         Query getTenant = tenantRef.orderByKey().equalTo(parceableFlat.getTenant());
-
+        // Get the tenant of the flat
         getTenant.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -99,7 +100,7 @@ public class FlatDetails extends AppCompatActivity {
             }
         });
 
-
+        // Get tasks for this flat
         Query tasksOfThisFlatQ = taskRef.orderByChild("property").equalTo(parceableFlat.getAddressLine1() + " - " + parceableFlat.getFlatNum());
         tasksOfThisFlatQ.addValueEventListener(new ValueEventListener() {
             @Override
@@ -129,6 +130,7 @@ public class FlatDetails extends AppCompatActivity {
             }
         });
 
+        // Get corresponding property object
         Query getParceableProperty = propertyRef.orderByChild("addrline1").equalTo(parceableFlat.getAddressLine1());
         getParceableProperty.addValueEventListener(new ValueEventListener() {
             @Override
@@ -148,6 +150,11 @@ public class FlatDetails extends AppCompatActivity {
 
     }
 
+    /**
+     * Set Recycler contents
+     * @param tskPng List of pending tasks
+     * @param tskCpt List of completed tasks
+     */
     private void setRecyclerContents(ArrayList<Task> tskPng, ArrayList<Task>tskCpt) {
         RecyclerView fltDtPdgTskRecyclerView = (RecyclerView) findViewById(R.id.flt_det_pdg_tsk_recyclerview);
         RecyclerView fltDtCompTskRecyclerView = (RecyclerView) findViewById(R.id.flt_det_comp_tsk_recyclerview);
@@ -160,7 +167,7 @@ public class FlatDetails extends AppCompatActivity {
 
     private void editFlatDetails() {
 
-
+        //ToDo Edit a flat
     }
 
     @Override

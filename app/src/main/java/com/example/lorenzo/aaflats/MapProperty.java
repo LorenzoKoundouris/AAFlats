@@ -142,6 +142,10 @@ public class MapProperty extends FragmentActivity implements OnMapReadyCallback 
         }
     }
 
+    /**
+     * Display each marker
+     * @param prtAddr
+     */
     private void showMarker(final String prtAddr) {
 
         Geocoder geocoder = new Geocoder(getApplicationContext());
