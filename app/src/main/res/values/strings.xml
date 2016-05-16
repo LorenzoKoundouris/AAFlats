@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">AAFlats</string>
+    <string name="app_name">A&amp;A Flats</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
@@ -38,13 +38,13 @@
     <string name="title_activity_flat_details">FlatDetails</string>
     <string name="title_activity_create_property">CreateProperty</string>
     <string name="title_activity_create_flat">CreateFlat</string>
-    <string name="title_activity_tenant_homepage">TenantHomepage</string>
-    <string name="title_activity_compose_new">ComposeNew</string>
-    <string name="title_activity_create_tenant">CreateTenant</string>
-    <string name="title_activity_all_tenants">AllTenants</string>
+    <string name="title_activity_tenant_homepage">Tenant Homepage</string>
+    <string name="title_activity_compose_new">Compose New</string>
+    <string name="title_activity_create_tenant">Create Tenant</string>
+    <string name="title_activity_all_tenants">All Tenants</string>
     <string name="title_activity_tenant_details">TenantDetails</string>
     <string name="title_activity_scan_qr">ScanQR</string>
-    <string name="title_activity_all_reports">AllReports</string>
+    <string name="title_activity_all_reports">All Reports</string>
     <string name="title_activity_splash">SplashActivity</string>
     <string name="title_activity_report_details">ReportDetails</string>
     <string name="title_activity_inbox">Inbox</string>

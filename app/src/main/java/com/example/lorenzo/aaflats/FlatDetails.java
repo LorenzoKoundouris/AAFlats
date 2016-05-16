@@ -120,6 +120,7 @@ public class FlatDetails extends AppCompatActivity {
 //                        flatCompletedTasksKeys.add(childSnapShot.getKey());
                     }
                 }
+                setRecyclerContents(flatPendingTasks, flatCompletedTasks);
             }
 
             @Override
@@ -144,12 +145,17 @@ public class FlatDetails extends AppCompatActivity {
             }
         });
 
+
+    }
+
+    private void setRecyclerContents(ArrayList<Task> tskPng, ArrayList<Task>tskCpt) {
         RecyclerView fltDtPdgTskRecyclerView = (RecyclerView) findViewById(R.id.flt_det_pdg_tsk_recyclerview);
         RecyclerView fltDtCompTskRecyclerView = (RecyclerView) findViewById(R.id.flt_det_comp_tsk_recyclerview);
         fltDtPdgTskRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         fltDtCompTskRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        fltDtPdgTskRecyclerView.setAdapter(new FlatPendingTasksAdapter(flatPendingTasks)); //, flatPendingTasksKeys
-        fltDtCompTskRecyclerView.setAdapter(new FlatCompletedTasksAdapter(flatCompletedTasks)); //, flatCompletedTasksKeys
+        fltDtPdgTskRecyclerView.setAdapter(new FlatPendingTasksAdapter(tskPng)); //, flatPendingTasksKeys
+        fltDtCompTskRecyclerView.setAdapter(new FlatCompletedTasksAdapter(tskCpt)); //, flatCompletedTasksKeys
+
     }
 
     private void editFlatDetails() {
